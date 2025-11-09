@@ -10,7 +10,7 @@ public class ProdInvRow {
     private String historialMovimiento;
     private String editarSucursales;
 
-    // --- Constructor ---
+    // --- Constructor --- //
     public ProdInvRow(int idProducto, String nombre, String descripcion,
                       Integer stock, String historialMovimiento, String editarSucursales) {
         this.idProducto = idProducto;
