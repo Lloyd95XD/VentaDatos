@@ -2,7 +2,7 @@ package com.example.test2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-//Testing 2
+// Nada importante
 /**
  * Utilidades de acceso a MySQL.
  * Ajusta URL/USER/PASS si tu entorno es distinto.
