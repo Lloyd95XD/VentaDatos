@@ -2,16 +2,7 @@ package com.example.test2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-// ES un Test para saber si el codigo Llego papu :vvvvvvvvvvvvvvvvvvvvvvvvv
-
+//Testing 2
 /**
  * Utilidades de acceso a MySQL.
  * Ajusta URL/USER/PASS si tu entorno es distinto.
