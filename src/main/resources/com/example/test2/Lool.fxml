@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.QuadCurve?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox prefHeight="512.0" prefWidth="512.0" style="-fx-background-color: #363333;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.test2.Controlador">
+  <children>
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="512.0" prefWidth="1297.0" style="-fx-background-color: #FAC905;">
+         <children>
+            <QuadCurve controlX="693.0" controlY="-91.0" endX="379.0" endY="69.0" fill="#b20900" layoutX="-388.0" layoutY="443.0" opacity="0.1" startX="900.0" startY="69.0" stroke="BLACK" strokeType="INSIDE" />
+            <QuadCurve controlX="-225.0" controlY="-198.0" endX="687.0" endY="-58.0" fill="#b21fff" layoutX="351.0" layoutY="367.0" opacity="0.03" startX="392.0" startY="290.0" stroke="BLACK" strokeType="INSIDE" />
+            <QuadCurve controlX="1192.817138671875" controlY="83.09896850585938" endX="2228.40087890625" endY="653.7540283203125" fill="#b21fff" layoutX="-1207.0" layoutY="-257.0" opacity="0.09" startX="1275.920166015625" startY="468.0091552734375" stroke="BLACK" strokeType="INSIDE" AnchorPane.bottomAnchor="115.2459716796875" AnchorPane.leftAnchor="62.746826171875" AnchorPane.rightAnchor="275.59912109375" AnchorPane.topAnchor="55.96392822265625" />
+            <Text fill="#f5f5f5" layoutX="226.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Usuario" textOrigin="CENTER" wrappingWidth="62.307289123535156" />
+            <PasswordField alignment="TOP_LEFT" layoutX="149.0" layoutY="385.0" prefHeight="26.0" prefWidth="217.0" style="-fx-background-color: Yellow;" />
+            <TextField fx:id="TextoNombre" blendMode="OVERLAY" layoutX="70.0" layoutY="308.0" prefHeight="32.0" prefWidth="217.0" style="-fx-background-color: White;" text="Usuario" AnchorPane.bottomAnchor="172.0" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="225.0" AnchorPane.topAnchor="308.0">
+               <font>
+                  <Font name="Corbel Bold Italic" size="16.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="OPEN_HAND" />
+               </cursor>
+            </TextField>
+            <Text fill="WHITE" layoutX="217.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Contraseña" textOrigin="CENTER" />
+            <Text fontSmoothingType="LCD" layoutX="72.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Usuarios :v" textAlignment="CENTER" wrappingWidth="493.0">
+               <font>
+                  <Font size="26.0" />
+               </font>
+               <stroke>
+                  <LinearGradient endX="1.0" endY="1.0" startX="0.6350710900473934">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.7763158082962036" green="0.14016813039779663" blue="0.14016813039779663" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="1.0" green="1.0" blue="1.0" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </stroke>
+               <fill>
+                  <LinearGradient endX="1.0" endY="1.0" startX="0.27488151658767773">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.15878817439079285" green="0.04556530341506004" blue="0.8947368264198303" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.09451219512195122">
+                           <color>
+                              <Color red="1.0" green="0.07999999821186066" blue="0.7853333353996277" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.2847642822065804">
+                           <color>
+                              <Color red="1.0" green="0.07870370149612427" blue="0.7850308418273926" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.7575707971844818">
+                           <color>
+                              <Color red="0.7105262875556946" green="0.6809210777282715" blue="0.7036184072494507" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.3768399953842163" green="0.0714000016450882" blue="0.41999998688697815" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </fill>
+               <effect>
+                  <Glow level="1.0" />
+               </effect>
+            </Text>
+            <Text fill="WHITE" layoutX="217.0" layoutY="286.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Usuario" textOrigin="CENTER" />
+            <QuadCurve controlX="2093.59912109375" controlY="-26.0" endX="2228.40087890625" endY="653.7540283203125" fill="#b21fff" layoutX="-678.0" layoutY="-270.0" opacity="0.09" startX="1275.920166015625" startY="468.0091552734375" stroke="BLACK" strokeType="INSIDE" />
+            <TableView fx:id="tablaUsuarios" editable="true" layoutX="7.0" layoutY="180.0" prefHeight="320.0" prefWidth="623.0">
+              <columns>
+                <TableColumn fx:id="colUsuId" prefWidth="75.0" text="Rut" />
+                <TableColumn fx:id="colUsuNombre" prefWidth="75.0" text="Nombre" />
+                  <TableColumn fx:id="colUsuApellido" prefWidth="75.0" text="Apellido" />
+                  <TableColumn fx:id="colUsuEmail" prefWidth="75.0" text="Email" />
+                  <TableColumn fx:id="colUsuTelefono" prefWidth="75.0" text="Telefono" />
+                  <TableColumn fx:id="colUsuRol" prefWidth="75.0" text="Rol" />
+                  <TableColumn fx:id="colUsuDescripcion" prefWidth="75.0" text="Descripcion" />
+                  <TableColumn fx:id="colUsuVerificador" prefWidth="90.0" text="tiene permisos" />
+              </columns>
+            </TableView>
+            <TableView fx:id="tablaInventario" editable="true" layoutX="636.0" layoutY="180.0" prefHeight="320.0" prefWidth="641.0">
+               <columns>
+                  <TableColumn fx:id="colProdId" prefWidth="100.0" text="ID del producto" />
+                  <TableColumn fx:id="colProdNombre" prefWidth="130.0" text="Nombre del producto" />
+                  <TableColumn fx:id="colProdDescripcion" prefWidth="75.0" text="Descripcion" />
+                  <TableColumn fx:id="colProdStock" prefWidth="75.0" text="Stocks" />
+                  <TableColumn fx:id="colProdHistorial" prefWidth="140.0" text="Historial de movimiento" />
+                  <TableColumn fx:id="colProdSucursales" prefWidth="130.0" text="Editar sucursales" />
+               </columns>
+            </TableView>
+            <Text fontSmoothingType="LCD" layoutX="705.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inventario Papa" textAlignment="CENTER" wrappingWidth="493.0">
+               <font>
+                  <Font size="26.0" />
+               </font>
+               <stroke>
+                  <LinearGradient endX="1.0" endY="1.0" startX="0.6350710900473934">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.7763158082962036" green="0.14016813039779663" blue="0.14016813039779663" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="1.0" green="1.0" blue="1.0" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </stroke>
+               <fill>
+                  <LinearGradient endX="1.0" endY="1.0" startX="0.27488151658767773">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.15878817439079285" green="0.04556530341506004" blue="0.8947368264198303" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.09451219512195122">
+                           <color>
+                              <Color red="1.0" green="0.07999999821186066" blue="0.7853333353996277" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.2847642822065804">
+                           <color>
+                              <Color red="1.0" green="0.07870370149612427" blue="0.7850308418273926" />
+                           </color>
+                        </Stop>
+                        <Stop offset="0.7575707971844818">
+                           <color>
+                              <Color red="0.7105262875556946" green="0.6809210777282715" blue="0.7036184072494507" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.3768399953842163" green="0.0714000016450882" blue="0.41999998688697815" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </fill>
+               <effect>
+                  <Glow level="1.0" />
+               </effect>
+            </Text>
+         </children>
+      </AnchorPane>
+  </children>
+</VBox>
