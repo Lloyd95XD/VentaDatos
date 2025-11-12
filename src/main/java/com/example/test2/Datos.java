@@ -12,10 +12,10 @@ public class Datos {
     private String descripcion;   // admin.Descripcion
     private Boolean verificador;  // admin.Verificador (tinyint -> Boolean)
 
-    // NUEVO: password de usuario
+    // Password (HASH almacenado en BD)
     private String password;      // usuario.Password
 
-    // Constructor corto (sigue sirviendo)
+    // Constructor corto
     public Datos(int idUsuario, String nombre, String apellido, String email, String telefono) {
         this(idUsuario, nombre, apellido, email, telefono, null, null, null, null);
     }
@@ -55,7 +55,7 @@ public class Datos {
     public void setVerificador(Boolean v) { this.verificador = v; }
     public void setPassword(String v) { this.password = v; }
 
-    // --- Clase de filas para la tabla de inventario (como la usabas)
+    // --- Fila para tabla inventario ---
     public static class ProdInvRow {
         private int idProducto;
         private String nombre;

@@ -1,5 +1,7 @@
 package com.example.test2;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +11,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.text.Text;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -26,7 +29,7 @@ public class Controlador {
     @FXML private TableColumn<Datos, String>   colUsuRol;          // admin.Rol
     @FXML private TableColumn<Datos, String>   colUsuDescripcion;  // admin.Descripcion
     @FXML private TableColumn<Datos, Boolean>  colUsuVerificador;  // admin.Verificador
-    @FXML private TableColumn<Datos, String>   colUsuPassword;     // usuario.Password (NUEVO)
+    @FXML private TableColumn<Datos, String>   colUsuPassword;     // usuario.Password (hash)
 
     private final ObservableList<Datos> listaUsuarios = FXCollections.observableArrayList();
 
@@ -41,6 +44,20 @@ public class Controlador {
     @FXML private TableColumn<Datos.ProdInvRow, String>  colProdSucursales;
 
     private final ObservableList<Datos.ProdInvRow> listaInventario = FXCollections.observableArrayList();
+
+    // ===== LOGIN / REGISTRO =====
+    @FXML private javafx.scene.control.TextField txtLoginIdentificador; // nombre/email/teléfono
+    @FXML private javafx.scene.control.PasswordField pfLoginPassword;   // password login
+    @FXML private Text lblUsuarioConectado;                             // "Usuario Conectado: ..."
+
+    @FXML private javafx.scene.control.TextField txtRut;
+    @FXML private javafx.scene.control.TextField txtNom;
+    @FXML private javafx.scene.control.TextField txtApe;
+    @FXML private javafx.scene.control.TextField txtEmail;
+    @FXML private javafx.scene.control.TextField txtFono;               // <- Teléfono (fx:id debe ser txtFono)
+    @FXML private javafx.scene.control.PasswordField pfRegPassword;     // password registro (separado)
+
+    private Datos usuarioActual; // guardamos quién inició sesión
 
     @FXML
     public void initialize() {
@@ -68,13 +85,13 @@ public class Controlador {
         colUsuVerificador.setCellFactory(CheckBoxTableCell.forTableColumn(colUsuVerificador));
         colUsuVerificador.setEditable(true);
 
-        // Password
-        colUsuPassword.setCellValueFactory(new PropertyValueFactory<>("password"));
+        // Password: value factory + enmascarado visual
+        colUsuPassword.setCellValueFactory(new PropertyValueFactory<>("password")); // viene el HASH
         colUsuPassword.setCellFactory(col -> new TextFieldTableCell<>(new DefaultStringConverter()) {
             @Override public void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) { setText(null); return; }
-                if (isEditing()) { setText(item == null ? "" : item); return; }
+                if (isEditing()) { setText(item == null ? "" : item); return; } // durante edición
                 if (item == null || item.isEmpty()) { setText(""); return; }
                 setText("•".repeat(Math.min(item.length(), 12))); // enmascarado
             }
@@ -90,6 +107,7 @@ public class Controlador {
         colUsuTelefono.setCellFactory(TextFieldTableCell.forTableColumn());
         colUsuRol.setCellFactory(TextFieldTableCell.forTableColumn());
         colUsuDescripcion.setCellFactory(TextFieldTableCell.forTableColumn());
+        colUsuPassword.setCellFactory(TextFieldTableCell.forTableColumn()); // escribir nueva clave -> se hashea abajo
 
         // Persistencia USUARIO
         colUsuNombre.setOnEditCommit(e -> editarCampoUsuario(e.getRowValue(), "Nombre",    e.getNewValue(), Datos::setNombre));
@@ -97,37 +115,28 @@ public class Controlador {
         colUsuEmail.setOnEditCommit(e -> editarCampoUsuario(e.getRowValue(), "Email",      e.getNewValue(), Datos::setEmail));
         colUsuTelefono.setOnEditCommit(e -> editarCampoUsuario(e.getRowValue(), "Telefono", e.getNewValue(), Datos::setTelefono));
 
-        // Persistencia PASSWORD
+        // Persistencia PASSWORD (hash con BCrypt)
         colUsuPassword.setOnEditCommit(e -> {
             Datos r = e.getRowValue();
-            String nuevo = e.getNewValue();
-            if (nuevo != null && nuevo.length() > 255) {
+            String plano = e.getNewValue();
+            if (plano != null && plano.length() > 255) {
                 System.out.println("⚠️ Password muy largo (máx 255).");
                 tablaUsuarios.refresh();
                 return;
             }
-            int updated = ConexionBD.updateCampoUsuario(r.getIdUsuario(), "Password", nuevo);
+            // vacío -> NULL
+            String hash = (plano == null || plano.isBlank())
+                    ? null
+                    : BCrypt.withDefaults().hashToString(12, plano.toCharArray());
+
+            int updated = ConexionBD.updateCampoUsuario(r.getIdUsuario(), "Password", hash);
             if (updated == 1) {
-                r.setPassword(nuevo);
-                System.out.println("✅ Password actualizado para ID=" + r.getIdUsuario());
+                r.setPassword(hash);
+                System.out.println("✅ Password (hash) actualizado para ID=" + r.getIdUsuario());
             } else {
                 System.out.println("⚠️ No se pudo actualizar Password");
             }
             tablaUsuarios.refresh();
-        });
-
-        // Persistencia ADMIN
-        colUsuRol.setOnEditCommit(e -> {
-            Datos r = e.getRowValue();
-            r.setRol(e.getNewValue());
-            ConexionBD.ensureAdminRow(r.getIdUsuario());
-            ConexionBD.updateCampoAdmin(r.getIdUsuario(), "Rol", e.getNewValue());
-        });
-        colUsuDescripcion.setOnEditCommit(e -> {
-            Datos r = e.getRowValue();
-            r.setDescripcion(e.getNewValue());
-            ConexionBD.ensureAdminRow(r.getIdUsuario());
-            ConexionBD.updateCampoAdmin(r.getIdUsuario(), "Descripcion", e.getNewValue());
         });
 
         // ====== INVENTARIO ======
@@ -206,7 +215,7 @@ public class Controlador {
                         rs.getString("rol"),
                         rs.getString("descripcion"),
                         (rs.getObject("verificador") == null) ? null : rs.getInt("verificador") == 1,
-                        rs.getString("password")
+                        rs.getString("password") // hash existente
                 ));
             }
         } catch (Exception e) {
@@ -237,6 +246,98 @@ public class Controlador {
             }
         } catch (Exception e) {
             System.out.println("❌ Error al cargar inventario: " + e.getMessage());
+        }
+    }
+
+    // ====== ACCIONES LOGIN / REGISTRO ======
+    @FXML
+    private void iniciarSesion() {
+        String id = (txtLoginIdentificador == null) ? null : txtLoginIdentificador.getText().trim();
+        String passPlano = (pfLoginPassword == null) ? null : pfLoginPassword.getText();
+
+        if (id == null || id.isBlank() || passPlano == null || passPlano.isBlank()) {
+            System.out.println("⚠️ Ingresa usuario/correo/teléfono y contraseña");
+            return;
+        }
+
+        Datos u = ConexionBD.buscarUsuarioParaLogin(id);
+        if (u == null || u.getPassword() == null || u.getPassword().isBlank()) {
+            System.out.println("❌ Usuario no encontrado o sin password");
+            return;
+        }
+
+        var res = BCrypt.verifyer().verify(passPlano.toCharArray(), u.getPassword());
+        if (!res.verified) {
+            System.out.println("❌ Contraseña incorrecta");
+            return;
+        }
+
+        usuarioActual = u;
+        String nombreMostrar = (u.getNombre() != null && !u.getNombre().isBlank())
+                ? u.getNombre()
+                : (u.getEmail() != null ? u.getEmail() : "¿?");
+
+        if (lblUsuarioConectado != null) {
+            lblUsuarioConectado.setText("Usuario Conectado: " + nombreMostrar);
+        }
+        System.out.println("✅ Sesión iniciada como " + nombreMostrar);
+    }
+
+    @FXML
+    private void registrarUsuario() {
+        String idUsuario = txtRut != null ? txtRut.getText().trim() : null;        // ID_Usuario (Rut)
+        String nom       = txtNom != null ? txtNom.getText().trim() : null;
+        String ape       = txtApe != null ? txtApe.getText().trim() : null;
+        String email     = txtEmail != null ? txtEmail.getText().trim() : null;
+
+        // Null-guard explícito para teléfono y log
+        String fono = null;
+        if (txtFono != null) {
+            fono = txtFono.getText() == null ? null : txtFono.getText().trim();
+        } else {
+            System.out.println("⚠️ txtFono es null: revisa el fx:id del TextField Teléfono en el FXML");
+        }
+
+        String pass      = pfRegPassword != null ? pfRegPassword.getText() : null;
+
+        if (idUsuario == null || idUsuario.isBlank()) {
+            System.out.println("⚠️ El RUT/ID_Usuario es obligatorio para registrarse");
+            return;
+        }
+        if (!idUsuario.matches("\\d+")) {
+            System.out.println("⚠️ El RUT/ID_Usuario debe ser numérico (int)");
+            return;
+        }
+        if (ConexionBD.existeIdUsuario(Integer.parseInt(idUsuario))) {
+            System.out.println("❌ Ese ID_Usuario ya está registrado");
+            return;
+        }
+        if (nom == null || nom.isBlank() || pass == null || pass.isBlank()) {
+            System.out.println("⚠️ Nombre y contraseña son obligatorios");
+            return;
+        }
+        if (fono != null && fono.length() > 15) {
+            System.out.println("⚠️ Teléfono demasiado largo (máx 15)");
+            return;
+        }
+
+        // Log de depuración — verifica que 'fono' venga con valor
+        System.out.println("[DBG] registrar -> id=" + idUsuario +
+                " nom=" + nom +
+                " ape=" + ape +
+                " email=" + email +
+                " fono=" + fono);
+
+        String hash = BCrypt.withDefaults().hashToString(12, pass.toCharArray());
+        int filas = ConexionBD.registrarUsuario(
+                Integer.parseInt(idUsuario), nom, ape, email, fono, hash
+        );
+        if (filas == 1) {
+            System.out.println("✅ Usuario registrado");
+            if (pfRegPassword != null) pfRegPassword.clear();
+            cargarUsuarios();
+        } else {
+            System.out.println("❌ No se pudo registrar");
         }
     }
 
