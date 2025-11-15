@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: D4B277;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.test2.TablasTienda">
+
+    <children>
+        <Circle fill="#84a14a" layoutX="6.0" layoutY="14.0" opacity="0.12" radius="133.0" stroke="BLACK" strokeType="INSIDE" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" height="244.0" layoutX="-59.0" layoutY="34.0" opacity="0.12" stroke="BLACK" strokeType="INSIDE" width="663.0">
+            <fill>
+                <LinearGradient endX="1.0" endY="1.0">
+                    <stops>
+                        <Stop>
+                            <color><Color /></color>
+                        </Stop>
+                        <Stop offset="1.0">
+                            <color><Color red="1.0" green="1.0" blue="1.0" /></color>
+                        </Stop>
+                    </stops>
+                </LinearGradient>
+            </fill>
+        </Rectangle>
+
+        <Text layoutX="78.0" layoutY="55.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Muebles" textAlignment="CENTER" wrappingWidth="266.0">
+            <font><Font name="Sitka Display" size="25.0" /></font>
+        </Text>
+
+        <Button layoutX="427.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: B8695E;" text="Volver" textFill="#282822" />
+
+        <Text fx:id="textoerror" fill="#861111" layoutX="42.0" layoutY="368.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="266.0">
+            <font><Font name="Sitka Display" size="18.0" /></font>
+        </Text>
+
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#7c4c18" height="123.0" layoutX="22.0" layoutY="278.0" opacity="0.35" stroke="#b5a359" strokeType="INSIDE" width="378.0" />
+
+        <TextArea fx:id="txtDescripcion" editable="false" layoutX="47.0" layoutY="313.0" prefHeight="81.0" prefWidth="329.0" style="-fx-background-color: #6E511E;">
+            <effect>
+                <ColorAdjust brightness="-0.26" contrast="0.07" hue="-0.41" saturation="-0.35" />
+            </effect>
+        </TextArea>
+
+        <Text layoutX="78.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Descripcion" textAlignment="CENTER" wrappingWidth="266.0">
+            <font><Font name="Sitka Display" size="31.0" /></font>
+        </Text>
+    </children>
+</AnchorPane>
