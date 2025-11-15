@@ -1,7 +1,7 @@
 package com.example.test2;
 
 public class ItemCarrito {
-
+    //
     private int idProducto;
     private String nombre;
     private int precio;

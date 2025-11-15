@@ -10,7 +10,7 @@ public class DatosControlador {
     private String fechaCreacion; // puedes usar LocalDate si quieres
     private int admin;
     private int idRol;
-    private int idSucursal;
+    private int idSucursal;//
 
     public DatosControlador(String idUsuario, String nombre, String apellido,
                    String email, String telefono, String password,

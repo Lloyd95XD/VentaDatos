@@ -25,6 +25,6 @@ public class HelloApplication extends Application {
         /// joooooooooooooooooooooooooooorgiiiiiiiiiiiiiiiiiitooooooooooooooooooooo
         /// joooooooooooooooooooooooooooorgiiiiiiiiiiiiiiiiiitooooooooooooooooooooo
 
-       ConexionBD.conectar();
+       ConexionBD.conectar();//
     }
 }

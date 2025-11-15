@@ -18,7 +18,7 @@ public class MueblesControlador {
         this.stock = stock;
         this.precio = precio;
     }
-
+    //
     public int getIdProducto() { return idProducto; }
     public String getCategoria() { return categoria; }
     public String getNombre() { return nombre; }
