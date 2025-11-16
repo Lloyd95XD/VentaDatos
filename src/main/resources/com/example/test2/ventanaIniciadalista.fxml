@@ -49,9 +49,9 @@
             </LinearGradient>
          </fill>
       </Rectangle>
-      <Button layoutX="216.0" layoutY="128.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="185.0" style="-fx-background-color: #B88F5E;" text="Comprar" textFill="#282822" />
+      <Button fx:id="comprabotoon" layoutX="216.0" layoutY="128.0" mnemonicParsing="false" onAction="#compraaa" prefHeight="38.0" prefWidth="185.0" style="-fx-background-color: #B88F5E;" text="Comprar" textFill="#282822" />
       <Button fx:id="vovler" layoutX="234.0" layoutY="14.0" mnemonicParsing="false" onAction="#regresarmenuprincipal" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: B8695E;" text="Cerrar sesion" textFill="#282822" />
-      <Button layoutX="216.0" layoutY="190.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="185.0" style="-fx-background-color: #B88F5E;" text="Ver Historial de compras" textFill="#282822" />
+      <Button layoutX="217.0" layoutY="190.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="185.0" style="-fx-background-color: #B88F5E;" text="Ver Historial de compras" textFill="#282822" />
       <Text layoutX="216.0" layoutY="99.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bienvenido" wrappingWidth="185.0">
          <font>
             <Font name="MingLiU-ExtB" size="37.0" />
@@ -62,5 +62,6 @@
             <Font name="MingLiU-ExtB" size="22.0" />
          </font>
       </Text>
+      <Button fx:id="registrousuariooo" layoutX="241.0" layoutY="241.0" mnemonicParsing="false" onAction="#VerRegistrosUsuarios" opacity="0.72" prefHeight="38.0" prefWidth="138.0" style="-fx-background-color: #B88F5E;" text="Registro de usuarios" textFill="#282822" />
    </children>
 </AnchorPane>

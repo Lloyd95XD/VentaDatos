@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -79,24 +80,46 @@ public class TablasTienda implements Initializable {
             return;
         }
 
-        // Si el producto ya está en el carrito, solo aumentamos la cantidad
+        int stockDisponible = seleccionado.getStock();
+
+        // Cuántas unidades de este producto YA hay en el carrito
+        int cantidadEnCarrito = 0;
+        ItemCarrito itemExistente = null;
+
         for (ItemCarrito item : listaCarrito) {
             if (item.getIdProducto() == seleccionado.getIdProducto()) {
-                item.setCantidad(item.getCantidad() + 1);
-                tablaCarrito.refresh();  // actualiza la columna Cantidad
-                actualizarTotal();
-                return;
+                cantidadEnCarrito = item.getCantidad();
+                itemExistente = item;
+                break;
             }
         }
 
-        // Si no estaba, lo agregamos con cantidad 1
-        ItemCarrito nuevo = new ItemCarrito(
-                seleccionado.getIdProducto(),
-                seleccionado.getNombre(),
-                seleccionado.getPrecio(),
-                1
-        );
-        listaCarrito.add(nuevo);
+        // Si ya llegamos al stock máximo, no dejamos agregar más
+        if (cantidadEnCarrito >= stockDisponible) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Stock máximo alcanzado");
+            alert.setHeaderText(null);
+            alert.setContentText("Llegaste al stock máximo de la tienda para \""
+                    + seleccionado.getNombre() + "\" (" + stockDisponible + " unidades).");
+            alert.showAndWait();
+            return;
+        }
+
+        // Si ya estaba, solo aumentamos la cantidad
+        if (itemExistente != null) {
+            itemExistente.setCantidad(itemExistente.getCantidad() + 1);
+            tablaCarrito.refresh();  // actualiza la columna Cantidad
+        } else {
+            // Si no estaba, lo agregamos con cantidad 1
+            ItemCarrito nuevo = new ItemCarrito(
+                    seleccionado.getIdProducto(),
+                    seleccionado.getNombre(),
+                    seleccionado.getPrecio(),
+                    1
+            );
+            listaCarrito.add(nuevo);
+        }
+
         actualizarTotal();
     }
 
@@ -208,4 +231,5 @@ public class TablasTienda implements Initializable {
                 });
     }
 }
+
 

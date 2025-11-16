@@ -1,20 +1,30 @@
 package com.example.test2;
 
 public class DatosControlador {
-    private String idUsuario;   // RUT
+
+    private String idUsuario;          // RUT o ID
     private String nombre;
     private String apellido;
     private String email;
     private String telefono;
     private String password;
-    private String fechaCreacion; // puedes usar LocalDate si quieres
+    private String fechaCreacion;
     private int admin;
     private int idRol;
     private int idSucursal;//
 
-    public DatosControlador(String idUsuario, String nombre, String apellido,
-                   String email, String telefono, String password,
-                   String fechaCreacion, int admin, int idRol, int idSucursal) {
+    // Nuevos campos para mostrar en la tabla de admin
+    private String nombreRol;
+    private String nombreSucursal;
+
+    // Constructor COMPLETO para AdminUsuarios
+    public DatosControlador(
+            String idUsuario, String nombre, String apellido,
+            String email, String telefono, String password,
+            String fechaCreacion, int admin,
+            int idRol, int idSucursal,
+            String nombreRol, String nombreSucursal
+    ) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -25,9 +35,11 @@ public class DatosControlador {
         this.admin = admin;
         this.idRol = idRol;
         this.idSucursal = idSucursal;
+        this.nombreRol = nombreRol;
+        this.nombreSucursal = nombreSucursal;
     }
 
-    // === Getters y setters ===
+    // ==== GETTERS & SETTERS ====
 
     public String getIdUsuario() { return idUsuario; }
     public void setIdUsuario(String idUsuario) { this.idUsuario = idUsuario; }
@@ -58,4 +70,10 @@ public class DatosControlador {
 
     public int getIdSucursal() { return idSucursal; }
     public void setIdSucursal(int idSucursal) { this.idSucursal = idSucursal; }
+
+    public String getNombreRol() { return nombreRol; }
+    public void setNombreRol(String nombreRol) { this.nombreRol = nombreRol; }
+
+    public String getNombreSucursal() { return nombreSucursal; }
+    public void setNombreSucursal(String nombreSucursal) { this.nombreSucursal = nombreSucursal; }
 }

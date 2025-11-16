@@ -217,7 +217,16 @@
         private  void Registrarboton(ActionEvent event) {
             cambiarAVentana("registrarte",event);
         }
-        private void menuventa(ActionEvent event) {
+        @FXML
+        public void menuventa(ActionEvent event) {
+            cambiarAVentana("VentanaIniciadalista",event);
+        }
+        @FXML
+        private void compraaa(ActionEvent event){
             cambiarAVentana("MenuMuebles",event);
+        }
+        @FXML
+        private void VerRegistrosUsuarios(ActionEvent event){
+            cambiarAVentana("TablaUsuarios",event);
         }
     }
