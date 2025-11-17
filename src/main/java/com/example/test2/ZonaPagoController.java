@@ -299,7 +299,7 @@ public class ZonaPagoController implements Initializable {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      Johex Muebles\n"); /// <--- aca va los muebles
+        sb.append("      JOHEX.inc\n"); /// <--- aca va los muebles
         sb.append("      Boleta N° ").append(idBoleta).append("\n\n");
         sb.append("Fecha: ").append(fecha).append("\n");
         sb.append("Sucursal: ").append(sucursal.getNombre()).append("\n");

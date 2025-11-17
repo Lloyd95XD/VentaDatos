@@ -56,5 +56,10 @@
             <Font name="Sitka Display" size="25.0" />
          </font>
       </Text>
+      <Text layoutX="168.0" layoutY="303.0" opacity="0.47" strokeType="OUTSIDE" strokeWidth="0.0" text="JOHEX.inc" textAlignment="CENTER" wrappingWidth="266.0">
+         <font>
+            <Font name="Sitka Display" size="25.0" />
+         </font>
+      </Text>
    </children>
 </AnchorPane>
