@@ -37,7 +37,7 @@
             <font><Font name="Sitka Display" size="34.0" /></font>
         </Text>
 
-        <Button layoutX="427.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: B8695E;" text="Volver" textFill="#282822" />
+        <Button fx:id="salirboton1" layoutX="427.0" layoutY="2.0" mnemonicParsing="false" onAction="#VolverMenu2" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: B8695E;" text="Volver" textFill="#282822" />
 
         <Text fx:id="textoerror" fill="#861111" layoutX="42.0" layoutY="368.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="266.0">
             <font><Font name="Sitka Display" size="18.0" /></font>

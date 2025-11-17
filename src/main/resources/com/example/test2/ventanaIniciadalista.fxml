@@ -57,7 +57,7 @@
             <Font name="MingLiU-ExtB" size="37.0" />
          </font>
       </Text>
-      <Text layoutX="209.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Usuario conectado:" wrappingWidth="200.0">
+      <Text layoutX="209.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="200.0">
          <font>
             <Font name="MingLiU-ExtB" size="22.0" />
          </font>
