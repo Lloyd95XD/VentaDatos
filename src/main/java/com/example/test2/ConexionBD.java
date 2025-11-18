@@ -25,7 +25,7 @@ public class ConexionBD {
             ps.setInt(2, idUsuario);
             return ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("❌ update usuario: " + e.getMessage());
+            System.out.println("update usuario: " + e.getMessage());
             return 0;
         }
     }
