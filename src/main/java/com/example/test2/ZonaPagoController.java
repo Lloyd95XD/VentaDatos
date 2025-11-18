@@ -33,7 +33,6 @@ public class ZonaPagoController implements Initializable {
             FXCollections.observableArrayList();
 
     // ======== ZONA DERECHA ========
-    @FXML private ComboBox<SucursalItem> comboSucursal;
     @FXML private ComboBox<String> comboMetodoPago;
     @FXML private TextField txtRutCliente;
     @FXML private TextField txtDireccion;
@@ -41,16 +40,18 @@ public class ZonaPagoController implements Initializable {
 
     private int totalAPagar = 0;
 
-    // Id del usuario logueado (por ahora fijo, luego lo puedes pasar desde el login)
-    private int idUsuario = 1;
+    // Usuario logueado y sucursal asociada a su cuenta
+    private int idUsuario = 0;
+    private int idSucursalUsuario = -1;
+    private String nombreSucursalUsuario = "";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarTablaCarrito();
         configurarDescripcion();
         cargarMetodosPago();
-        cargarSucursalesDesdeBD();
-        actualizarTextoTotal(); // por si llega 0 al inicio
+        cargarDatosUsuarioYSucursal();   // <<< NUEVO: carga sucursal desde la cuenta
+        actualizarTextoTotal();          // por si llega 0 al inicio
     }
 
     // Este método lo llamarás desde la ventana anterior
@@ -62,6 +63,8 @@ public class ZonaPagoController implements Initializable {
         actualizarTextoTotal();
     }
 
+    // Si quieres, puedes seguir usando esto, pero ahora también
+    // cargamos el usuario desde UsuarioSesion en initialize()
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
     }
@@ -99,27 +102,61 @@ public class ZonaPagoController implements Initializable {
         ));
     }
 
-    private void cargarSucursalesDesdeBD() {
-        ObservableList<SucursalItem> sucursales = FXCollections.observableArrayList();
+    /**
+     * Carga el Id_Usuario desde UsuarioSesion y obtiene
+     * la sucursal asociada a su cuenta (Id_Sucursales + localidad).
+     *
+     * Tabla Usuario: Id_Usuario, Id_Sucursales
+     * Tabla sucursales: Id_Sucursales, localidad
+     */
+    private void cargarDatosUsuarioYSucursal() {
+        // Tomamos el usuario que inició sesión
+        idUsuario = UsuarioSesion.getIdUsuario();
 
-        String sql = "SELECT Id_Sucursales, localidad FROM sucursales";
+        if (idUsuario <= 0) {
+            // Si por alguna razón no hay sesión, se puede manejar acá
+            mostrarAlerta(Alert.AlertType.ERROR,
+                    "Sesión",
+                    "No se encontró un usuario logueado. Inicie sesión nuevamente.");
+            return;
+        }
+
+        String sql = """
+                SELECT u.Id_Sucursales, s.localidad
+                FROM usuario u
+                LEFT JOIN sucursales s ON u.Id_Sucursales = s.Id_Sucursales
+                WHERE u.Id_Usuario = ?
+                """;
 
         try (Connection conn = ConexionBD.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                int id = rs.getInt("Id_Sucursales");
-                String nombre = rs.getString("localidad");
-                sucursales.add(new SucursalItem(id, nombre));
+            stmt.setInt(1, idUsuario);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    idSucursalUsuario = rs.getInt("Id_Sucursales");
+                    nombreSucursalUsuario = rs.getString("localidad");
+
+                    // Si la sucursal es NULL o 0, avisamos
+                    if (rs.wasNull() || idSucursalUsuario == 0 || nombreSucursalUsuario == null) {
+                        mostrarAlerta(Alert.AlertType.WARNING,
+                                "Sucursal no definida",
+                                "Tu cuenta no tiene una sucursal asociada.\n" +
+                                        "Por favor, contacta al administrador.");
+                    }
+                } else {
+                    mostrarAlerta(Alert.AlertType.ERROR,
+                            "Usuario no encontrado",
+                            "No se pudo encontrar el usuario en la base de datos.");
+                }
             }
-
-            comboSucursal.setItems(sucursales);
 
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta(Alert.AlertType.ERROR,
-                    "Error", "No se pudieron cargar las sucursales");
+                    "Error",
+                    "No se pudo cargar la sucursal del usuario.");
         }
     }
 
@@ -140,14 +177,21 @@ public class ZonaPagoController implements Initializable {
             return;
         }
 
-        SucursalItem sucursalSeleccionada = comboSucursal.getValue();
         String metodo = comboMetodoPago.getValue();
         String direccion = txtDireccion.getText().trim();
         String rutTexto = txtRutCliente.getText().trim();
 
-        if (sucursalSeleccionada == null || metodo == null || metodo.isEmpty()) {
+        // Verificar que tenemos sucursal del usuario
+        if (idSucursalUsuario <= 0 || nombreSucursalUsuario == null || nombreSucursalUsuario.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.ERROR,
+                    "Sucursal no definida",
+                    "Tu cuenta no tiene una sucursal asociada.\nNo se puede realizar la venta.");
+            return;
+        }
+
+        if (metodo == null || metodo.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING,
-                    "Datos faltantes", "Selecciona sucursal y método de pago.");
+                    "Datos faltantes", "Selecciona un método de pago.");
             return;
         }
 
@@ -178,7 +222,7 @@ public class ZonaPagoController implements Initializable {
                      sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
 
             stmtVenta.setInt(1, idUsuario);
-            stmtVenta.setInt(2, sucursalSeleccionada.getId());
+            stmtVenta.setInt(2, idSucursalUsuario);           // <- sucursal del usuario
             stmtVenta.setInt(3, totalAPagar);
             stmtVenta.setString(4, metodo);
             stmtVenta.setString(5, direccion.isEmpty() ? null : direccion);
@@ -242,8 +286,15 @@ public class ZonaPagoController implements Initializable {
             }
 
             // Si todo salió bien, mostramos boleta
-            abrirVentanaBoleta(idBoletaGenerada, sucursalSeleccionada, metodo,
-                    rutTexto, direccion, totalAPagar, carrito);
+            abrirVentanaBoleta(
+                    idBoletaGenerada,
+                    nombreSucursalUsuario,   // <- nombre sucursal del usuario
+                    metodo,
+                    rutTexto,
+                    direccion,
+                    totalAPagar,
+                    carrito
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -256,27 +307,34 @@ public class ZonaPagoController implements Initializable {
     //   ABRIR VENTANA BOLETA
     // ==========================
     private void abrirVentanaBoleta(int idBoleta,
-                                    SucursalItem sucursal,
+                                    String nombreSucursal,
                                     String metodoPago,
                                     String rut,
                                     String direccion,
                                     int total,
                                     ObservableList<ItemCarrito> carrito) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("ZonadePagoRealizado.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("ZonadePagoRealizado.fxml"));
             Parent root = loader.load();
 
             BoletaController controller = loader.getController();
 
             // Construimos el texto de la boleta
-            String textoBoleta = construirTextoBoleta(idBoleta, sucursal, metodoPago,
-                    rut, direccion, total, carrito);
+            String textoBoleta = construirTextoBoleta(
+                    idBoleta,
+                    nombreSucursal,
+                    metodoPago,
+                    rut,
+                    direccion,
+                    total,
+                    carrito
+            );
 
             controller.setTextoBoleta(textoBoleta);
 
-            Stage stage = new Stage();
-            stage.setTitle("Boleta");
+            // ★★ REEMPLAZAR VENTANA ★★
+            // Obtiene la ventana donde está el botón pagar
+            Stage stage = (Stage) lblMontoTotal.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
 
@@ -287,8 +345,9 @@ public class ZonaPagoController implements Initializable {
         }
     }
 
+
     private String construirTextoBoleta(int idBoleta,
-                                        SucursalItem sucursal,
+                                        String nombreSucursal,
                                         String metodoPago,
                                         String rut,
                                         String direccion,
@@ -299,10 +358,10 @@ public class ZonaPagoController implements Initializable {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         StringBuilder sb = new StringBuilder();
-        sb.append("      JOHEX.inc\n"); /// <--- aca va los muebles
+
         sb.append("      Boleta N° ").append(idBoleta).append("\n\n");
         sb.append("Fecha: ").append(fecha).append("\n");
-        sb.append("Sucursal: ").append(sucursal.getNombre()).append("\n");
+        sb.append("Sucursal: ").append(nombreSucursal != null ? nombreSucursal : "Sin sucursal").append("\n");
         sb.append("Método de pago: ").append(metodoPago).append("\n");
         if (rut != null && !rut.isEmpty())
             sb.append("Rut cliente: ").append(rut).append("\n");
@@ -323,7 +382,7 @@ public class ZonaPagoController implements Initializable {
         sb.append("----------------------------------------\n");
         sb.append(String.format("TOTAL: %28d\n", total));
         sb.append("\nGracias por su compra.\n");
-
+        sb.append("      JOHEX.inc\n");
         return sb.toString();
     }
 

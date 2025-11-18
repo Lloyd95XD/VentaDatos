@@ -256,23 +256,22 @@ public class TablasTienda implements Initializable {
                     FXCollections.observableArrayList(listaCarrito), // copia
                     total
             );
-            // Si más adelante tienes idUsuario dinámico, lo pasas aquí:
-            // controller.setIdUsuario(idUsuarioLogueado);
 
-            // Abrir nueva ventana
-            Stage stage = new Stage();
-            stage.setTitle("Zona de Pago");
+            // Si quisieras también podrías pasar el id de usuario así:
+            // controller.setIdUsuario(UsuarioSesion.getIdUsuario());
+
+            // 🔁 REEMPLAZAR LA VENTANA ACTUAL
+            // Usa cualquier nodo de la escena actual, por ejemplo tablaProductos
+            Stage stage = (Stage) tablaProductos.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
-
-            // (Opcional) cerrar esta ventana:
-            // tablaProductos.getScene().getWindow().hide();
 
         } catch (Exception e) {
             System.out.println("❌ Error al abrir Zona de Pago: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     private int calcularTotalCarrito() {
         int total = 0;

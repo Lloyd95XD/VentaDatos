@@ -82,12 +82,6 @@
             </LinearGradient>
          </fill>
       </Rectangle>
-      <Text layoutX="372.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="¿a donde estas comprando?" textAlignment="CENTER" wrappingWidth="169.0">
-         <font>
-            <Font name="Sitka Display" size="25.0" />
-         </font>
-      </Text>
-      <ComboBox fx:id="comboSucursal" layoutX="381.0" layoutY="100.0" prefWidth="150.0" />
       <TextField fx:id="txtRutCliente" layoutX="300.0" layoutY="236.0" prefHeight="25.0" prefWidth="142.0" />
 
         <!-- Tabla del carrito -->

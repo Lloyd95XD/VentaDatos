@@ -152,7 +152,7 @@ public class BoletaController implements Initializable {
             ResultSet rsDet = stmtDet.executeQuery();
 
             StringBuilder sb = new StringBuilder();
-            sb.append("      MUEBLES AIEP S.A.\n");
+
             sb.append("      Boleta N° ").append(idBoleta).append("\n\n");
             sb.append("Fecha: ").append(fecha).append("\n");
             sb.append("Sucursal: ").append(sucursal != null ? sucursal : "-").append("\n");
@@ -182,7 +182,7 @@ public class BoletaController implements Initializable {
             sb.append("----------------------------------------\n");
             sb.append(String.format("TOTAL: %28d\n", total));
             sb.append("\nGracias por su compra.\n");
-
+            sb.append("      JOHEX.inc\n");
             txtBoleta.setText(sb.toString());
 
         } catch (Exception e) {
@@ -221,4 +221,24 @@ public class BoletaController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+
+    @FXML
+    private void volveralmenu(ActionEvent event) {
+        try {
+            // Cargar la nueva ventana
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("VentanaIniciadalista.fxml"));
+            Parent root = loader.load();
+
+            // Obtener la ventana actual desde el botón (o control) que disparó el evento
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Reemplazar la escena
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
