@@ -38,7 +38,7 @@ public class UsuarioSesion {
         return esAdmin;
     }
 
-    /// Devuelte true si hay sesion activa
+    /// Devuelve true si hay sesion activa
     public static boolean haySesion() {
         return haySesion;
     }
