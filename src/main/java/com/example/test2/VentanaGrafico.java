@@ -1,12 +1,18 @@
 package com.example.test2;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -52,7 +58,7 @@ public class VentanaGrafico implements Initializable {
         lineChartVentas.getData().clear();
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
-        serie.setName("Ventas por día");
+        serie.setName("Ventas");
 
         String sql =
                 "SELECT DATE(Hora_de_venta) AS dia, " +
@@ -91,7 +97,7 @@ public class VentanaGrafico implements Initializable {
         if (lineChartVentas == null) return;
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
-        serie.setName("Usuarios registrados por día");
+        serie.setName("Usuarios registrados");
 
         String sql =
                 "SELECT Fecha_creacion_de_cuenta AS dia, " +
@@ -102,7 +108,7 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            System.out.println("❌ No se pudo conectar para cargar usuarios por día.");
+            System.out.println("No se pudo conectar para cargar usuarios por día.");
             return;
         }
 
@@ -117,7 +123,7 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error cargando gráfico de usuarios por día: " + e.getMessage());
+            System.out.println("Error cargando gráfico de usuarios por día: " + e.getMessage());
         }
 
         // Se agrega la serie encima de la de ventas
@@ -151,7 +157,7 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            System.out.println("❌ No se pudo conectar para cargar resumen.");
+            System.out.println("No se pudo conectar para cargar resumen.");
             return;
         }
 
@@ -193,7 +199,7 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error cargando resumen: " + e.getMessage());
+            System.out.println("Error cargando resumen: " + e.getMessage());
         }
     }
 
@@ -211,5 +217,28 @@ public class VentanaGrafico implements Initializable {
         cargarGraficoPorDia();
         cargarUsuariosPorDia();
         cargarResumen();
+    }
+    @FXML
+    private Button btnCambiarVentana;
+
+    @FXML
+
+    private void volvermenuprincipal() {
+        try {
+            // Cargar el archivo FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MenuIniciadaSesionListoV2.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el Stage actual
+            Stage stage = (Stage) btnCambiarVentana.getScene().getWindow(); // Puedes usar cualquier nodo
+
+            // Cambiar la escena
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
