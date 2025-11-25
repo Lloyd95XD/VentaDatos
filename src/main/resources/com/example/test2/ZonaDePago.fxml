@@ -17,32 +17,26 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane prefHeight="600.0" prefWidth="900.0"
-           style="-fx-background-color: linear-gradient(to bottom, #141e30, #243b55);"
-           xmlns="http://javafx.com/javafx/25"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.example.test2.ZonaPagoController">
+<StackPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: linear-gradient(to bottom, #141e30, #243b55);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.test2.ZonaPagoController">
 
     <children>
 
         <VBox alignment="CENTER" spacing="20">
             <padding>
-                <Insets top="20" bottom="20"/>
+                <Insets bottom="20" top="20" />
             </padding>
 
             <!-- Tarjeta moderna -->
-            <StackPane maxWidth="750" maxHeight="500">
+            <StackPane maxHeight="500" maxWidth="750">
                 <children>
 
-                    <Rectangle width="750" height="500"
-                               arcWidth="30" arcHeight="30"
-                               style="-fx-fill: rgba(15,22,40,0.96);">
-                        <effect><Bloom/></effect>
+                    <Rectangle arcHeight="30" arcWidth="30" height="500" style="-fx-fill: rgba(15,22,40,0.96);" width="750">
+                        <effect><Bloom /></effect>
                     </Rectangle>
 
                     <BorderPane>
                         <padding>
-                            <Insets top="25" left="30" right="30" bottom="25" />
+                            <Insets bottom="25" left="30" right="30" top="25" />
                         </padding>
 
                         <!-- TOP: Título + Volver -->
@@ -50,22 +44,16 @@
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <children>
 
-                                    <Text text="Método de Pago"
-                                          style="-fx-fill: white;">
+                                    <Text style="-fx-fill: white;" text="Método de Pago">
                                         <font>
                                             <Font size="28.0" />
                                         </font>
                                     </Text>
 
-                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Region HBox.hgrow="ALWAYS" />
 
                                     <!-- Si tienes un método en el controller, ponle onAction="#NombreMetodo" -->
-                                    <Button text="Volver"
-                                            style="-fx-background-color: #c94c4c;
-                                                   -fx-text-fill: white;
-                                                   -fx-background-radius: 8;
-                                                   -fx-padding: 8 18;
-                                                   -fx-font-weight: bold;"/>
+                                    <Button style="-fx-background-color: #c94c4c;                                                    -fx-text-fill: white;                                                    -fx-background-radius: 8;                                                    -fx-padding: 8 18;                                                    -fx-font-weight: bold;" text="Volver" />
                                 </children>
                             </HBox>
                         </top>
@@ -78,25 +66,17 @@
                                     <!-- TABLA DEL CARRITO -->
                                     <VBox spacing="10">
                                         <children>
-                                            <Text text="Carrito"
-                                                  style="-fx-fill: #9faac7;">
+                                            <Text style="-fx-fill: #9faac7;" text="Carrito">
                                                 <font>
                                                     <Font size="15.0" />
                                                 </font>
                                             </Text>
 
-                                            <TableView fx:id="tablaCarrito"
-                                                       prefHeight="330"
-                                                       prefWidth="260"
-                                                       style="-fx-background-color: transparent;
-                                                              -fx-control-inner-background: rgba(10,17,35,0.9);
-                                                              -fx-border-color: #1391EB;
-                                                              -fx-border-radius: 10;
-                                                              -fx-background-radius: 10;">
+                                            <TableView fx:id="tablaCarrito" prefHeight="330" prefWidth="260" style="-fx-background-color: transparent;                                                               -fx-control-inner-background: rgba(10,17,35,0.9);                                                               -fx-border-color: #1391EB;                                                               -fx-border-radius: 10;                                                               -fx-background-radius: 10;">
                                                 <columns>
-                                                    <TableColumn fx:id="colNombreCarrito" text="Producto" prefWidth="120"/>
-                                                    <TableColumn fx:id="colPrecioCarrito" text="Precio" prefWidth="70"/>
-                                                    <TableColumn fx:id="colCantidadCarrito" text="Cant." prefWidth="60"/>
+                                                    <TableColumn fx:id="colNombreCarrito" prefWidth="120" text="Producto" />
+                                                    <TableColumn fx:id="colPrecioCarrito" prefWidth="70" text="Precio" />
+                                                    <TableColumn fx:id="colCantidadCarrito" prefWidth="60" text="Cant." />
                                                 </columns>
                                             </TableView>
                                         </children>
@@ -107,63 +87,38 @@
                                         <children>
 
                                             <!-- MÉTODO DE PAGO -->
-                                            <Text text="Seleccionar método"
-                                                  style="-fx-fill: #9faac7;">
-                                                <font><Font size="14.0"/></font>
+                                            <Text style="-fx-fill: #9faac7;" text="Seleccionar método">
+                                                <font><Font size="14.0" /></font>
                                             </Text>
-                                            <ComboBox fx:id="comboMetodoPago"
-                                                      prefWidth="200"
-                                                      style="-fx-background-radius: 8;
-                                                             -fx-background-color: #111828;
-                                                             -fx-text-fill: white;"/>
+                                            <ComboBox fx:id="comboMetodoPago" prefWidth="200" style="-fx-background-radius: 8;                                                              -fx-background-color: #111828;                                                              -fx-text-fill: white;" />
 
                                             <!-- RUT -->
-                                            <Text text="Rut (opcional)"
-                                                  style="-fx-fill: #9faac7;">
-                                                <font><Font size="14.0"/></font>
+                                            <Text style="-fx-fill: #9faac7;" text="Rut (opcional)">
+                                                <font><Font size="14.0" /></font>
                                             </Text>
-                                            <TextField fx:id="txtRutCliente"
-                                                       prefWidth="200"
-                                                       style="-fx-background-radius: 8;
-                                                              -fx-background-color: #111828;
-                                                              -fx-text-fill: white;"/>
+                                            <TextField fx:id="txtRutCliente" prefWidth="200" style="-fx-background-radius: 8;                                                               -fx-background-color: #111828;                                                               -fx-text-fill: white;" />
 
                                             <!-- DIRECCIÓN -->
-                                            <Text text="Dirección"
-                                                  style="-fx-fill: #9faac7;">
-                                                <font><Font size="14.0"/></font>
+                                            <Text style="-fx-fill: #9faac7;" text="Dirección">
+                                                <font><Font size="14.0" /></font>
                                             </Text>
-                                            <TextField fx:id="txtDireccion"
-                                                       prefWidth="200"
-                                                       style="-fx-background-radius: 8;
-                                                              -fx-background-color: #111828;
-                                                              -fx-text-fill: white;"/>
+                                            <TextField fx:id="txtDireccion" prefWidth="200" style="-fx-background-radius: 8;                                                               -fx-background-color: #111828;                                                               -fx-text-fill: white;" />
 
                                             <!-- DESCRIPCIÓN -->
-                                            <Text text="Descripción"
-                                                  style="-fx-fill: #9faac7;">
-                                                <font><Font size="14.0"/></font>
+                                            <Text style="-fx-fill: #9faac7;" text="Descripción">
+                                                <font><Font size="14.0" /></font>
                                             </Text>
-                                            <TextArea fx:id="txtDescripcion"
-                                                      prefWidth="260"
-                                                      prefHeight="90"
-                                                      style="-fx-background-radius: 8;
-                                                             -fx-control-inner-background: #111828;
-                                                             -fx-text-fill: white;"/>
+                                            <TextArea fx:id="txtDescripcion" editable="false" prefHeight="90" prefWidth="260" style="-fx-background-radius: 8; -fx-control-inner-background: #1118; -fx-text-fill: white;" />
 
                                             <!-- MONTO TOTAL -->
-                                            <Text fx:id="lblMontoTotal"
-                                                  text="Monto Total $ 0"
-                                                  style="-fx-fill: #37cf6b;">
+                                            <Text fx:id="lblMontoTotal" style="-fx-fill: #37cf6b;" text="Monto Total $ 0">
                                                 <font>
                                                     <Font size="18.0" />
                                                 </font>
                                             </Text>
 
                                             <!-- ERROR -->
-                                            <Text fx:id="textoerror"
-                                                  text=""
-                                                  style="-fx-fill: #ff5757;">
+                                            <Text fx:id="textoerror" style="-fx-fill: #ff5757;" text="">
                                                 <font>
                                                     <Font size="14.0" />
                                                 </font>
@@ -179,13 +134,7 @@
                         <bottom>
                             <HBox alignment="CENTER_RIGHT">
                                 <children>
-                                    <Button text="Realizar Pago"
-                                            onAction="#realizarPago"
-                                            style="-fx-background-color: #4caf50;
-                                                   -fx-background-radius: 10;
-                                                   -fx-text-fill: white;
-                                                   -fx-font-weight: bold;
-                                                   -fx-padding: 10 20;"/>
+                                    <Button onAction="#realizarPago" style="-fx-background-color: #4caf50;                                                    -fx-background-radius: 10;                                                    -fx-text-fill: white;                                                    -fx-font-weight: bold;                                                    -fx-padding: 10 20;" text="Realizar Pago" />
                                 </children>
                             </HBox>
                         </bottom>
