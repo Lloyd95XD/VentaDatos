@@ -36,9 +36,9 @@ public class VentanaGrafico implements Initializable {
     // ====== Resumen inferior ======
     @FXML private Label lblVentasHoy;          // CLP hoy
     @FXML private Label lblVentasMes;          // CLP mes
-    @FXML private Label lblUsuariosRegistrados;// usuarios creados hoy
-    @FXML private Label lblTotalRegistros;     // total boletas
 
+    @FXML private Label lblTotalRegistros;     // total boletas
+    @FXML private Label TextoERROR;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         if (ejeX != null) ejeX.setLabel("Fecha");
@@ -69,7 +69,8 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            System.out.println(" No se pudo conectar para cargar ventas por día.");
+            TextoERROR.setText("No se pudo conectar para cargar ventas por día.");
+
             return;
         }
 
@@ -84,7 +85,8 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            System.out.println("Error cargando gráfico de ventas por día: " + e.getMessage());
+
+            TextoERROR.setText("Error cargando gráfico de ventas por día: " + e.getMessage());
         }
 
         lineChartVentas.getData().add(serie);
@@ -108,7 +110,8 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            System.out.println("No se pudo conectar para cargar usuarios por día.");
+
+            TextoERROR.setText("No se pudo conectar para cargar usuarios por día.");
             return;
         }
 
@@ -123,7 +126,8 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            System.out.println("Error cargando gráfico de usuarios por día: " + e.getMessage());
+
+            TextoERROR.setText("Error cargando gráfico de usuarios por día: " + e.getMessage());
         }
 
         // Se agrega la serie encima de la de ventas
@@ -150,14 +154,11 @@ public class VentanaGrafico implements Initializable {
                 "SELECT COUNT(*) AS total FROM venta";
 
         // 🔹 Usuarios registrados HOY en la tabla usuario
-        String sqlUsuariosHoy =
-                "SELECT COUNT(*) AS total " +
-                        "FROM usuario " +
-                        "WHERE Fecha_creacion_de_cuenta = CURDATE()";
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            System.out.println("No se pudo conectar para cargar resumen.");
+
+            TextoERROR.setText("No se pudo conectar para cargar resumen.");
             return;
         }
 
@@ -179,14 +180,7 @@ public class VentanaGrafico implements Initializable {
             }
 
             // Usuarios registrados HOY
-            try (PreparedStatement ps = cn.prepareStatement(sqlUsuariosHoy);
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && lblUsuariosRegistrados != null) {
-                    lblUsuariosRegistrados.setText(
-                            String.valueOf(rs.getInt("total"))
-                    );
-                }
-            }
+
 
             // Total registros (boletas)
             try (PreparedStatement ps = cn.prepareStatement(sqlTotalRegistros);
@@ -199,7 +193,8 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            System.out.println("Error cargando resumen: " + e.getMessage());
+
+            TextoERROR.setText("Error cargando resumen: " + e.getMessage());
         }
     }
 

@@ -146,13 +146,13 @@ public class ControladorVentanas {
         if (rutStr.isEmpty() || nombre.isEmpty() || apellido.isEmpty() || correo.isEmpty()
                 || telefono.isEmpty() || pass1.isEmpty() || pass2.isEmpty()) {
 
-            textoerror.setText("❌ Faltan datos por completar");
+            textoerror.setText("Faltan datos por completar");
             return;
         }
 
         // Validar longitud del RUT (sin guion): entre 7 y 9 dígitos
         if (!rutStr.matches("\\d{7,9}")) {
-            textoerror.setText("❌ RUT inválido. Debe tener entre 7 y 9 dígitos (solo números, sin guion)");
+            textoerror.setText("RUT inválido. Debe tener entre 7 y 9 dígitos (solo números, sin guion)");
             return;
         }
 
@@ -161,19 +161,19 @@ public class ControladorVentanas {
         try {
             idUsuario = Integer.parseInt(rutStr);
         } catch (NumberFormatException e) {
-            textoerror.setText("❌ El RUT debe contener solo números");
+            textoerror.setText("El RUT debe contener solo números");
             return;
         }
 
         // Validar teléfono: +569 + 8 dígitos
         if (!telefono.matches("\\+569\\d{8}")) {
-            textoerror.setText("❌ Teléfono inválido. Use formato +569XXXXXXXX");
+            textoerror.setText("Teléfono inválido. Use formato +569XXXXXXXX");
             return;
         }
 
         // 5) Validar que las contraseñas coinciden
         if (!pass1.equals(pass2)) {
-            textoerror.setText("❌ Las contraseñas no coinciden");
+            textoerror.setText("Las contraseñas no coinciden");
             return;
         }
 
@@ -184,7 +184,7 @@ public class ControladorVentanas {
         try (Connection conn = ConexionBD.conectar()) {
 
             if (conn == null) {
-                textoerror.setText("❌ Error de conexión a la base de datos");
+                textoerror.setText("Error de conexión a la base de datos");
                 return;
             }
 
@@ -200,7 +200,7 @@ public class ControladorVentanas {
 
                 stmt.executeUpdate();
 
-                textoerror.setText("✔ Usuario registrado correctamente");
+                textoerror.setText("Usuario registrado correctamente");
                 textoerror.setFill(Color.web("#22bc43"));
 
                 limpiarCampos();
@@ -208,9 +208,9 @@ public class ControladorVentanas {
             }
 
         } catch (Exception e) {
-            textoerror.setText("❌ Error al registrar usuario");
+            textoerror.setText("Error al registrar usuario");
             textoerror.setFill(Color.web("#ff4444"));
-            System.out.println("❌ Error al registrar: " + e.getMessage());
+            System.out.println("Error al registrar: " + e.getMessage());
             e.printStackTrace();
         }
     }

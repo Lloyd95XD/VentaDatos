@@ -65,7 +65,7 @@
                                                 <CategoryAxis fx:id="ejeX" label="Fecha" />
                                             </xAxis>
                                             <yAxis>
-                                                <NumberAxis fx:id="ejeY" label="Monto (CLP)" />
+                                                <NumberAxis fx:id="ejeY" label="Monto (CLP)" opacity="0.64" tickLabelFill="#f2f2f2" />
                                             </yAxis>
                                         </LineChart>
                                     </left>
@@ -88,19 +88,18 @@
                                                 <Label fx:id="lblVentasMes" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" text="" />
                                             </children>
                                         </VBox>
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label style="-fx-text-fill: #9faac7; -fx-font-size: 11px;" text="Usuarios registrados" />
-                                                <Label fx:id="lblUsuariosRegistrados" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" text="0" />
-                                            </children>
-                                        </VBox>
 
                                         <VBox spacing="4.0">
                                             <children>
-                                                <Label style="-fx-text-fill: #9faac7; -fx-font-size: 11px;" text="Total registros" />
+                                                <Label style="-fx-text-fill: #9faac7; -fx-font-size: 11px;" text="Boletas Registradas" />
                                                 <Label fx:id="lblTotalRegistros" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" text="0" />
                                             </children>
                                         </VBox>
+                              <VBox layoutX="296.0" layoutY="10.0" spacing="4.0">
+                                 <children>
+                                    <Label fx:id="TextoERROR" prefHeight="26.0" prefWidth="109.0" style="-fx-text-fill: D40000; -fx-font-size: 11px;" textFill="#e10a0a" />
+                                 </children>
+                              </VBox>
 
                                     </children>
                                 </HBox>

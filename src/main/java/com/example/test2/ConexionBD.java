@@ -12,7 +12,7 @@ public class ConexionBD {
         try {
             return DriverManager.getConnection(URL, USER, PASS);
         } catch (Exception e) {
-            System.out.println("❌ Conexión fallida: " + e.getMessage());
+            System.out.println("Conexión fallida: " + e.getMessage());
             return null;
         }
     }
@@ -42,12 +42,12 @@ public class ConexionBD {
                     try (var psI = cn.prepareStatement(insert)) {
                         psI.setInt(1, idUsuario);
                         psI.executeUpdate();
-                        System.out.println("✅ admin creado para ID=" + idUsuario);
+                        System.out.println("admin creado para ID=" + idUsuario);
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println("⚠️ ensureAdminRow: " + e.getMessage());
+            System.out.println("ensureAdminRow: " + e.getMessage());
         }
     }
 
@@ -58,7 +58,7 @@ public class ConexionBD {
             ps.setInt(2, idUsuario);
             return ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("❌ update admin (string): " + e.getMessage());
+            System.out.println("update admin (string): " + e.getMessage());
             return 0;
         }
     }
@@ -70,7 +70,7 @@ public class ConexionBD {
             ps.setInt(2, idUsuario);
             return ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("❌ update admin (bool): " + e.getMessage());
+            System.out.println("update admin (bool): " + e.getMessage());
             return 0;
         }
     }
@@ -83,7 +83,7 @@ public class ConexionBD {
             ps.setInt(2, idProducto);
             return ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("❌ update producto: " + e.getMessage());
+            System.out.println("update producto: " + e.getMessage());
             return 0;
         }
     }
@@ -117,7 +117,7 @@ public class ConexionBD {
             ps.setInt(2, idProducto);
             return ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("❌ update inventario: " + e.getMessage());
+            System.out.println("update inventario: " + e.getMessage());
             return 0;
         }
     }
