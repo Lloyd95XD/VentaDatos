@@ -388,7 +388,7 @@ public class AdminUsuariosController implements Initializable {
             stmt.executeUpdate();
             listaUsuarios.remove(u);
 
-            if (lblMensaje != null) lblMensaje.setText("✅ Usuario eliminado");
+            if (lblMensaje != null) lblMensaje.setText("Usuario eliminado");
 
         } catch (Exception e) {
             e.printStackTrace();
