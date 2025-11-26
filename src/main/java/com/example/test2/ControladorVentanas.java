@@ -23,9 +23,6 @@ public class ControladorVentanas {
             "(Id_Usuario, Nombre, Apellido, Email, Telefono, Password, Fecha_creacion_de_cuenta, Admin) " +
             "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?)";
 
-    // -------------------------------
-    // Campos del formulario
-    // -------------------------------
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellido;
     @FXML private TextField txtRut;
@@ -34,23 +31,20 @@ public class ControladorVentanas {
 
     @FXML private PasswordField txtPassword;
     @FXML private PasswordField txtRepetirPassword;
-    @FXML private Hyperlink RegistroMuebleslink;
     @FXML private Text textoerror;
     @FXML private Text textoerrorLogin;
 
-    @FXML private TextField txtnombrecuenta;
+    @FXML private TextField txtnombrecuenta;   // login
     @FXML private TextField txtpassword2;
 
-    @FXML
-    private Button registrousuariooo;
+    @FXML private Button registrousuariooo;
 
-    // -------------------------------
-    // Inicialización
-    // -------------------------------
+    private boolean actualizandoRutRegistro = false;
+
     @FXML
     private void initialize() {
 
-        // Mostrar botón admin según sesión
+        // Mostrar botón admin si corresponde
         if (registrousuariooo != null) {
             boolean esAdmin = UsuarioSesion.isAdmin();
             registrousuariooo.setDisable(!esAdmin);
@@ -58,17 +52,30 @@ public class ControladorVentanas {
             registrousuariooo.setManaged(esAdmin);
         }
 
-        // Filtro RUT (solo números)
+        // ========= RUT: SOLO REGISTRO SE FORMATEA =========
         if (txtRut != null) {
-            UnaryOperator<TextFormatter.Change> rutFilter = change -> {
-                String newText = change.getControlNewText();
-                if (newText.matches("\\d{0,15}")) return change;
-                return null;
-            };
-            txtRut.setTextFormatter(new TextFormatter<>(rutFilter));
+            txtRut.textProperty().addListener((obs, oldV, newV) -> {
+                if (actualizandoRutRegistro) return;
+
+                String soloDigitos = newV.replaceAll("\\D", "");
+
+                if (soloDigitos.isEmpty()) {
+                    actualizandoRutRegistro = true;
+                    txtRut.setText("");
+                    actualizandoRutRegistro = false;
+                    return;
+                }
+
+                String formateado = formatearRut(soloDigitos);
+
+                actualizandoRutRegistro = true;
+                txtRut.setText(formateado);
+                txtRut.positionCaret(formateado.length());
+                actualizandoRutRegistro = false;
+            });
         }
 
-        // Teléfono +569 obligatorio
+        // ========= Teléfono +569 =========
         if (txtTelefono != null) {
 
             if (txtTelefono.getText() == null || txtTelefono.getText().isEmpty()) {
@@ -77,8 +84,11 @@ public class ControladorVentanas {
 
             UnaryOperator<TextFormatter.Change> telFilter = change -> {
                 String newText = change.getControlNewText();
+
                 if (!newText.startsWith("+569")) return null;
-                if (!newText.matches("\\+569\\d{0,8}")) return null;
+                if (!newText.matches("\\+569\\d*")) return null;
+                if (newText.length() > 12) return null;
+
                 return change;
             };
 
@@ -87,17 +97,49 @@ public class ControladorVentanas {
         }
     }
 
+    // Formatear RUT (solo para registro)
+    private String formatearRut(String soloDigitos) {
+        if (soloDigitos == null || soloDigitos.isEmpty()) return "";
+
+        if (soloDigitos.length() > 9) {
+            soloDigitos = soloDigitos.substring(0, 9);
+        }
+
+        if (soloDigitos.length() <= 1) {
+            return soloDigitos;
+        }
+
+        String cuerpo = soloDigitos.substring(0, soloDigitos.length() - 1);
+        String dv = soloDigitos.substring(soloDigitos.length() - 1);
+
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = cuerpo.length() - 1; i >= 0; i--) {
+            sb.insert(0, cuerpo.charAt(i));
+            count++;
+            if (count == 3 && i > 0) {
+                sb.insert(0, '.');
+                count = 0;
+            }
+        }
+        sb.append('-').append(dv);
+
+        return sb.toString();
+    }
 
 
     // ===================================================
-    // 🔥 REGISTRO DE USUARIO (Id_Usuario = VARCHAR(15))
+    // REGISTRO (Id_Usuario = VARCHAR)
     // ===================================================
     @FXML
     private void RegistroTablaUsuario() {
 
         textoerror.setFill(Color.web("#ff4444"));
 
-        String idUsuario = txtRut.getText().trim();  // <-- ahora es STRING
+        // Usuario ve formato, pero limpiamos
+        String rutFormateado = txtRut.getText().trim();
+        String idUsuario = rutFormateado.replaceAll("\\D", ""); // solo números
+
         String nombre   = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
         String correo   = txtCorreo.getText().trim();
@@ -106,19 +148,20 @@ public class ControladorVentanas {
         String pass2    = txtRepetirPassword.getText();
 
         if (idUsuario.isEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
-                correo.isEmpty() || telefono.isEmpty() || pass1.isEmpty() || pass2.isEmpty()) {
+                correo.isEmpty() || telefono.isEmpty() ||
+                pass1.isEmpty() || pass2.isEmpty()) {
 
             textoerror.setText("Faltan datos por completar");
             return;
         }
 
-        if (!idUsuario.matches("\\d{7,15}")) {
-            textoerror.setText("El RUT debe ser entre 7 y 15 dígitos (sin puntos ni guion)");
+        if (!idUsuario.matches("\\d{7,9}")) {
+            textoerror.setText("El RUT debe tener entre 7 y 9 dígitos");
             return;
         }
 
         if (!telefono.matches("\\+569\\d{8}")) {
-            textoerror.setText("Teléfono inválido. Formato: +569XXXXXXXX");
+            textoerror.setText("Teléfono inválido");
             return;
         }
 
@@ -132,13 +175,13 @@ public class ControladorVentanas {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, idUsuario);     // <-- STRING
+            stmt.setString(1, idUsuario); // sin puntos ni guion
             stmt.setString(2, nombre);
             stmt.setString(3, apellido);
             stmt.setString(4, correo);
             stmt.setString(5, telefono);
             stmt.setString(6, hashedPassword);
-            stmt.setInt(7, 0); // Admin = false
+            stmt.setInt(7, 0);
 
             stmt.executeUpdate();
 
@@ -155,10 +198,8 @@ public class ControladorVentanas {
     }
 
 
-
-
     // ===================================================
-    // 🔥 LOGIN (Id_Usuario ahora es STRING)
+    // LOGIN SIN FORMATO AUTOMÁTICO
     // ===================================================
     @FXML
     private void iniciarSesion(ActionEvent event) {
@@ -172,6 +213,9 @@ public class ControladorVentanas {
             return;
         }
 
+        // limpiamos por si escribe un RUT con puntos o guion
+        String idUsuarioLimpio = identificador.replaceAll("\\D", "");
+
         String sqlLogin = """
                 SELECT Id_Usuario, Nombre, Password, Admin
                 FROM Usuario
@@ -182,9 +226,9 @@ public class ControladorVentanas {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sqlLogin)) {
 
-            stmt.setString(1, identificador);
-            stmt.setString(2, identificador);
-            stmt.setString(3, identificador);  // <-- ahora STRING
+            stmt.setString(1, identificador);      // email
+            stmt.setString(2, identificador);      // teléfono
+            stmt.setString(3, idUsuarioLimpio);    // rut sin puntos/guion
 
             ResultSet rs = stmt.executeQuery();
 
@@ -202,7 +246,6 @@ public class ControladorVentanas {
                 return;
             }
 
-            // Guardar sesión (ahora STRING)
             String idUsuario = rs.getString("Id_Usuario");
             String nombre = rs.getString("Nombre");
             boolean esAdmin = rs.getInt("Admin") == 1;
@@ -222,9 +265,6 @@ public class ControladorVentanas {
     }
 
 
-
-    // ===================================================
-    // Limpieza
     // ===================================================
     private void limpiarCampos() {
         txtNombre.clear();
@@ -238,7 +278,7 @@ public class ControladorVentanas {
 
 
     // ===================================================
-    // Cambiar Ventanas
+    // NAVEGACIÓN
     // ===================================================
     public void cambiarAVentana(String ventanaFxml, ActionEvent event) {
         try {
@@ -253,7 +293,6 @@ public class ControladorVentanas {
         }
     }
 
-    // BOTONES → mantienen igual
     @FXML private void PantallaIniciarsesion(ActionEvent event){ cambiarAVentana("iniciarSesion",event); }
     @FXML private void regresarmenuprincipal(ActionEvent event){ cambiarAVentana("VentanaLoginV2",event); }
     @FXML private void Registrarboton(ActionEvent event){ cambiarAVentana("registrarte",event); }
