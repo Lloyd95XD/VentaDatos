@@ -70,7 +70,7 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            TextoERROR.setText("❌ No se pudo conectar para cargar ventas por día.");
+            TextoERROR.setText("No se pudo conectar para cargar ventas por día.");
             return;
         }
 
@@ -85,7 +85,7 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            TextoERROR.setText("❌ Error cargando gráfico de ventas: " + e.getMessage());
+            TextoERROR.setText("Error cargando gráfico de ventas: " + e.getMessage());
         }
 
         lineChartVentas.getData().add(serie); // Agregar única línea
@@ -112,7 +112,7 @@ public class VentanaGrafico implements Initializable {
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            TextoERROR.setText("❌ No se pudo conectar para cargar resumen.");
+            TextoERROR.setText("No se pudo conectar para cargar resumen.");
             return;
         }
 
@@ -143,7 +143,7 @@ public class VentanaGrafico implements Initializable {
             }
 
         } catch (Exception e) {
-            TextoERROR.setText("❌ Error cargando resumen: " + e.getMessage());
+            TextoERROR.setText("Error cargando resumen: " + e.getMessage());
         }
     }
 
