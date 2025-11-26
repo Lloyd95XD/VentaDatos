@@ -41,7 +41,8 @@ public class ZonaPagoController implements Initializable {
     private int totalAPagar = 0;
 
     // Usuario logueado y sucursal asociada a su cuenta
-    private int idUsuario = 0;
+    // Id_Usuario ahora es VARCHAR(15) en la BD → lo manejamos como String
+    private String idUsuario = "";
     private int idSucursalUsuario = -1;
     private String nombreSucursalUsuario = "";
 
@@ -55,16 +56,23 @@ public class ZonaPagoController implements Initializable {
     }
 
     // Este método lo llamarás desde la ventana anterior
+    // Sobrecargado para que te sirva tanto si tienes int como String
+
+    public void setIdUsuario(int idUsuario) {
+        // lo convertimos a String para la BD (VARCHAR)
+        this.idUsuario = String.valueOf(idUsuario);
+    }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
     public void setCarritoYTotal(ObservableList<ItemCarrito> carritoOrigen, int total) {
         carrito.clear();
         carrito.addAll(carritoOrigen);
         tablaCarrito.setItems(carrito);
         totalAPagar = total;
         actualizarTextoTotal();
-    }
-
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     private void configurarTablaCarrito() {
@@ -108,15 +116,18 @@ public class ZonaPagoController implements Initializable {
      * Tabla sucursales: Id_Sucursales, localidad
      */
     private void cargarDatosUsuarioYSucursal() {
-        // Tomamos el usuario que inició sesión
-        idUsuario = UsuarioSesion.getIdUsuario();
+        // Suponiendo que UsuarioSesion.getIdUsuario() todavía devuelve int
+        String idUsuarioInt = UsuarioSesion.getIdUsuario();
 
-        if (idUsuario <= 0) {
+        if (idUsuario == null || idUsuario.trim().isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR,
                     "Sesión",
                     "No se encontró un usuario logueado. Inicie sesión nuevamente.");
             return;
         }
+
+        // Guardamos la versión String para la BD (VARCHAR(15))
+        idUsuario = String.valueOf(idUsuarioInt);
 
         String sql = """
                 SELECT u.Id_Sucursales, s.localidad
@@ -128,7 +139,8 @@ public class ZonaPagoController implements Initializable {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, idUsuario);
+            // Ahora Id_Usuario en la BD es VARCHAR → usamos setString
+            stmt.setString(1, idUsuario);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -216,7 +228,8 @@ public class ZonaPagoController implements Initializable {
              PreparedStatement stmtVenta = conn.prepareStatement(
                      sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmtVenta.setInt(1, idUsuario);
+            // Id_Usuario ahora es String (VARCHAR en la BD)
+            stmtVenta.setString(1, idUsuario);
             stmtVenta.setInt(2, idSucursalUsuario);
             stmtVenta.setInt(3, totalAPagar);
             stmtVenta.setString(4, metodo);
@@ -242,7 +255,7 @@ public class ZonaPagoController implements Initializable {
             }
 
             // ==========================
-            // 2) Insertar en DETALLES_VENTAS (SIN historial_movimiento)
+            // 2) Insertar en DETALLES_VENTAS
             // ==========================
             String sqlDetalles = """
                 INSERT INTO detalles_ventas
@@ -384,4 +397,3 @@ public class ZonaPagoController implements Initializable {
     }
 
 }
-

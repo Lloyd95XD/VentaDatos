@@ -4,7 +4,7 @@ package com.example.test2;
 public class UsuarioSesion {
 
     /// ID del usuario en la sesion actual
-    private static int idUsuario;
+    private static String idUsuario;
 
     /// Nombre del usuario en la sesion actual
     private static String nombre;
@@ -16,7 +16,7 @@ public class UsuarioSesion {
     private static boolean haySesion = false;
 
     /// Configura los datos de la sesion al iniciar sesion
-    public static void setSesion(int id, String nom, boolean admin) {
+    public static void setSesion(String id, String nom, boolean admin) {
         idUsuario = id;
         nombre = nom;
         esAdmin = admin;
@@ -24,7 +24,7 @@ public class UsuarioSesion {
     }
 
     /// Obtiene el ID del usuario en la sesion actual
-    public static int getIdUsuario() {
+    public static String getIdUsuario() {
         return idUsuario;
     }
 
@@ -46,7 +46,7 @@ public class UsuarioSesion {
     /// cierra la sesion y limpia los datos almacenados
     public static void cerrarSesion() {
         haySesion = false;
-        idUsuario = 0;
+        idUsuario = null;
         nombre = null;
         esAdmin = false;
     }

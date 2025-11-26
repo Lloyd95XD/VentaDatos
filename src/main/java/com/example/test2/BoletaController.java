@@ -143,7 +143,7 @@ public class BoletaController implements Initializable {
             int total = rsVenta.getInt("Precio_Total");
             String metodo = rsVenta.getString("Metodo_de_pago");
             String direccion = rsVenta.getString("Direccion");
-            int rutCliente = rsVenta.getInt("Rut_Cliente");
+            String rutCliente = rsVenta.getString("Rut_Cliente");
             boolean rutEsNull = rsVenta.wasNull();
             String sucursal = rsVenta.getString("localidad");
 

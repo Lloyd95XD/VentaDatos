@@ -19,7 +19,7 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-/// Joakin editame
+
 public class AdminUsuariosController implements Initializable {
 
     // ==========================
@@ -48,12 +48,9 @@ public class AdminUsuariosController implements Initializable {
     @FXML private Label lblUsuarioSeleccionado;
     @FXML private Label lblMensaje;
 
-    // nombreRol → Id_Rol
     private final Map<String, Integer> mapaRoles = new HashMap<>();
-    // nombreSucursal → Id_Sucursales
     private final Map<String, Integer> mapaSucursales = new HashMap<>();
 
-    // Botón volver
     @FXML private Button salirboton1;
 
     // ==========================
@@ -72,6 +69,8 @@ public class AdminUsuariosController implements Initializable {
         );
     }
 
+
+
     private void configurarColumnas() {
         colRut.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -84,13 +83,15 @@ public class AdminUsuariosController implements Initializable {
         colSucursal.setCellValueFactory(new PropertyValueFactory<>("nombreSucursal"));
     }
 
+
+
     // ==========================
     //  EDICIÓN DIRECTA EN LA TABLA
     // ==========================
     private void configurarEdicionColumnas() {
         tablaUsuarios.setEditable(true);
 
-        // RUT (Id_Usuario)
+        // ======== RUT (Id_Usuario) ========
         colRut.setCellFactory(TextFieldTableCell.forTableColumn());
         colRut.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
@@ -115,58 +116,49 @@ public class AdminUsuariosController implements Initializable {
         colNombre.setCellFactory(TextFieldTableCell.forTableColumn());
         colNombre.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            String nuevo = event.getNewValue();
-            if (nuevo == null) nuevo = "";
-            boolean ok = actualizarCampoUsuario("Nombre", nuevo, u.getIdUsuario());
-            if (ok) u.setNombre(nuevo);
+            boolean ok = actualizarCampoUsuario("Nombre", event.getNewValue(), u.getIdUsuario());
+            if (ok) u.setNombre(event.getNewValue());
         });
 
         // Apellido
         colApellido.setCellFactory(TextFieldTableCell.forTableColumn());
         colApellido.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            String nuevo = event.getNewValue();
-            if (nuevo == null) nuevo = "";
-            boolean ok = actualizarCampoUsuario("Apellido", nuevo, u.getIdUsuario());
-            if (ok) u.setApellido(nuevo);
+            boolean ok = actualizarCampoUsuario("Apellido", event.getNewValue(), u.getIdUsuario());
+            if (ok) u.setApellido(event.getNewValue());
         });
 
         // Email
         colEmail.setCellFactory(TextFieldTableCell.forTableColumn());
         colEmail.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            String nuevo = event.getNewValue();
-            if (nuevo == null) nuevo = "";
-            boolean ok = actualizarCampoUsuario("Email", nuevo, u.getIdUsuario());
-            if (ok) u.setEmail(nuevo);
+            boolean ok = actualizarCampoUsuario("Email", event.getNewValue(), u.getIdUsuario());
+            if (ok) u.setEmail(event.getNewValue());
         });
 
         // Teléfono
         colTelefono.setCellFactory(TextFieldTableCell.forTableColumn());
         colTelefono.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            String nuevo = event.getNewValue();
-            if (nuevo == null) nuevo = "";
-            boolean ok = actualizarCampoUsuario("Telefono", nuevo, u.getIdUsuario());
-            if (ok) u.setTelefono(nuevo);
+            boolean ok = actualizarCampoUsuario("Telefono", event.getNewValue(), u.getIdUsuario());
+            if (ok) u.setTelefono(event.getNewValue());
         });
     }
 
+
+
+    // ==========================
+    //  UPDATE CAMPO
+    // ==========================
     private boolean actualizarCampoUsuario(String columna, String nuevoValor, String idUsuarioActual) {
+
         String sql = "UPDATE Usuario SET " + columna + " = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if ("Id_Usuario".equalsIgnoreCase(columna)) {
-                int nuevoId = Integer.parseInt(nuevoValor);
-                int viejoId = Integer.parseInt(idUsuarioActual);
-                stmt.setInt(1, nuevoId);
-                stmt.setInt(2, viejoId);
-            } else {
-                stmt.setString(1, nuevoValor);
-                stmt.setInt(2, Integer.parseInt(idUsuarioActual));
-            }
+            stmt.setString(1, nuevoValor);
+            stmt.setString(2, idUsuarioActual);
 
             stmt.executeUpdate();
             return true;
@@ -179,8 +171,10 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
+
     // ==========================
-    //  CARGA DE DATOS DESDE BD
+    //  CARGA LISTA DE ROLES
     // ==========================
     private void cargarRoles() {
         if (cbRol == null) return;
@@ -208,6 +202,11 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
+
+    // ==========================
+    //  CARGA LISTA DE SUCURSALES
+    // ==========================
     private void cargarSucursales() {
         if (cbSucursal == null) return;
 
@@ -234,6 +233,11 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
+
+    // ==========================
+    //  CARGA USUARIOS
+    // ==========================
     private void cargarUsuarios() {
         listaUsuarios.clear();
 
@@ -260,23 +264,19 @@ public class AdminUsuariosController implements Initializable {
 
             while (rs.next()) {
 
-                String idUsuario   = rs.getString("Id_Usuario");
-                String nombre      = rs.getString("Nombre");
-                String apellido    = rs.getString("Apellido");
-                String email       = rs.getString("Email");
-                String telefono    = rs.getString("Telefono");
-                String fecha       = rs.getString("Fecha_creacion_de_cuenta");
-                int admin          = rs.getInt("Admin");
-                int idRol          = rs.getInt("Id_Rol");
-                String nombreRol   = rs.getString("Nombre_Rol");
-                int idSucursal     = rs.getInt("Id_Sucursales");
-                String sucursal    = rs.getString("localidad");
-
                 DatosControlador user = new DatosControlador(
-                        idUsuario, nombre, apellido,
-                        email, telefono, "",
-                        fecha, admin, idRol, idSucursal,
-                        nombreRol, sucursal
+                        rs.getString("Id_Usuario"),
+                        rs.getString("Nombre"),
+                        rs.getString("Apellido"),
+                        rs.getString("Email"),
+                        rs.getString("Telefono"),
+                        "",
+                        rs.getString("Fecha_creacion_de_cuenta"),
+                        rs.getInt("Admin"),
+                        rs.getInt("Id_Rol"),
+                        rs.getInt("Id_Sucursales"),
+                        rs.getString("Nombre_Rol"),
+                        rs.getString("localidad")
                 );
 
                 listaUsuarios.add(user);
@@ -289,6 +289,8 @@ public class AdminUsuariosController implements Initializable {
             if (lblMensaje != null) lblMensaje.setText("Error cargando usuarios");
         }
     }
+
+
 
     // ==========================
     //  SELECCIÓN DE USUARIO
@@ -303,14 +305,16 @@ public class AdminUsuariosController implements Initializable {
             return;
         }
 
-        lblUsuarioSeleccionado.setText("usuario seleccionado: " + u.getIdUsuario());
+        lblUsuarioSeleccionado.setText("Usuario seleccionado: " + u.getIdUsuario());
 
         if (cbRol != null) cbRol.setValue(u.getNombreRol());
         if (cbSucursal != null) cbSucursal.setValue(u.getNombreSucursal());
     }
 
+
+
     // ==========================
-    //  GUARDAR CAMBIOS ROL/SUCURSAL
+    //  GUARDAR CAMBIOS (ROL / SUCURSAL)
     // ==========================
     @FXML
     private void guardarCambiosRolSucursal() {
@@ -321,8 +325,6 @@ public class AdminUsuariosController implements Initializable {
             if (lblMensaje != null) lblMensaje.setText("Selecciona un usuario primero");
             return;
         }
-
-        if (cbRol == null || cbSucursal == null) return;
 
         String rolNombre = cbRol.getValue();
         String sucNombre = cbSucursal.getValue();
@@ -335,11 +337,6 @@ public class AdminUsuariosController implements Initializable {
         Integer nuevoIdRol = mapaRoles.get(rolNombre);
         Integer nuevoIdSuc = mapaSucursales.get(sucNombre);
 
-        if (nuevoIdRol == null || nuevoIdSuc == null) {
-            if (lblMensaje != null) lblMensaje.setText("Error con IDs de rol/sucursal");
-            return;
-        }
-
         String sql = "UPDATE Usuario SET Id_Rol = ?, Id_Sucursales = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
@@ -347,7 +344,7 @@ public class AdminUsuariosController implements Initializable {
 
             stmt.setInt(1, nuevoIdRol);
             stmt.setInt(2, nuevoIdSuc);
-            stmt.setInt(3, Integer.parseInt(u.getIdUsuario()));
+            stmt.setString(3, u.getIdUsuario()); // AHORA STRING
 
             stmt.executeUpdate();
 
@@ -355,6 +352,7 @@ public class AdminUsuariosController implements Initializable {
             u.setNombreRol(rolNombre);
             u.setIdSucursal(nuevoIdSuc);
             u.setNombreSucursal(sucNombre);
+
             tablaUsuarios.refresh();
 
             if (lblMensaje != null) lblMensaje.setText("✅ Cambios guardados");
@@ -364,6 +362,8 @@ public class AdminUsuariosController implements Initializable {
             if (lblMensaje != null) lblMensaje.setText("Error al guardar cambios");
         }
     }
+
+
 
     // ==========================
     //  ELIMINAR CUENTA
@@ -383,10 +383,11 @@ public class AdminUsuariosController implements Initializable {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, Integer.parseInt(u.getIdUsuario()));
-            stmt.executeUpdate();
+            stmt.setString(1, u.getIdUsuario()); // AHORA STRING
 
+            stmt.executeUpdate();
             listaUsuarios.remove(u);
+
             if (lblMensaje != null) lblMensaje.setText("✅ Usuario eliminado");
 
         } catch (Exception e) {
@@ -395,6 +396,8 @@ public class AdminUsuariosController implements Initializable {
                 lblMensaje.setText("Error al eliminar (puede tener ventas asociadas)");
         }
     }
+
+
 
     // ==========================
     //  VOLVER AL MENÚ
