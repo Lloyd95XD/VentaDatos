@@ -56,10 +56,8 @@ public class ZonaPagoController implements Initializable {
     }
 
     // Este método lo llamarás desde la ventana anterior
-    // Sobrecargado para que te sirva tanto si tienes int como String
-
+    // Sobrecargado por si en algún momento lo llamas con int o con String
     public void setIdUsuario(int idUsuario) {
-        // lo convertimos a String para la BD (VARCHAR)
         this.idUsuario = String.valueOf(idUsuario);
     }
 
@@ -116,22 +114,22 @@ public class ZonaPagoController implements Initializable {
      * Tabla sucursales: Id_Sucursales, localidad
      */
     private void cargarDatosUsuarioYSucursal() {
-        // Suponiendo que UsuarioSesion.getIdUsuario() todavía devuelve int
-        String idUsuarioInt = UsuarioSesion.getIdUsuario();
+        // Tomamos el id desde la sesión (debe venir del login)
+        String idUsuarioSesion = UsuarioSesion.getIdUsuario(); // ahora debe ser String
 
-        if (idUsuario == null || idUsuario.trim().isEmpty()) {
+        if (idUsuarioSesion == null || idUsuarioSesion.trim().isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR,
                     "Sesión",
                     "No se encontró un usuario logueado. Inicie sesión nuevamente.");
             return;
         }
 
-        // Guardamos la versión String para la BD (VARCHAR(15))
-        idUsuario = String.valueOf(idUsuarioInt);
+        // Guardamos en el atributo de la clase para usarlo en la venta
+        idUsuario = idUsuarioSesion;
 
         String sql = """
                 SELECT u.Id_Sucursales, s.localidad
-                FROM usuario u
+                FROM Usuario u
                 LEFT JOIN sucursales s ON u.Id_Sucursales = s.Id_Sucursales
                 WHERE u.Id_Usuario = ?
                 """;
@@ -139,7 +137,6 @@ public class ZonaPagoController implements Initializable {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Ahora Id_Usuario en la BD es VARCHAR → usamos setString
             stmt.setString(1, idUsuario);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -397,3 +394,4 @@ public class ZonaPagoController implements Initializable {
     }
 
 }
+
