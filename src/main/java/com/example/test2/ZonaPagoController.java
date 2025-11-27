@@ -211,7 +211,7 @@ public class ZonaPagoController implements Initializable {
         }
 
         // ==========================
-        // 1) Insertar en VENTA
+        // Insertar en VENTA
         // ==========================
         String sqlVenta = """
             INSERT INTO venta
@@ -225,7 +225,7 @@ public class ZonaPagoController implements Initializable {
              PreparedStatement stmtVenta = conn.prepareStatement(
                      sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Id_Usuario ahora es String (VARCHAR en la BD)
+            // Id_Usuario String
             stmtVenta.setString(1, idUsuario);
             stmtVenta.setInt(2, idSucursalUsuario);
             stmtVenta.setInt(3, totalAPagar);
@@ -236,7 +236,7 @@ public class ZonaPagoController implements Initializable {
             } else {
                 stmtVenta.setInt(6, rutCliente);
             }
-            stmtVenta.setInt(7, 0); // Descuento = 0 por ahora
+            stmtVenta.setInt(7, 0); // Descuento = 0
 
             stmtVenta.executeUpdate();
 
@@ -272,7 +272,7 @@ public class ZonaPagoController implements Initializable {
                 stmtDet.executeBatch();
             }
 
-            // (Opcional) 3) Actualizar STOCK en producto
+
             String sqlUpdateStock = """
                 UPDATE producto
                 SET Stock = Stock - ?
@@ -308,6 +308,8 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     //   ABRIR VENTANA BOLETA
     // ==========================
+
+
     private void abrirVentanaBoleta(int idBoleta,
                                     String nombreSucursal,
                                     String metodoPago,
@@ -392,6 +394,17 @@ public class ZonaPagoController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
-
+    @FXML
+    private void ExitToMenu() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("MenuIniciadasesionListoV2.fxml"));
+            Stage stage = (Stage) lblMontoTotal.getScene().getWindow();   // puedes cambiar lblMontoTotal por cualquier nodo de esa ventana
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo volver al menú.");
+        }
+    }
 }
 
