@@ -34,15 +34,20 @@ public class ControladorVentanas {
 
     @FXML private PasswordField txtPassword;
     @FXML private PasswordField txtRepetirPassword;
-    @FXML private Hyperlink RegistroMuebleslink;
+
     @FXML private Text textoerror;
     @FXML private Text textoerrorLogin;
 
     @FXML private TextField txtnombrecuenta;
     @FXML private TextField txtpassword2;
 
-    @FXML
-    private Button registrousuariooo;
+    // Botón de registro solo para admin
+    @FXML private Button registrousuariooo;
+
+    // 🔹 Hyperlinks del menú (solo admin)
+    @FXML private Hyperlink linkRegistroMuebles;     // "Registro de Muebles"
+    @FXML private Hyperlink linkRegistroUsuarios;    // "Registro de usuarios"
+    @FXML private Hyperlink linkVerTablasMuebles;    // "Ver Tabla de muebles"
 
     // -------------------------------
     // Inicialización
@@ -50,12 +55,29 @@ public class ControladorVentanas {
     @FXML
     private void initialize() {
 
-        // Mostrar botón admin según sesión
+        boolean esAdmin = UsuarioSesion.isAdmin();
+
+        // Botón de registrar usuario (solo admin)
         if (registrousuariooo != null) {
-            boolean esAdmin = UsuarioSesion.isAdmin();
             registrousuariooo.setDisable(!esAdmin);
             registrousuariooo.setVisible(esAdmin);
             registrousuariooo.setManaged(esAdmin);
+        }
+
+        // 🔒 Ocultar links de admin si NO es admin
+        if (!esAdmin) {
+            if (linkRegistroMuebles != null) {
+                linkRegistroMuebles.setVisible(false);
+                linkRegistroMuebles.setManaged(false);
+            }
+            if (linkRegistroUsuarios != null) {
+                linkRegistroUsuarios.setVisible(false);
+                linkRegistroUsuarios.setManaged(false);
+            }
+            if (linkVerTablasMuebles != null) {
+                linkVerTablasMuebles.setVisible(false);
+                linkVerTablasMuebles.setManaged(false);
+            }
         }
 
         // ====== FORMATEO AUTOMÁTICO DEL RUT ======
@@ -68,15 +90,11 @@ public class ControladorVentanas {
 
                 actualizandoRut[0] = true;
 
-                // 1. Dejar solo dígitos
                 String soloDigitos = newValue.replaceAll("\\D", "");
-
-                // máximo 9 dígitos (8 cuerpo + dv)
                 if (soloDigitos.length() > 9) {
                     soloDigitos = soloDigitos.substring(0, 9);
                 }
 
-                // 2. Formatear
                 String formateado = formatearRut(soloDigitos);
 
                 txtRut.setText(formateado);
@@ -117,7 +135,6 @@ public class ControladorVentanas {
         String cuerpo = digitos.substring(0, digitos.length() - 1);
         String dv = digitos.substring(digitos.length() - 1);
 
-        // Insertar puntos cada 3 dígitos
         StringBuilder sb = new StringBuilder();
         int contador = 0;
 
@@ -138,7 +155,7 @@ public class ControladorVentanas {
 
 
     // ===================================================
-    // REGISTRO DE USUARIO (RUT se guarda sin formato)
+    // REGISTRO DE USUARIO
     // ===================================================
     @FXML
     private void RegistroTablaUsuario() {
@@ -146,7 +163,7 @@ public class ControladorVentanas {
         textoerror.setFill(Color.web("#ff4444"));
 
         String rutFormateado = txtRut.getText().trim();
-        String idUsuario = rutFormateado.replaceAll("\\D", "");  // <-- solo dígitos
+        String idUsuario = rutFormateado.replaceAll("\\D", "");
 
         String nombre   = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
@@ -188,7 +205,7 @@ public class ControladorVentanas {
             stmt.setString(4, correo);
             stmt.setString(5, telefono);
             stmt.setString(6, hashedPassword);
-            stmt.setInt(7, 0);
+            stmt.setInt(7, 0);   // no admin por defecto
 
             stmt.executeUpdate();
 
@@ -207,7 +224,7 @@ public class ControladorVentanas {
 
 
     // ===================================================
-    // LOGIN (acepta rut con puntos o sin puntos)
+    // LOGIN (con bloqueo de suspendido)
     // ===================================================
     @FXML
     private void iniciarSesion(ActionEvent event) {
@@ -244,7 +261,6 @@ public class ControladorVentanas {
                 return;
             }
 
-            // Contraseña
             String passHash = rs.getString("Password");
             if (!BCrypt.checkpw(passwordIngresada, passHash)) {
                 textoerrorLogin.setText("Contraseña incorrecta");
@@ -252,14 +268,13 @@ public class ControladorVentanas {
                 return;
             }
 
-            // 🔥 REVISAR SUSPENSIÓN
+            // 🔒 REVISAR SUSPENSIÓN
             if (rs.getInt("Suspendido") == 1) {
                 textoerrorLogin.setText("Cuenta suspendida. Contacte con un administrador.");
                 textoerrorLogin.setFill(Color.web("#ff4444"));
                 return;
             }
 
-            // OK
             String idUsuario = rs.getString("Id_Usuario");
             String nombre = rs.getString("Nombre");
             boolean esAdmin = rs.getInt("Admin") == 1;
@@ -280,19 +295,19 @@ public class ControladorVentanas {
 
 
 
-
     // ===================================================
     // Limpieza
     // ===================================================
     private void limpiarCampos() {
-        txtNombre.clear();
-        txtApellido.clear();
-        txtRut.clear();
-        txtCorreo.clear();
-        txtTelefono.setText("+569");
-        txtPassword.clear();
-        txtRepetirPassword.clear();
+        if (txtNombre != null) txtNombre.clear();
+        if (txtApellido != null) txtApellido.clear();
+        if (txtRut != null) txtRut.clear();
+        if (txtCorreo != null) txtCorreo.clear();
+        if (txtTelefono != null) txtTelefono.setText("+569");
+        if (txtPassword != null) txtPassword.clear();
+        if (txtRepetirPassword != null) txtRepetirPassword.clear();
     }
+
 
 
     // ===================================================
@@ -311,18 +326,48 @@ public class ControladorVentanas {
         }
     }
 
+    // ---- Navegación general
     @FXML private void PantallaIniciarsesion(ActionEvent event){ cambiarAVentana("iniciarSesion",event); }
     @FXML private void regresarmenuprincipal(ActionEvent event){ cambiarAVentana("VentanaLoginV2",event); }
     @FXML private void Registrarboton(ActionEvent event){ cambiarAVentana("registrarte",event); }
-    @FXML public void menuventa(ActionEvent event){ cambiarAVentana("MenuiniciadasesionListoV2",event); }
+    @FXML public  void menuventa(ActionEvent event){ cambiarAVentana("MenuiniciadasesionListoV2",event); }
     @FXML private void compraaaboton(ActionEvent event){ cambiarAVentana("MenuMuebles",event); }
-    @FXML private void VerRegistrosUsuarios(ActionEvent event){
-        if (UsuarioSesion.isAdmin()) cambiarAVentana("TablaUsuarios", event);
-    }
-    @FXML private void VentanaRegistroDeMuebles(ActionEvent event){
-        if (UsuarioSesion.isAdmin()) cambiarAVentana("VentanaGrafico",event);
-    }
-    @FXML private void VerTablasMuebles(ActionEvent event){ cambiarAVentana("TablaMueblesVentana", event);}
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
 
+    // ---- SOLO ADMIN (con seguridad extra) ----
+    @FXML
+    private void VerRegistrosUsuarios(ActionEvent event){
+        if (!UsuarioSesion.isAdmin()) {
+            mostrarAlertaNoAdmin();
+            return;
+        }
+        cambiarAVentana("TablaUsuarios", event);
+    }
+
+    @FXML
+    private void VentanaRegistroDeMuebles(ActionEvent event){
+        if (!UsuarioSesion.isAdmin()) {
+            mostrarAlertaNoAdmin();
+            return;
+        }
+        cambiarAVentana("VentanaGrafico",event);
+    }
+
+    @FXML
+    private void VerTablasMuebles(ActionEvent event){
+        if (!UsuarioSesion.isAdmin()) {
+            mostrarAlertaNoAdmin();
+            return;
+        }
+        cambiarAVentana("TablaMueblesVentana", event);
+    }
+
+    // Pequeña alerta opcional
+    private void mostrarAlertaNoAdmin() {
+        Alert alerta = new Alert(Alert.AlertType.WARNING);
+        alerta.setTitle("Acceso restringido");
+        alerta.setHeaderText("Solo administradores");
+        alerta.setContentText("No tienes permisos para acceder a esta sección.");
+        alerta.showAndWait();
+    }
 }
