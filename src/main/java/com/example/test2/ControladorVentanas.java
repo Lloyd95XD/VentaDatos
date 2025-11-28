@@ -213,8 +213,7 @@ public class ControladorVentanas {
     private void iniciarSesion(ActionEvent event) {
 
         String identificador = txtnombrecuenta.getText().trim();
-        String identificadorSinFormato = identificador.replaceAll("\\D", ""); // quitar puntos y guion
-
+        String identificadorSinFormato = identificador.replaceAll("\\D", "");
         String passwordIngresada = txtpassword2.getText();
 
         if (identificador.isEmpty() || passwordIngresada.isEmpty()) {
@@ -224,11 +223,11 @@ public class ControladorVentanas {
         }
 
         String sqlLogin = """
-                SELECT Id_Usuario, Nombre, Password, Admin
-                FROM Usuario
-                WHERE Email = ? OR Telefono = ? OR Id_Usuario = ?
-                LIMIT 1
-                """;
+            SELECT Id_Usuario, Nombre, Password, Admin, Suspendido
+            FROM Usuario
+            WHERE Email = ? OR Telefono = ? OR Id_Usuario = ?
+            LIMIT 1
+            """;
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sqlLogin)) {
@@ -245,21 +244,29 @@ public class ControladorVentanas {
                 return;
             }
 
+            // Contraseña
             String passHash = rs.getString("Password");
-
             if (!BCrypt.checkpw(passwordIngresada, passHash)) {
                 textoerrorLogin.setText("Contraseña incorrecta");
                 textoerrorLogin.setFill(Color.web("#ff4444"));
                 return;
             }
 
+            // 🔥 REVISAR SUSPENSIÓN
+            if (rs.getInt("Suspendido") == 1) {
+                textoerrorLogin.setText("Cuenta suspendida. Contacte con un administrador.");
+                textoerrorLogin.setFill(Color.web("#ff4444"));
+                return;
+            }
+
+            // OK
             String idUsuario = rs.getString("Id_Usuario");
             String nombre = rs.getString("Nombre");
             boolean esAdmin = rs.getInt("Admin") == 1;
 
             UsuarioSesion.setSesion(idUsuario, nombre, esAdmin);
 
-            textoerrorLogin.setText("✔ Bienvenido " + nombre + "!");
+            textoerrorLogin.setText("Bienvenido " + nombre);
             textoerrorLogin.setFill(Color.web("#22bc43"));
 
             menuventa(event);
@@ -270,6 +277,7 @@ public class ControladorVentanas {
             e.printStackTrace();
         }
     }
+
 
 
 
@@ -314,5 +322,7 @@ public class ControladorVentanas {
     @FXML private void VentanaRegistroDeMuebles(ActionEvent event){
         if (UsuarioSesion.isAdmin()) cambiarAVentana("VentanaGrafico",event);
     }
+    @FXML private void VerTablasMuebles(ActionEvent event){ cambiarAVentana("TablaMueblesVentana", event);}
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
+
 }

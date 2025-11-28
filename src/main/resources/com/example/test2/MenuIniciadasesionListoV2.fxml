@@ -66,6 +66,7 @@
                                         <Button maxWidth="260.0" onAction="#VerBoletas" style="-fx-background-color: #1391EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15; -fx-padding: 10 12 10 12;" text="Ver historial de compras" wrapText="true" />
                               <Hyperlink fx:id="RegistroMuebleslink" onAction="#VentanaRegistroDeMuebles" text="Registro de Muebles" />
                               <Hyperlink layoutX="182.0" layoutY="163.0" onAction="#VerRegistrosUsuarios" text="Registro de usuarios" />
+                              <Hyperlink layoutX="182.0" layoutY="149.0" onAction="#VerTablasMuebles" text="Ver Tabla de muebles" />
 
                                     </children>
                                 </VBox>

@@ -22,9 +22,6 @@ import java.util.ResourceBundle;
 
 public class AdminUsuariosController implements Initializable {
 
-    // ==========================
-    //  TABLA USUARIOS
-    // ==========================
     @FXML private TableView<DatosControlador> tablaUsuarios;
 
     @FXML private TableColumn<DatosControlador, String> colRut;
@@ -37,25 +34,27 @@ public class AdminUsuariosController implements Initializable {
     @FXML private TableColumn<DatosControlador, String> colRol;
     @FXML private TableColumn<DatosControlador, String> colSucursal;
 
-    private final ObservableList<DatosControlador> listaUsuarios =
-            FXCollections.observableArrayList();
+    // 🔹 Nueva columna
+    @FXML private TableColumn<DatosControlador, Integer> colSuspendido;
 
-    // ==========================
-    //  CONTROLES PARA EDITAR ROL/SUCURSAL
-    // ==========================
     @FXML private ComboBox<String> cbRol;
     @FXML private ComboBox<String> cbSucursal;
+
     @FXML private Label lblUsuarioSeleccionado;
     @FXML private Label lblMensaje;
+
+    @FXML private Button salirboton1;
+
+    private final ObservableList<DatosControlador> listaUsuarios =
+            FXCollections.observableArrayList();
 
     private final Map<String, Integer> mapaRoles = new HashMap<>();
     private final Map<String, Integer> mapaSucursales = new HashMap<>();
 
-    @FXML private Button salirboton1;
 
-    // ==========================
-    //  INIT
-    // ==========================
+    // ==============================================
+    // INIT
+    // ==============================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarColumnas();
@@ -70,7 +69,6 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
-
     private void configurarColumnas() {
         colRut.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -81,104 +79,80 @@ public class AdminUsuariosController implements Initializable {
         colAdmin.setCellValueFactory(new PropertyValueFactory<>("admin"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("nombreRol"));
         colSucursal.setCellValueFactory(new PropertyValueFactory<>("nombreSucursal"));
+
+        // 🔹 NUEVO
+        colSuspendido.setCellValueFactory(new PropertyValueFactory<>("suspendido"));
     }
 
 
-
-    // ==========================
-    //  EDICIÓN DIRECTA EN LA TABLA
-    // ==========================
+    // ==============================================
+    // EDICIÓN
+    // ==============================================
     private void configurarEdicionColumnas() {
+
         tablaUsuarios.setEditable(true);
 
-        // ======== RUT (Id_Usuario) ========
         colRut.setCellFactory(TextFieldTableCell.forTableColumn());
         colRut.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            String antiguoRut = u.getIdUsuario();
-            String nuevoRut = event.getNewValue();
-
-            if (nuevoRut == null || nuevoRut.isBlank()) {
-                tablaUsuarios.refresh();
-                return;
-            }
-
-            boolean ok = actualizarCampoUsuario("Id_Usuario", nuevoRut, antiguoRut);
-            if (ok) {
-                u.setIdUsuario(nuevoRut);
-                if (lblMensaje != null) lblMensaje.setText("Rut actualizado");
-            } else {
-                tablaUsuarios.refresh();
-            }
+            actualizarCampoUsuario("Id_Usuario", event.getNewValue(), u.getIdUsuario());
+            u.setIdUsuario(event.getNewValue());
         });
 
-        // Nombre
         colNombre.setCellFactory(TextFieldTableCell.forTableColumn());
         colNombre.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            boolean ok = actualizarCampoUsuario("Nombre", event.getNewValue(), u.getIdUsuario());
-            if (ok) u.setNombre(event.getNewValue());
+            actualizarCampoUsuario("Nombre", event.getNewValue(), u.getIdUsuario());
+            u.setNombre(event.getNewValue());
         });
 
-        // Apellido
         colApellido.setCellFactory(TextFieldTableCell.forTableColumn());
         colApellido.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            boolean ok = actualizarCampoUsuario("Apellido", event.getNewValue(), u.getIdUsuario());
-            if (ok) u.setApellido(event.getNewValue());
+            actualizarCampoUsuario("Apellido", event.getNewValue(), u.getIdUsuario());
+            u.setApellido(event.getNewValue());
         });
 
-        // Email
         colEmail.setCellFactory(TextFieldTableCell.forTableColumn());
         colEmail.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            boolean ok = actualizarCampoUsuario("Email", event.getNewValue(), u.getIdUsuario());
-            if (ok) u.setEmail(event.getNewValue());
+            actualizarCampoUsuario("Email", event.getNewValue(), u.getIdUsuario());
+            u.setEmail(event.getNewValue());
         });
 
-        // Teléfono
         colTelefono.setCellFactory(TextFieldTableCell.forTableColumn());
         colTelefono.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
-            boolean ok = actualizarCampoUsuario("Telefono", event.getNewValue(), u.getIdUsuario());
-            if (ok) u.setTelefono(event.getNewValue());
+            actualizarCampoUsuario("Telefono", event.getNewValue(), u.getIdUsuario());
+            u.setTelefono(event.getNewValue());
         });
     }
 
 
-
-    // ==========================
-    //  UPDATE CAMPO
-    // ==========================
-    private boolean actualizarCampoUsuario(String columna, String nuevoValor, String idUsuarioActual) {
-
+    private boolean actualizarCampoUsuario(String columna, String nuevo, String idActual) {
         String sql = "UPDATE Usuario SET " + columna + " = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, nuevoValor);
-            stmt.setString(2, idUsuarioActual);
-
+            stmt.setString(1, nuevo);
+            stmt.setString(2, idActual);
             stmt.executeUpdate();
+
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null)
-                lblMensaje.setText("Error actualizando " + columna + ": " + e.getMessage());
+            lblMensaje.setText("Error actualizando " + columna);
             return false;
         }
     }
 
 
-
-    // ==========================
-    //  CARGA LISTA DE ROLES
-    // ==========================
+    // ==============================================
+    // CARGAR ROLES
+    // ==============================================
     private void cargarRoles() {
-        if (cbRol == null) return;
-
         cbRol.getItems().clear();
         mapaRoles.clear();
 
@@ -189,27 +163,20 @@ public class AdminUsuariosController implements Initializable {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                int id = rs.getInt("Id_Rol");
-                String nombre = rs.getString("Nombre_Rol");
-
-                cbRol.getItems().add(nombre);
-                mapaRoles.put(nombre, id);
+                cbRol.getItems().add(rs.getString("Nombre_Rol"));
+                mapaRoles.put(rs.getString("Nombre_Rol"), rs.getInt("Id_Rol"));
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null) lblMensaje.setText("Error cargando roles");
         }
     }
 
 
-
-    // ==========================
-    //  CARGA LISTA DE SUCURSALES
-    // ==========================
+    // ==============================================
+    // CARGAR SUCURSALES
+    // ==============================================
     private void cargarSucursales() {
-        if (cbSucursal == null) return;
-
         cbSucursal.getItems().clear();
         mapaSucursales.clear();
 
@@ -220,43 +187,31 @@ public class AdminUsuariosController implements Initializable {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                int id = rs.getInt("Id_Sucursales");
-                String nombre = rs.getString("localidad");
-
-                cbSucursal.getItems().add(nombre);
-                mapaSucursales.put(nombre, id);
+                cbSucursal.getItems().add(rs.getString("localidad"));
+                mapaSucursales.put(rs.getString("localidad"), rs.getInt("Id_Sucursales"));
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null) lblMensaje.setText("Error cargando sucursales");
         }
     }
 
 
-
-    // ==========================
-    //  CARGA USUARIOS
-    // ==========================
+    // ==============================================
+    // CARGAR USUARIOS
+    // ==============================================
     private void cargarUsuarios() {
+
         listaUsuarios.clear();
 
         String sql = """
-            SELECT u.Id_Usuario,
-                   u.Nombre,
-                   u.Apellido,
-                   u.Email,
-                   u.Telefono,
-                   u.Fecha_creacion_de_cuenta,
-                   u.Admin,
-                   u.Id_Rol,
-                   r.Nombre_Rol,
-                   u.Id_Sucursales,
-                   s.localidad
+            SELECT u.Id_Usuario, u.Nombre, u.Apellido, u.Email, u.Telefono,
+                   u.Fecha_creacion_de_cuenta, u.Admin, u.Id_Rol, r.Nombre_Rol,
+                   u.Id_Sucursales, s.localidad, u.Suspendido
             FROM Usuario u
             LEFT JOIN rol r ON u.Id_Rol = r.Id_Rol
             LEFT JOIN sucursales s ON u.Id_Sucursales = s.Id_Sucursales
-            """;
+        """;
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -264,7 +219,7 @@ public class AdminUsuariosController implements Initializable {
 
             while (rs.next()) {
 
-                DatosControlador user = new DatosControlador(
+                DatosControlador u = new DatosControlador(
                         rs.getString("Id_Usuario"),
                         rs.getString("Nombre"),
                         rs.getString("Apellido"),
@@ -276,132 +231,175 @@ public class AdminUsuariosController implements Initializable {
                         rs.getInt("Id_Rol"),
                         rs.getInt("Id_Sucursales"),
                         rs.getString("Nombre_Rol"),
-                        rs.getString("localidad")
+                        rs.getString("localidad"),
+                        rs.getInt("Suspendido")
                 );
 
-                listaUsuarios.add(user);
+                listaUsuarios.add(u);
             }
 
             tablaUsuarios.setItems(listaUsuarios);
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null) lblMensaje.setText("Error cargando usuarios");
         }
     }
 
 
-
-    // ==========================
-    //  SELECCIÓN DE USUARIO
-    // ==========================
+    // ==============================================
+    // SELECCIONAR USUARIO
+    // ==============================================
     private void mostrarUsuarioSeleccionado(DatosControlador u) {
-        if (lblUsuarioSeleccionado == null) return;
-
         if (u == null) {
             lblUsuarioSeleccionado.setText("(ninguno)");
-            if (cbRol != null) cbRol.getSelectionModel().clearSelection();
-            if (cbSucursal != null) cbSucursal.getSelectionModel().clearSelection();
             return;
         }
 
         lblUsuarioSeleccionado.setText("Usuario seleccionado: " + u.getIdUsuario());
 
-        if (cbRol != null) cbRol.setValue(u.getNombreRol());
-        if (cbSucursal != null) cbSucursal.setValue(u.getNombreSucursal());
+        cbRol.setValue(u.getNombreRol());
+        cbSucursal.setValue(u.getNombreSucursal());
     }
 
 
-
-    // ==========================
-    //  GUARDAR CAMBIOS (ROL / SUCURSAL)
-    // ==========================
+    // ==============================================
+    // GUARDAR CAMBIOS
+    // ==============================================
     @FXML
     private void guardarCambiosRolSucursal() {
-        if (lblMensaje != null) lblMensaje.setText("");
 
         DatosControlador u = tablaUsuarios.getSelectionModel().getSelectedItem();
+
         if (u == null) {
-            if (lblMensaje != null) lblMensaje.setText("Selecciona un usuario primero");
+            lblMensaje.setText("Selecciona un usuario primero");
             return;
         }
 
-        String rolNombre = cbRol.getValue();
-        String sucNombre = cbSucursal.getValue();
-
-        if (rolNombre == null || sucNombre == null) {
-            if (lblMensaje != null) lblMensaje.setText("Elige Rol y Sucursal");
-            return;
-        }
-
-        Integer nuevoIdRol = mapaRoles.get(rolNombre);
-        Integer nuevoIdSuc = mapaSucursales.get(sucNombre);
+        Integer idRol = mapaRoles.get(cbRol.getValue());
+        Integer idSuc = mapaSucursales.get(cbSucursal.getValue());
 
         String sql = "UPDATE Usuario SET Id_Rol = ?, Id_Sucursales = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, nuevoIdRol);
-            stmt.setInt(2, nuevoIdSuc);
-            stmt.setString(3, u.getIdUsuario()); // AHORA STRING
+            stmt.setInt(1, idRol);
+            stmt.setInt(2, idSuc);
+            stmt.setString(3, u.getIdUsuario());
 
             stmt.executeUpdate();
 
-            u.setIdRol(nuevoIdRol);
-            u.setNombreRol(rolNombre);
-            u.setIdSucursal(nuevoIdSuc);
-            u.setNombreSucursal(sucNombre);
+            u.setIdRol(idRol);
+            u.setNombreRol(cbRol.getValue());
+            u.setIdSucursal(idSuc);
+            u.setNombreSucursal(cbSucursal.getValue());
 
             tablaUsuarios.refresh();
-
-            if (lblMensaje != null) lblMensaje.setText("✅ Cambios guardados");
+            lblMensaje.setText("Cambios guardados");
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null) lblMensaje.setText("Error al guardar cambios");
+            lblMensaje.setText("Error guardando cambios");
         }
     }
 
 
-
-    // ==========================
-    //  ELIMINAR CUENTA
-    // ==========================
+    // ==============================================
+    // ELIMINAR CUENTA ✔
+    // ==============================================
     @FXML
     private void EliminarCuenta() {
-        if (lblMensaje != null) lblMensaje.setText("");
 
         DatosControlador u = tablaUsuarios.getSelectionModel().getSelectedItem();
+
         if (u == null) {
-            if (lblMensaje != null) lblMensaje.setText("Selecciona un usuario para eliminar");
+            lblMensaje.setText("Selecciona un usuario primero");
             return;
         }
 
-        String sql = "DELETE FROM Usuario WHERE Id_Usuario = ?";
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Eliminar cuenta");
+        alerta.setHeaderText("¿Eliminar al usuario " + u.getIdUsuario() + "?");
+        alerta.setContentText("Esta acción es irreversible.");
+
+        if (alerta.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM Usuario WHERE Id_Usuario = ?")) {
+
+            stmt.setString(1, u.getIdUsuario());
+            stmt.executeUpdate();
+
+            listaUsuarios.remove(u);
+            lblMensaje.setText("Usuario eliminado");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            lblMensaje.setText("Error al eliminar usuario");
+        }
+    }
+
+
+    // ==============================================
+    // SUSPENDER / REACTIVAR CUENTA ✔
+    // ==============================================
+    @FXML
+    private void SuspenderCuenta() {
+
+        DatosControlador u = tablaUsuarios.getSelectionModel().getSelectedItem();
+
+        if (u == null) {
+            lblMensaje.setText("Selecciona un usuario primero");
+            return;
+        }
+
+        boolean suspendido = u.getSuspendido() == 1;
+
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle(suspendido ? "Reactivar cuenta" : "Suspender cuenta");
+        alerta.setHeaderText(
+                suspendido
+                        ? "¿Deseas reactivar la cuenta del usuario " + u.getIdUsuario() + "?"
+                        : "¿Deseas suspender al usuario " + u.getIdUsuario() + "?"
+        );
+        alerta.setContentText(
+                suspendido
+                        ? "El usuario podrá volver a iniciar sesión."
+                        : "El usuario NO podrá iniciar sesión hasta ser reactivado."
+        );
+
+        if (alerta.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        int nuevoEstado = suspendido ? 0 : 1;
+
+        String sql = "UPDATE Usuario SET Suspendido = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, u.getIdUsuario()); // AHORA STRING
-
+            stmt.setInt(1, nuevoEstado);
+            stmt.setString(2, u.getIdUsuario());
             stmt.executeUpdate();
-            listaUsuarios.remove(u);
 
-            if (lblMensaje != null) lblMensaje.setText("Usuario eliminado");
+            u.setSuspendido(nuevoEstado);
+            tablaUsuarios.refresh();
+
+            lblMensaje.setText(
+                    nuevoEstado == 1 ? "Usuario suspendido" : "Usuario reactivado"
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            if (lblMensaje != null)
-                lblMensaje.setText("Error al eliminar (puede tener ventas asociadas)");
+            lblMensaje.setText("Error actualizando estado");
         }
     }
 
 
-
-    // ==========================
-    //  VOLVER AL MENÚ
-    // ==========================
+    // ==============================================
+    // VOLVER AL MENÚ
+    // ==============================================
     @FXML
     private void VolverMenu2() {
         try {

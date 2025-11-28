@@ -2,7 +2,7 @@ package com.example.test2;
 
 public class DatosControlador {
 
-    private String idUsuario;          // RUT o ID
+    private String idUsuario;
     private String nombre;
     private String apellido;
     private String email;
@@ -11,11 +11,13 @@ public class DatosControlador {
     private String fechaCreacion;
     private int admin;
     private int idRol;
-    private int idSucursal;//
+    private int idSucursal;
 
-    // Nuevos campos para mostrar en la tabla de admin
     private String nombreRol;
     private String nombreSucursal;
+
+    // 🔹 Nuevo campo
+    private int suspendido;
 
     // Constructor COMPLETO para AdminUsuarios
     public DatosControlador(
@@ -23,7 +25,8 @@ public class DatosControlador {
             String email, String telefono, String password,
             String fechaCreacion, int admin,
             int idRol, int idSucursal,
-            String nombreRol, String nombreSucursal
+            String nombreRol, String nombreSucursal,
+            int suspendido
     ) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
@@ -37,6 +40,7 @@ public class DatosControlador {
         this.idSucursal = idSucursal;
         this.nombreRol = nombreRol;
         this.nombreSucursal = nombreSucursal;
+        this.suspendido = suspendido;
     }
 
     // ==== GETTERS & SETTERS ====
@@ -76,4 +80,8 @@ public class DatosControlador {
 
     public String getNombreSucursal() { return nombreSucursal; }
     public void setNombreSucursal(String nombreSucursal) { this.nombreSucursal = nombreSucursal; }
+
+    // 🔹 Suspendido
+    public int getSuspendido() { return suspendido; }
+    public void setSuspendido(int suspendido) { this.suspendido = suspendido; }
 }
