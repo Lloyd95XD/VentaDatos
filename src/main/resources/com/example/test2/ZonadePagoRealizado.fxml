@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<StackPane prefHeight="500.0" prefWidth="800.0"
+           style="-fx-background-color: linear-gradient(to bottom, #141e30, #243b55);"
+           xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.test2.BoletaController">
+
+    <children>
+
+        <!-- Tarjeta moderna -->
+        <StackPane maxWidth="600" maxHeight="420">
+            <children>
+
+                <!-- Fondo tarjeta -->
+                <Rectangle width="600" height="420"
+                           arcWidth="25" arcHeight="25"
+                           style="-fx-fill: rgba(15,22,40,0.96);">
+                    <effect><Bloom/></effect>
+                </Rectangle>
+
+                <BorderPane>
+                    <padding>
+                        <Insets top="20" left="25" right="25" bottom="20"/>
+                    </padding>
+
+                    <!-- TITULO SUPERIOR -->
+                    <top>
+                        <VBox alignment="CENTER">
+                            <children>
+
+                                <Text text="Compra realizada con éxito"
+                                      style="-fx-fill: white;">
+                                    <font><Font size="28"/></font>
+                                </Text>
+
+                                <Text text="Boleta"
+                                      style="-fx-fill: #9faac7;">
+                                    <font><Font size="18"/></font>
+                                </Text>
+
+                            </children>
+                        </VBox>
+                    </top>
+
+                    <!-- ÁREA DE LA BOLETA -->
+                    <center>
+                        <TextArea fx:id="txtBoleta"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefWidth="380"
+                                  prefHeight="290"
+                                  style="
+                                      -fx-background-color: #0f1528;
+                                      -fx-control-inner-background: #0f1528;
+                                      -fx-text-fill: #dce3ff;
+                                      -fx-font-family: 'Consolas';
+                                      -fx-font-size: 14;
+                                      -fx-background-radius: 12;
+                                      -fx-padding: 12;">
+                        </TextArea>
+                    </center>
+
+                    <!-- ERROR + BOTÓN VOLVER -->
+                    <bottom>
+                        <HBox alignment="CENTER_RIGHT" spacing="10">
+                            <children>
+
+                                <!-- Texto error -->
+                                <Text fx:id="textoerror" text=""
+                                      style="-fx-fill: #ff5959;">
+                                    <font><Font size="14"/></font>
+                                </Text>
+
+                                <!-- Botón volver -->
+                                <Button text="Volver"
+                                        onAction="#volveralmenu"
+                                        style="-fx-background-color: #1391EB;
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-background-radius: 10;
+                                               -fx-padding: 8 20;"/>
+                            </children>
+                        </HBox>
+                    </bottom>
+
+                </BorderPane>
+
+            </children>
+        </StackPane>
+
+    </children>
+
+</StackPane>
