@@ -244,7 +244,7 @@ public class MueblesTablaController implements Initializable {
         cargarProductos();
         limpiarFormulario();
     }
-
+//
     // ===================== VOLVER AL MENÚ =====================
     @FXML
     private void volverAlMenu() {

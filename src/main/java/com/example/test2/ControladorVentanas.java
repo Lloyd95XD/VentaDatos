@@ -361,7 +361,7 @@ public class ControladorVentanas {
         }
         cambiarAVentana("TablaMueblesVentana", event);
     }
-
+//
     // Pequeña alerta opcional
     private void mostrarAlertaNoAdmin() {
         Alert alerta = new Alert(Alert.AlertType.WARNING);

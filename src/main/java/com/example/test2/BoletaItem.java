@@ -10,7 +10,7 @@ public class BoletaItem {
     public int getIdBoleta() {
         return idBoleta;
     }
-
+//
     public void setIdBoleta(int idBoleta) {
         this.idBoleta = idBoleta;
     }

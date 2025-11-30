@@ -259,7 +259,7 @@ public class TablasTienda implements Initializable {
 
             // Si quisieras también podrías pasar el id de usuario así:
             // controller.setIdUsuario(UsuarioSesion.getIdUsuario());
-
+//
             // 🔁 REEMPLAZAR LA VENTANA ACTUAL
             // Usa cualquier nodo de la escena actual, por ejemplo tablaProductos
             Stage stage = (Stage) tablaProductos.getScene().getWindow();
