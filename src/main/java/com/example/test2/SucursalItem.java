@@ -14,7 +14,7 @@ public class SucursalItem {
         this.id = id;
         this.nombre = nombre;
     }
-
+//
     /// Obtiene el ID de la sucursal
     public int getId() { return id; }
 

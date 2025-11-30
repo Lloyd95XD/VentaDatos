@@ -90,7 +90,7 @@ public class VentanaGrafico implements Initializable {
 
         lineChartVentas.getData().add(serie); // Agregar única línea
     }
-
+//
     // =====================================================
     //   RESUMEN: ventas hoy, ventas mes, total registros
     // =====================================================

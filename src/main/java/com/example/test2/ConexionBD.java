@@ -2,7 +2,7 @@ package com.example.test2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-
+//
 public class ConexionBD {
     private static final String URL  = "jdbc:mysql://localhost:3306/gestor_de_ventas?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
     private static final String USER = "root";

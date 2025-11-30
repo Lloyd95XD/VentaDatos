@@ -77,7 +77,7 @@ public class DatosControlador {
 
     public String getNombreRol() { return nombreRol; }
     public void setNombreRol(String nombreRol) { this.nombreRol = nombreRol; }
-
+//
     public String getNombreSucursal() { return nombreSucursal; }
     public void setNombreSucursal(String nombreSucursal) { this.nombreSucursal = nombreSucursal; }
 

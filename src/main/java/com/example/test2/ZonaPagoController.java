@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class ZonaPagoController implements Initializable {
-
+//
     // ======== TABLA CARRITO ========
     @FXML private TableView<ItemCarrito> tablaCarrito;
     @FXML private TableColumn<ItemCarrito, String>  colNombreCarrito;

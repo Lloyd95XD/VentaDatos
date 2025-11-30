@@ -131,7 +131,7 @@ public class BoletaController implements Initializable {
             if (!rsVenta.next()) {
                 txtBoleta.setText("No se encontraron datos para la boleta " + idBoleta);
                 return;
-            }
+            }//
 
             String fecha = "";
             if (rsVenta.getTimestamp("Hora_de_venta") != null) {

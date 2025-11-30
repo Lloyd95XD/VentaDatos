@@ -42,7 +42,7 @@ public class UsuarioSesion {
     public static boolean haySesion() {
         return haySesion;
     }
-
+//
     /// cierra la sesion y limpia los datos almacenados
     public static void cerrarSesion() {
         haySesion = false;

@@ -20,7 +20,7 @@ public class MueblesControlador {
 
     /// Precio del producto
     private int precio;
-
+//
     /// Inicializacion de todos los atributos
     public MueblesControlador(int idProducto, String categoria, String nombre,
                     String descripcion, int stock, int precio) {

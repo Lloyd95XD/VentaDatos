@@ -15,7 +15,7 @@ public class HelloApplication extends Application {
     ///  Metodo que carga la ventana inicial
     @Override
     public void start(Stage stage) throws IOException {
-
+//
         /// Carga archivo FXML de la ventana login
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("VentanaLoginV2.fxml"));
 

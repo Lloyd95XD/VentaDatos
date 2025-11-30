@@ -15,7 +15,7 @@ public class ItemCarrito {
     /// Cantidad de unidades del producto en el carrito
     private int cantidad;
 
-
+//
     /// Constructor que inicializa todos los campos del item
     public ItemCarrito(int idProducto, String nombre, int precio, int cantidad) {
         this.idProducto = idProducto;
