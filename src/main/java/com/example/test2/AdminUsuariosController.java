@@ -130,13 +130,14 @@ public class AdminUsuariosController implements Initializable {
 
 
     private boolean actualizarCampoUsuario(String columna, String nuevo, String idActual) {
-        String sql = "UPDATE Usuario SET " + columna + " = ? WHERE Id_Usuario = ?";
+        String sql = "UPDATE Usuario SET ? = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, nuevo);
-            stmt.setString(2, idActual);
+            stmt.setString(1, columna);
+            stmt.setString(2, nuevo);
+            stmt.setString(3, idActual);
             stmt.executeUpdate();
 
             return true;

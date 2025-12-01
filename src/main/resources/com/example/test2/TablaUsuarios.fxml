@@ -53,13 +53,13 @@
                                     <children>
                                         <Label style="-fx-text-fill: #9faac7; -fx-font-size: 14px;" text="Listado de usuarios" />
 
-                                        <TableView fx:id="tablaUsuarios" prefHeight="420.0" prefWidth="900.0" style="-fx-background-color: transparent;                                                           -fx-control-inner-background: rgba(10,17,35,0.95);                                                           -fx-border-color: #1391EB;                                                           -fx-border-radius: 12;                                                           -fx-background-radius: 12;">
+                                        <TableView fx:id="tablaUsuarios" prefHeight="420.0" prefWidth="936.0" style="-fx-background-color: transparent;                                                           -fx-control-inner-background: rgba(10,17,35,0.95);                                                           -fx-border-color: #1391EB;                                                           -fx-border-radius: 12;                                                           -fx-background-radius: 12;">
                                             <columns>
                                                 <TableColumn fx:id="colRut" prefWidth="90" text="Rut" />
                                                 <TableColumn fx:id="colNombre" text="Nombre" />
                                                 <TableColumn fx:id="colApellido" prefWidth="110" text="Apellido" />
                                                 <TableColumn fx:id="colEmail" prefWidth="110.0" text="Email" />
-                                                <TableColumn fx:id="colTelefono" prefWidth="110" text="Teléfono" />
+                                                <TableColumn fx:id="colTelefono" maxWidth="200.0" prefWidth="110" text="Teléfono" />
                                                 <TableColumn fx:id="colFechaCreada" prefWidth="70.0" text="Fecha creación" />
                                                 <TableColumn fx:id="colAdmin" prefWidth="70" text="Admin" />
                                                 <TableColumn fx:id="colRol" prefWidth="110.0" text="Rol" />
