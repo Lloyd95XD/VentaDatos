@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class ZonaPagoController implements Initializable {
-//
+
     // ======== TABLA CARRITO ========
     @FXML private TableView<ItemCarrito> tablaCarrito;
     @FXML private TableColumn<ItemCarrito, String>  colNombreCarrito;
@@ -28,7 +28,6 @@ public class ZonaPagoController implements Initializable {
 
     @FXML private TextArea txtDescripcion;
 
-    // Carrito que viene desde la ventana anterior
     private final ObservableList<ItemCarrito> carrito =
             FXCollections.observableArrayList();
 
@@ -41,7 +40,6 @@ public class ZonaPagoController implements Initializable {
     private int totalAPagar = 0;
 
     // Usuario logueado y sucursal asociada a su cuenta
-    // Id_Usuario ahora es VARCHAR(15) en la BD → lo manejamos como String
     private String idUsuario = "";
     private int idSucursalUsuario = -1;
     private String nombreSucursalUsuario = "";
@@ -51,12 +49,14 @@ public class ZonaPagoController implements Initializable {
         configurarTablaCarrito();
         configurarDescripcion();
         cargarMetodosPago();
-        cargarDatosUsuarioYSucursal();   // carga sucursal desde la cuenta
-        actualizarTextoTotal();          // por si llega 0 al inicio
+        cargarDatosUsuarioYSucursal();
+        configurarFormatoRutCliente();   // <-- NUEVO: formateo del RUT
+        actualizarTextoTotal();
     }
 
-    // Este método lo llamarás desde la ventana anterior
-    // Sobrecargado por si en algún momento lo llamas con int o con String
+    // ==========================
+    //  Setters desde ventana anterior
+    // ==========================
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = String.valueOf(idUsuario);
     }
@@ -106,16 +106,63 @@ public class ZonaPagoController implements Initializable {
         ));
     }
 
-    /**
-     * Carga el Id_Usuario desde UsuarioSesion y obtiene
-     * la sucursal asociada a su cuenta (Id_Sucursales + localidad).
-     *
-     * Tabla Usuario: Id_Usuario, Id_Sucursales
-     * Tabla sucursales: Id_Sucursales, localidad
-     */
+    // ==========================
+    // FORMATEO AUTOMÁTICO RUT CLIENTE
+    // ==========================
+    private void configurarFormatoRutCliente() {
+        if (txtRutCliente == null) return;
+
+        final boolean[] actualizando = { false };
+
+        txtRutCliente.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (actualizando[0]) return;
+            actualizando[0] = true;
+
+            // Solo dígitos
+            String soloDigitos = newValue.replaceAll("\\D", "");
+            if (soloDigitos.length() > 9) {
+                soloDigitos = soloDigitos.substring(0, 9);
+            }
+
+            String formateado = formatearRut(soloDigitos);
+            txtRutCliente.setText(formateado);
+            txtRutCliente.positionCaret(formateado.length());
+
+            actualizando[0] = false;
+        });
+    }
+
+    // 12345678K -> 12.345.678-K
+    private String formatearRut(String digitos) {
+        if (digitos == null || digitos.isEmpty()) return "";
+
+        if (digitos.length() == 1) return digitos;
+
+        String cuerpo = digitos.substring(0, digitos.length() - 1);
+        String dv = digitos.substring(digitos.length() - 1);
+
+        StringBuilder sb = new StringBuilder();
+        int contador = 0;
+
+        for (int i = cuerpo.length() - 1; i >= 0; i--) {
+            sb.insert(0, cuerpo.charAt(i));
+            contador++;
+
+            if (contador == 3 && i != 0) {
+                sb.insert(0, ".");
+                contador = 0;
+            }
+        }
+
+        sb.append("-").append(dv);
+        return sb.toString();
+    }
+
+    // ==========================
+    // DATOS DE USUARIO / SUCURSAL
+    // ==========================
     private void cargarDatosUsuarioYSucursal() {
-        // Tomamos el id desde la sesión (debe venir del login)
-        String idUsuarioSesion = UsuarioSesion.getIdUsuario(); // ahora debe ser String
+        String idUsuarioSesion = UsuarioSesion.getIdUsuario();
 
         if (idUsuarioSesion == null || idUsuarioSesion.trim().isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR,
@@ -124,7 +171,6 @@ public class ZonaPagoController implements Initializable {
             return;
         }
 
-        // Guardamos en el atributo de la clase para usarlo en la venta
         idUsuario = idUsuarioSesion;
 
         String sql = """
@@ -184,7 +230,8 @@ public class ZonaPagoController implements Initializable {
 
         String metodo = comboMetodoPago.getValue();
         String direccion = txtDireccion.getText().trim();
-        String rutTexto = txtRutCliente.getText().trim();
+        String rutFormateado = txtRutCliente.getText().trim();      // con puntos y guion
+        String rutSoloDigitos = rutFormateado.replaceAll("\\D", ""); // solo números
 
         if (idSucursalUsuario <= 0 || nombreSucursalUsuario == null || nombreSucursalUsuario.isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR,
@@ -200,14 +247,23 @@ public class ZonaPagoController implements Initializable {
         }
 
         Integer rutCliente = null;
-        if (!rutTexto.isEmpty()) {
+        if (!rutSoloDigitos.isEmpty()) {
             try {
-                rutCliente = Integer.parseInt(rutTexto);
+                rutCliente = Integer.parseInt(rutSoloDigitos);
             } catch (NumberFormatException e) {
                 mostrarAlerta(Alert.AlertType.WARNING,
                         "RUT inválido", "El RUT debe ser numérico (sin puntos ni guion).");
                 return;
             }
+        }
+
+        // ===== DESCUENTO POR RUT (segunda compra o más) =====
+        int totalVenta = totalAPagar;
+        int descuentoAplicado = 0;
+
+        if (rutCliente != null && clienteYaComproAntes(rutCliente)) {
+            descuentoAplicado = (int) Math.round(totalAPagar * 0.10);  // 10%
+            totalVenta = totalAPagar - descuentoAplicado;
         }
 
         // ==========================
@@ -225,22 +281,22 @@ public class ZonaPagoController implements Initializable {
              PreparedStatement stmtVenta = conn.prepareStatement(
                      sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Id_Usuario String
             stmtVenta.setString(1, idUsuario);
             stmtVenta.setInt(2, idSucursalUsuario);
-            stmtVenta.setInt(3, totalAPagar);
+            stmtVenta.setInt(3, totalVenta);              // total con descuento (si aplica)
             stmtVenta.setString(4, metodo);
             stmtVenta.setString(5, direccion.isEmpty() ? null : direccion);
+
             if (rutCliente == null) {
                 stmtVenta.setNull(6, Types.INTEGER);
             } else {
                 stmtVenta.setInt(6, rutCliente);
             }
-            stmtVenta.setInt(7, 0); // Descuento = 0
+
+            stmtVenta.setInt(7, descuentoAplicado);       // monto descontado (0 si no hay promo)
 
             stmtVenta.executeUpdate();
 
-            // Obtener Id_Boleta generado
             try (ResultSet keys = stmtVenta.getGeneratedKeys()) {
                 if (keys.next()) {
                     idBoletaGenerada = keys.getInt(1);
@@ -252,7 +308,7 @@ public class ZonaPagoController implements Initializable {
             }
 
             // ==========================
-            // 2) Insertar en DETALLES_VENTAS
+            // DETALLES_VENTAS
             // ==========================
             String sqlDetalles = """
                 INSERT INTO detalles_ventas
@@ -261,18 +317,18 @@ public class ZonaPagoController implements Initializable {
                 """;
 
             try (PreparedStatement stmtDet = conn.prepareStatement(sqlDetalles)) {
-
                 for (ItemCarrito item : carrito) {
                     stmtDet.setInt(1, idBoletaGenerada);
                     stmtDet.setInt(2, item.getIdProducto());
                     stmtDet.setInt(3, item.getCantidad());
                     stmtDet.addBatch();
                 }
-
                 stmtDet.executeBatch();
             }
 
-
+            // ==========================
+            // ACTUALIZAR STOCK
+            // ==========================
             String sqlUpdateStock = """
                 UPDATE producto
                 SET Stock = Stock - ?
@@ -287,14 +343,16 @@ public class ZonaPagoController implements Initializable {
                 stmtStock.executeBatch();
             }
 
-            // muestra boleta
+            // Boleta final
             abrirVentanaBoleta(
                     idBoletaGenerada,
                     nombreSucursalUsuario,
                     metodo,
-                    rutTexto,
+                    rutFormateado,        // se muestra formateado en la boleta
                     direccion,
-                    totalAPagar,
+                    totalAPagar,          // total original
+                    descuentoAplicado,
+                    totalVenta,           // total final
                     carrito
             );
 
@@ -306,16 +364,40 @@ public class ZonaPagoController implements Initializable {
     }
 
     // ==========================
+    //  ¿Cliente ya compró antes?
+    // ==========================
+    private boolean clienteYaComproAntes(int rutCliente) {
+        String sql = "SELECT COUNT(*) AS total FROM venta WHERE Rut_Cliente = ?";
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, rutCliente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int total = rs.getInt("total");
+                    // Si ya tiene al menos 1 compra previa → esta es la segunda o más
+                    return total >= 1;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Si hay error, no aplicamos descuento por seguridad
+        }
+        return false;
+    }
+
+    // ==========================
     //   ABRIR VENTANA BOLETA
     // ==========================
-
-
     private void abrirVentanaBoleta(int idBoleta,
                                     String nombreSucursal,
                                     String metodoPago,
                                     String rut,
                                     String direccion,
-                                    int total,
+                                    int totalOriginal,
+                                    int descuento,
+                                    int totalFinal,
                                     ObservableList<ItemCarrito> carrito) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ZonadePagoRealizado.fxml"));
@@ -329,13 +411,14 @@ public class ZonaPagoController implements Initializable {
                     metodoPago,
                     rut,
                     direccion,
-                    total,
+                    totalOriginal,
+                    descuento,
+                    totalFinal,
                     carrito
             );
 
             controller.setTextoBoleta(textoBoleta);
 
-            // REEMPLAZAR VENTANA
             Stage stage = (Stage) lblMontoTotal.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
@@ -352,7 +435,9 @@ public class ZonaPagoController implements Initializable {
                                         String metodoPago,
                                         String rut,
                                         String direccion,
-                                        int total,
+                                        int totalOriginal,
+                                        int descuento,
+                                        int totalFinal,
                                         ObservableList<ItemCarrito> carrito) {
 
         String fecha = LocalDateTime.now()
@@ -381,7 +466,11 @@ public class ZonaPagoController implements Initializable {
         }
 
         sb.append("----------------------------------------\n");
-        sb.append(String.format("TOTAL: %28d\n", total));
+        sb.append(String.format("TOTAL BRUTO: %20d\n", totalOriginal));
+        if (descuento > 0) {
+            sb.append(String.format("DESCUENTO (10%%): %15d-\n", descuento));
+        }
+        sb.append(String.format("TOTAL A PAGAR: %16d\n", totalFinal));
         sb.append("\nGracias por su compra.\n");
         sb.append("      JOHEX.inc\n");
         return sb.toString();
@@ -394,11 +483,12 @@ public class ZonaPagoController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+
     @FXML
     private void ExitToMenu() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("MenuIniciadasesionListoV2.fxml"));
-            Stage stage = (Stage) lblMontoTotal.getScene().getWindow();   // puedes cambiar lblMontoTotal por cualquier nodo de esa ventana
+            Stage stage = (Stage) lblMontoTotal.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (Exception e) {
@@ -407,4 +497,3 @@ public class ZonaPagoController implements Initializable {
         }
     }
 }
-

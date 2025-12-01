@@ -105,6 +105,7 @@ public class BoletaController implements Initializable {
                        v.Metodo_de_pago,
                        v.Direccion,
                        v.Rut_Cliente,
+                       v.Descuento,
                        s.localidad
                 FROM venta v
                 LEFT JOIN sucursales s ON v.Id_Sucursales = s.Id_Sucursales
@@ -131,7 +132,7 @@ public class BoletaController implements Initializable {
             if (!rsVenta.next()) {
                 txtBoleta.setText("No se encontraron datos para la boleta " + idBoleta);
                 return;
-            }//
+            }
 
             String fecha = "";
             if (rsVenta.getTimestamp("Hora_de_venta") != null) {
@@ -140,11 +141,24 @@ public class BoletaController implements Initializable {
                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             }
 
-            int total = rsVenta.getInt("Precio_Total");
+            int totalFinal = rsVenta.getInt("Precio_Total");     // total con descuento (si lo hubo)
+            int descuento = rsVenta.getInt("Descuento");         // monto descontado
+            boolean descEsNull = rsVenta.wasNull();
+            if (descEsNull) descuento = 0;
+
+            int totalBruto = totalFinal + descuento;
+
             String metodo = rsVenta.getString("Metodo_de_pago");
             String direccion = rsVenta.getString("Direccion");
-            String rutCliente = rsVenta.getString("Rut_Cliente");
+
+            // RUT guardado como INT en BD → lo armamos como String y lo podemos formatear
+            String rutCliente = null;
+            int rutNum = rsVenta.getInt("Rut_Cliente");
             boolean rutEsNull = rsVenta.wasNull();
+            if (!rutEsNull) {
+                rutCliente = formatearRut(String.valueOf(rutNum));
+            }
+
             String sucursal = rsVenta.getString("localidad");
 
             // ----- Detalles -----
@@ -157,7 +171,7 @@ public class BoletaController implements Initializable {
             sb.append("Fecha: ").append(fecha).append("\n");
             sb.append("Sucursal: ").append(sucursal != null ? sucursal : "-").append("\n");
             sb.append("Método de pago: ").append(metodo != null ? metodo : "-").append("\n");
-            if (!rutEsNull) {
+            if (!rutEsNull && rutCliente != null) {
                 sb.append("Rut cliente: ").append(rutCliente).append("\n");
             }
             if (direccion != null && !direccion.isEmpty()) {
@@ -180,7 +194,11 @@ public class BoletaController implements Initializable {
             }
 
             sb.append("----------------------------------------\n");
-            sb.append(String.format("TOTAL: %28d\n", total));
+            sb.append(String.format("TOTAL BRUTO: %20d\n", totalBruto));
+            if (descuento > 0) {
+                sb.append(String.format("DESCUENTO (10%%): %15d-\n", descuento));
+            }
+            sb.append(String.format("TOTAL A PAGAR: %16d\n", totalFinal));
             sb.append("\nGracias por su compra.\n");
             sb.append("      JOHEX.inc\n");
             txtBoleta.setText(sb.toString());
@@ -190,6 +208,32 @@ public class BoletaController implements Initializable {
             mostrarAlerta(Alert.AlertType.ERROR,
                     "Error", "No se pudo cargar el detalle de la boleta.");
         }
+    }
+
+    // Formatear RUT tipo 12345678K -> 12.345.678-K
+    private String formatearRut(String digitos) {
+        if (digitos == null || digitos.isEmpty()) return "";
+
+        if (digitos.length() == 1) return digitos;
+
+        String cuerpo = digitos.substring(0, digitos.length() - 1);
+        String dv = digitos.substring(digitos.length() - 1);
+
+        StringBuilder sb = new StringBuilder();
+        int contador = 0;
+
+        for (int i = cuerpo.length() - 1; i >= 0; i--) {
+            sb.insert(0, cuerpo.charAt(i));
+            contador++;
+
+            if (contador == 3 && i != 0) {
+                sb.insert(0, ".");
+                contador = 0;
+            }
+        }
+
+        sb.append("-").append(dv);
+        return sb.toString();
     }
 
     // --------------------------------------------------------------------
@@ -203,7 +247,6 @@ public class BoletaController implements Initializable {
             );
             Parent root = loader.load();
 
-            // Obtener el stage actual desde el botón presionado
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             stage.setScene(new Scene(root));
@@ -225,14 +268,11 @@ public class BoletaController implements Initializable {
     @FXML
     private void volveralmenu(ActionEvent event) {
         try {
-            // Cargar la nueva ventana
             FXMLLoader loader = new FXMLLoader(getClass().getResource("MenuiniciadasesionListoV2.fxml"));
             Parent root = loader.load();
 
-            // Obtener la ventana actual desde el botón (o control) que disparó el evento
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // Reemplazar la escena
             stage.setScene(new Scene(root));
             stage.show();
 

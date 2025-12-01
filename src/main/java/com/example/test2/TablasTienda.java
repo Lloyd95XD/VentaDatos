@@ -267,7 +267,7 @@ public class TablasTienda implements Initializable {
             stage.show();
 
         } catch (Exception e) {
-            System.out.println("❌ Error al abrir Zona de Pago: " + e.getMessage());
+            System.out.println("Error al abrir Zona de Pago: " + e.getMessage());
             e.printStackTrace();
         }
     }
