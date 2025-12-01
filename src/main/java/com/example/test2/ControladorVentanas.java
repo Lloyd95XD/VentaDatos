@@ -333,7 +333,7 @@ public class ControladorVentanas {
     @FXML public  void menuventa(ActionEvent event){ cambiarAVentana("MenuiniciadasesionListoV2",event); }
     @FXML private void compraaaboton(ActionEvent event){ cambiarAVentana("MenuMuebles",event); }
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
-
+//
     // ---- SOLO ADMIN (con seguridad extra) ----
     @FXML
     private void VerRegistrosUsuarios(ActionEvent event){
