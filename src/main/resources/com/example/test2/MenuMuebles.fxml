@@ -68,11 +68,11 @@
                                         <!-- Tabla de productos -->
                                         <TableView fx:id="tablaProductos" prefHeight="280.0" prefWidth="360.0" style="-fx-background-color: transparent;                                                           -fx-control-inner-background: rgba(10,17,35,0.95);                                                           -fx-border-color: #1391EB;                                                           -fx-border-radius: 10;                                                           -fx-background-radius: 10;">
                                             <columns>
-                                                <TableColumn fx:id="colId" prefWidth="55.0" style="-fx-background-color: #3C4B61;" text="ID" />
-                                                <TableColumn fx:id="colNombre" prefWidth="100.0" style="-fx-background-color: #3C4B61;" text="Nombre" />
-                                                <TableColumn fx:id="colCategoria" prefWidth="90.0" style="-fx-background-color: #3C4B61;" text="Categoría" />
-                                                <TableColumn fx:id="colCantidad" prefWidth="60.0" style="-fx-background-color: #3C4B61;" text="Stock" />
-                                                <TableColumn fx:id="colPrecio" prefWidth="80.0" style="-fx-background-color: #3C4B61;" text="Precio" />
+                                                <TableColumn fx:id="colId" prefWidth="55.0" text="ID" />
+                                                <TableColumn fx:id="colNombre" prefWidth="100.0" text="Nombre" />
+                                                <TableColumn fx:id="colCategoria" prefWidth="90.0" text="Categoría" />
+                                                <TableColumn fx:id="colCantidad" prefWidth="60.0" text="Stock" />
+                                                <TableColumn fx:id="colPrecio" prefWidth="80.0" text="Precio" />
                                             </columns>
                                         </TableView>
 
@@ -104,9 +104,9 @@
                                         <!-- Tabla del carrito -->
                                         <TableView fx:id="tablaCarrito" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: transparent;                                                           -fx-control-inner-background: rgba(10,17,35,0.95);                                                           -fx-border-color: #1391EB;                                                           -fx-border-radius: 10;                                                           -fx-background-radius: 10;">
                                             <columns>
-                                                <TableColumn fx:id="colCarritoNombre" prefWidth="150.0" style="-fx-background-color: #3C4B61;" text="Producto" />
-                                                <TableColumn fx:id="colCarritoPrecio" prefWidth="80.0" style="-fx-background-color: #3C4B61;" text="Precio" />
-                                                <TableColumn fx:id="colCarritoCantidad" prefWidth="86.0" style="-fx-background-color: #3C4B61;" text="Cant." />
+                                                <TableColumn fx:id="colCarritoNombre" prefWidth="150.0" text="Producto" />
+                                                <TableColumn fx:id="colCarritoPrecio" prefWidth="80.0" text="Precio" />
+                                                <TableColumn fx:id="colCarritoCantidad" prefWidth="86.0" text="Cant." />
                                             </columns>
                                         </TableView>
 

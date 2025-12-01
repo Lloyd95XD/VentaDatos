@@ -65,11 +65,11 @@
                                     <center>
                                         <TableView fx:id="tablaProductos" prefHeight="340.0" prefWidth="480.0" style="-fx-background-color: #020818;                                                           -fx-border-color: #1f2937;                                                           -fx-border-radius: 12;                                                           -fx-background-radius: 12;">
                                             <columns>
-                                                <TableColumn fx:id="colIdProducto" prefWidth="60.0" style="-fx-background-color: #3C4B61;" text="ID" />
-                                                <TableColumn fx:id="colCategoria" prefWidth="110.0" style="-fx-background-color: #3C4B61;" text="Categoría" />
-                                                <TableColumn fx:id="colNombre" prefWidth="150.0" style="-fx-background-color: #3C4B61;" text="Nombre" />
-                                                <TableColumn fx:id="colStock" prefWidth="85.0" style="-fx-background-color: #3C4B61;" text="Stock" />
-                                                <TableColumn fx:id="colPrecio" prefWidth="99.0" style="-fx-background-color: #3C4B61;" text="Precio" />
+                                                <TableColumn fx:id="colIdProducto" prefWidth="60.0" text="ID" />
+                                                <TableColumn fx:id="colCategoria" prefWidth="110.0" text="Categoría" />
+                                                <TableColumn fx:id="colNombre" prefWidth="150.0" text="Nombre" />
+                                                <TableColumn fx:id="colStock" prefWidth="85.0" text="Stock" />
+                                                <TableColumn fx:id="colPrecio" prefWidth="99.0" text="Precio" />
                                             </columns>
                                         </TableView>
                                     </center>

@@ -71,9 +71,9 @@
 
                                          <TableView fx:id="tablaCarrito" prefHeight="330" prefWidth="260" style="-fx-background-color: transparent;                                                               -fx-control-inner-background: rgba(10,17,35,0.9);                                                               -fx-border-color: #1391EB;                                                               -fx-border-radius: 10;                                                               -fx-background-radius: 10;">
                                              <columns>
-                                                 <TableColumn fx:id="colNombreCarrito" prefWidth="120" style="-fx-background-color: #3C4B61;" text="Producto" />
-                                                 <TableColumn fx:id="colPrecioCarrito" prefWidth="70" style="-fx-background-color: #3C4B61;" text="Precio" />
-                                                 <TableColumn fx:id="colCantidadCarrito" minWidth="3.0" prefWidth="68.0" style="-fx-background-color: #3C4B61;" text="Cant." />
+                                                 <TableColumn fx:id="colNombreCarrito" prefWidth="120" text="Producto" />
+                                                 <TableColumn fx:id="colPrecioCarrito" prefWidth="70" text="Precio" />
+                                                 <TableColumn fx:id="colCantidadCarrito" minWidth="3.0" prefWidth="68.0" text="Cant." />
                                              </columns>
                                          </TableView>
                                      </children>

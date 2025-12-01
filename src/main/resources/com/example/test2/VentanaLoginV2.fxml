@@ -44,7 +44,7 @@
 
                                         <VBox spacing="4.0">
                                             <children>
-                                                <Label style="-fx-text-fill: #c3c9dd; -fx-font-size: 12px;" text="Correo electrónico/Correo/telefono" />
+                                                <Label style="-fx-text-fill: #c3c9dd; -fx-font-size: 12px;" text="Correo electrónico/Rut/telefono" />
 
                                                 <TextField fx:id="txtnombrecuenta" promptText="ejemplo@correo.com" style="-fx-background-radius: 10; -fx-background-color: #1f2942; -fx-text-fill: white; -fx-prompt-text-fill: #6f7a96;" />
                                             </children>

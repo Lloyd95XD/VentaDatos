@@ -61,7 +61,7 @@
 
                                                 <TableView fx:id="tablaBoletas" prefHeight="320.0" prefWidth="160.0" style="-fx-background-color: transparent; -fx-control-inner-background: rgba(10,17,35,0.9); -fx-background-insets: 0; -fx-border-color: #233952; -fx-border-radius: 10; -fx-background-radius: 10;">
                                                     <columns>
-                                                        <TableColumn fx:id="colIdBoleta" prefWidth="157.0" style="-fx-text-fill: white; -fx-background-color: #3C4B61;" text="ID" />
+                                                        <TableColumn fx:id="colIdBoleta" prefWidth="157.0" text="ID" />
                                                     </columns>
                                                 </TableView>
                                             </children>

@@ -6,36 +6,28 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="600.0" prefWidth="900.0"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.test2.ControladorVentanas"
-            style="-fx-background-color: linear-gradient(to bottom, #041529, #03101f);">
+<AnchorPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: linear-gradient(to bottom, #041529, #03101f);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.test2.ControladorVentanas">
 
     <children>
         <!-- Centrado general -->
-        <StackPane AnchorPane.topAnchor="0.0"
-                   AnchorPane.bottomAnchor="0.0"
-                   AnchorPane.leftAnchor="0.0"
-                   AnchorPane.rightAnchor="0.0">
+        <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
             <children>
 
                 <!-- Tarjeta central -->
-                <VBox alignment="TOP_CENTER"
-                      spacing="18.0"
-                      maxWidth="720.0" maxHeight="460.0"
-                      style="-fx-background-color: #020818; -fx-background-radius: 24;">
+                <VBox alignment="TOP_CENTER" maxHeight="460.0" maxWidth="720.0" spacing="18.0" style="-fx-background-color: #020818; -fx-background-radius: 24;">
                     <padding>
-                        <Insets top="24.0" right="32.0" bottom="24.0" left="32.0"/>
+                        <Insets bottom="24.0" left="32.0" right="32.0" top="24.0" />
                     </padding>
 
                     <children>
@@ -43,29 +35,22 @@
                         <!-- Barra superior con botón Volver -->
                         <HBox alignment="CENTER_RIGHT">
                             <children>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Button fx:id="vovler"
-                                        text="Volver"
-                                        onAction="#regresarmenuprincipal"
-                                        style="-fx-background-color: #e15258;
-                                               -fx-text-fill: white;
-                                               -fx-font-weight: bold;
-                                               -fx-background-radius: 999;
-                                               -fx-padding: 6 22 6 22;"/>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="vovler" onAction="#regresarmenuprincipal" style="-fx-background-color: #e15258;                                                -fx-text-fill: white;                                                -fx-font-weight: bold;                                                -fx-background-radius: 999;                                                -fx-padding: 6 22 6 22;" text="Volver" />
                             </children>
                         </HBox>
 
                         <!-- Títulos -->
                         <VBox alignment="CENTER" spacing="4.0">
                             <children>
-                                <Text text="Registro de usuario" fill="white">
+                                <Text fill="white" text="Registro de usuario">
                                     <font>
-                                        <Font name="Segoe UI Semibold" size="26.0"/>
+                                        <Font name="Segoe UI Semibold" size="26.0" />
                                     </font>
                                 </Text>
-                                <Text text="Por favor rellene los datos" fill="#7f8ea3">
+                                <Text fill="#7f8ea3" text="Por Favor Ingrese Datos">
                                     <font>
-                                        <Font name="Segoe UI" size="13.0"/>
+                                        <Font name="Segoe UI" size="13.0" />
                                     </font>
                                 </Text>
                             </children>
@@ -74,84 +59,63 @@
                         <!-- Formulario -->
                         <GridPane hgap="22.0" vgap="14.0">
                             <padding>
-                                <Insets top="14.0" right="0.0" bottom="0.0" left="0.0"/>
+                                <Insets bottom="0.0" left="0.0" right="0.0" top="14.0" />
                             </padding>
 
                             <!-- Columna izquierda -->
                             <children>
 
                                 <!-- Nombre -->
-                                <Label text="Nombre"
-                                       GridPane.rowIndex="0" GridPane.columnIndex="0"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <TextField fx:id="txtNombre"
-                                           GridPane.rowIndex="1" GridPane.columnIndex="0"
-                                           prefWidth="260.0"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Nombre" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="txtNombre" prefWidth="260.0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 
                                 <!-- Apellido -->
-                                <Label text="Apellido"
-                                       GridPane.rowIndex="2" GridPane.columnIndex="0"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <TextField fx:id="txtApellido"
-                                           GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Apellido" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <TextField fx:id="txtApellido" GridPane.columnIndex="0" GridPane.rowIndex="3" />
 
                                 <!-- Correo -->
-                                <Label text="Correo electrónico"
-                                       GridPane.rowIndex="4" GridPane.columnIndex="0"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <TextField fx:id="txtCorreo"
-                                           GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Correo Electrónico" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <TextField fx:id="txtCorreo" GridPane.columnIndex="0" GridPane.rowIndex="5" />
 
                                 <!-- Teléfono -->
-                                <Label text="Número de teléfono"
-                                       GridPane.rowIndex="6" GridPane.columnIndex="0"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <TextField fx:id="txtTelefono"
-                                           GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Número de Teléfono" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                <TextField fx:id="txtTelefono" GridPane.columnIndex="0" GridPane.rowIndex="7" />
 
                                 <!-- Columna derecha -->
 
-                                <Label text="RUT"
-                                       GridPane.rowIndex="0" GridPane.columnIndex="1"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <TextField fx:id="txtRut"
-                                           GridPane.rowIndex="1" GridPane.columnIndex="1"
-                                           prefWidth="260.0"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="RUT" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <TextField fx:id="txtRut" prefWidth="260.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                <Label text="Contraseña"
-                                       GridPane.rowIndex="2" GridPane.columnIndex="1"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <PasswordField fx:id="txtPassword"
-                                               GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Contraseña" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <PasswordField fx:id="txtPassword" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                                <Label text="Repetir contraseña"
-                                       GridPane.rowIndex="4" GridPane.columnIndex="1"
-                                       style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;"/>
-                                <PasswordField fx:id="txtRepetirPassword"
-                                               GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                <Label style="-fx-text-fill: #e5e7eb; -fx-font-size: 13;" text="Repetir Contraseña" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                <PasswordField fx:id="txtRepetirPassword" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
                             </children>
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
                         </GridPane>
 
                         <!-- Botón Registrar -->
-                        <Button fx:id="Iniciar"
-                                text="Registrarse"
-                                onAction="#RegistroTablaUsuario"
-                                prefWidth="220.0"
-                                style="-fx-background-color: #1d4ed8;
-                                       -fx-text-fill: white;
-                                       -fx-font-weight: bold;
-                                       -fx-background-radius: 999;
-                                       -fx-padding: 10 0 10 0;"/>
+                        <Button fx:id="Iniciar" onAction="#RegistroTablaUsuario" prefWidth="220.0" style="-fx-background-color: #1d4ed8;                                        -fx-text-fill: white;                                        -fx-font-weight: bold;                                        -fx-background-radius: 999;                                        -fx-padding: 10 0 10 0;" text="Registrarse" />
 
                         <!-- Mensaje de error -->
-                        <Text fx:id="textoerror"
-                              text=""
-                              fill="#f97373"
-                              textAlignment="CENTER"
-                              wrappingWidth="420.0">
+                        <Text fx:id="textoerror" fill="#f97373" text="" textAlignment="CENTER" wrappingWidth="420.0">
                             <font>
-                                <Font name="Segoe UI" size="13.0"/>
+                                <Font name="Segoe UI" size="13.0" />
                             </font>
                         </Text>
 

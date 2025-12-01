@@ -55,16 +55,16 @@
 
                                         <TableView fx:id="tablaUsuarios" prefHeight="420.0" prefWidth="900.0" style="-fx-background-color: transparent;                                                           -fx-control-inner-background: rgba(10,17,35,0.95);                                                           -fx-border-color: #1391EB;                                                           -fx-border-radius: 12;                                                           -fx-background-radius: 12;">
                                             <columns>
-                                                <TableColumn fx:id="colRut" prefWidth="90" style="-fx-background-color: #3C4B61;" text="Rut" />
-                                                <TableColumn fx:id="colNombre" style="-fx-background-color: #3C4B61;" text="Nombre" />
-                                                <TableColumn fx:id="colApellido" prefWidth="110" style="-fx-background-color: #3C4B61;" text="Apellido" />
-                                                <TableColumn fx:id="colEmail" prefWidth="110.0" style="-fx-background-color: #3C4B61;" text="Email" />
-                                                <TableColumn fx:id="colTelefono" prefWidth="110" style="-fx-background-color: #3C4B61;" text="Teléfono" />
-                                                <TableColumn fx:id="colFechaCreada" prefWidth="70.0" style="-fx-background-color: #3C4B61;" text="Fecha creación" />
-                                                <TableColumn fx:id="colAdmin" prefWidth="70" style="-fx-background-color: #3C4B61;" text="Admin" />
-                                                <TableColumn fx:id="colRol" prefWidth="110.0" style="-fx-background-color: #3C4B61;" text="Rol" />
-                                                <TableColumn fx:id="colSucursal" prefWidth="120.0" style="-fx-background-color: #3C4B61;" text="Sucursal" />
-                                    <TableColumn fx:id="colSuspendido" prefWidth="120.0" style="-fx-background-color: #3C4B61;" text="Estado Suspendido" />
+                                                <TableColumn fx:id="colRut" prefWidth="90" text="Rut" />
+                                                <TableColumn fx:id="colNombre" text="Nombre" />
+                                                <TableColumn fx:id="colApellido" prefWidth="110" text="Apellido" />
+                                                <TableColumn fx:id="colEmail" prefWidth="110.0" text="Email" />
+                                                <TableColumn fx:id="colTelefono" prefWidth="110" text="Teléfono" />
+                                                <TableColumn fx:id="colFechaCreada" prefWidth="70.0" text="Fecha creación" />
+                                                <TableColumn fx:id="colAdmin" prefWidth="70" text="Admin" />
+                                                <TableColumn fx:id="colRol" prefWidth="110.0" text="Rol" />
+                                                <TableColumn fx:id="colSucursal" prefWidth="120.0" text="Sucursal" />
+                                    <TableColumn fx:id="colSuspendido" prefWidth="120.0" text="Estado Suspendido" />
                                             </columns>
                                         </TableView>
                                     </children>
