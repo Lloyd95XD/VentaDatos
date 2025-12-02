@@ -58,13 +58,14 @@ public class TablasTienda implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        // --- Restringir la cantidad solo a números ---
+        // Cantidad solo números
         if (colCantidadAdd != null) {
             colCantidadAdd.textProperty().addListener((obs, old, nuevo) -> {
                 if (!nuevo.matches("\\d*")) {
                     colCantidadAdd.setText(nuevo.replaceAll("[^\\d]", ""));
                 }
             });
+            colCantidadAdd.setText("1");
         }
 
         if (tablaProductos != null) {
@@ -77,33 +78,81 @@ public class TablasTienda implements Initializable {
             configurarColumnasCarrito();
             tablaCarrito.setItems(listaCarrito);
             actualizarTotal();
+
+            // Cuando selecciono algo en el carrito, cargo su cantidad en el TextField
+            tablaCarrito.getSelectionModel().selectedItemProperty()
+                    .addListener((obs, oldSel, nuevoSel) -> {
+                        if (nuevoSel != null && colCantidadAdd != null) {
+                            colCantidadAdd.setText(String.valueOf(nuevoSel.getCantidad()));
+                        }
+                    });
         }
     }
 
     // ==========================
-    //  AGREGAR AL CARRITO
+    //  AGREGAR / EDITAR CARRITO
     // ==========================
     @FXML
     private void agregarAlCarrito() {
 
-        MueblesControlador seleccionado =
-                tablaProductos.getSelectionModel().getSelectedItem();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selecciona un producto primero.");
-            return;
-        }
-
-        String txt = colCantidadAdd.getText().trim();
-        if (txt.isEmpty()) {
+        String txtCant = colCantidadAdd.getText().trim();
+        if (txtCant.isEmpty()) {
             mostrarAlerta("Ingresa una cantidad válida.");
             return;
         }
 
-        int cantidadSolicitada = Integer.parseInt(txt);
-        if (cantidadSolicitada <= 0) {
+        int cantidadIngresada;
+        try {
+            cantidadIngresada = Integer.parseInt(txtCant);
+        } catch (NumberFormatException e) {
+            mostrarAlerta("La cantidad debe ser numérica.");
+            return;
+        }
+
+        if (cantidadIngresada <= 0) {
             mostrarAlerta("La cantidad debe ser mayor a 0.");
 
+            return;
+        }
+
+        // 1) Si hay un producto seleccionado en el carrito -> EDITAR cantidad
+        ItemCarrito itemCarritoSel = tablaCarrito.getSelectionModel().getSelectedItem();
+        if (itemCarritoSel != null) {
+
+            // Buscar el producto original para conocer el stock
+            MueblesControlador producto = null;
+            for (MueblesControlador m : listaProductos) {
+                if (m.getIdProducto() == itemCarritoSel.getIdProducto()) {
+                    producto = m;
+                    break;
+                }
+            }
+
+            if (producto == null) {
+                mostrarAlerta("No se encontró el producto asociado.");
+                return;
+            }
+
+            int stock = producto.getStock();
+            if (cantidadIngresada > stock) {
+                mostrarAlerta("Stock insuficiente. Máximo disponible: " + stock);
+                return;
+            }
+
+            // Editar cantidad exacta
+            itemCarritoSel.setCantidad(cantidadIngresada);
+            tablaCarrito.refresh();
+            actualizarTotal();
+            colCantidadAdd.setText("1");
+            return;
+        }
+
+        // 2) Si no hay selección en el carrito -> AÑADIR desde la tabla de productos
+        MueblesControlador seleccionado =
+                tablaProductos.getSelectionModel().getSelectedItem();
+
+        if (seleccionado == null) {
+            mostrarAlerta("Selecciona un producto en la lista de productos.");
             return;
         }
 
@@ -120,27 +169,30 @@ public class TablasTienda implements Initializable {
             }
         }
 
-        if (cantidadSolicitada + cantidadEnCarrito > stock) {
+        if (cantidadIngresada + cantidadEnCarrito > stock) {
             mostrarAlerta("Stock insuficiente. Máximo disponible: " +
                     (stock - cantidadEnCarrito));
             return;
         }
 
         if (itemExistente != null) {
-            itemExistente.setCantidad(itemExistente.getCantidad() + cantidadSolicitada);
+            itemExistente.setCantidad(itemExistente.getCantidad() + cantidadIngresada);
             tablaCarrito.refresh();
         } else {
             ItemCarrito nuevo = new ItemCarrito(
                     seleccionado.getIdProducto(),
                     seleccionado.getNombre(),
                     seleccionado.getPrecio(),
-                    cantidadSolicitada
+                    cantidadIngresada
             );
             listaCarrito.add(nuevo);
         }
 
         actualizarTotal();
+<<<<<<< HEAD
         //colCantidadAdd.clear();//
+=======
+>>>>>>> 905c37f (MegaCambioooo)
         colCantidadAdd.setText("1");
     }
 
@@ -152,12 +204,8 @@ public class TablasTienda implements Initializable {
         ItemCarrito seleccionado = tablaCarrito.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
 
-        if (seleccionado.getCantidad() > 1) {
-            seleccionado.setCantidad(seleccionado.getCantidad() - 1);
-            tablaCarrito.refresh();
-        } else {
-            listaCarrito.remove(seleccionado);
-        }
+        // Ahora elimina el producto completo del carrito
+        listaCarrito.remove(seleccionado);
         actualizarTotal();
     }
 
@@ -266,7 +314,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     private String formatearCLP(int valor) {
         NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
-        nf.setMaximumFractionDigits(0); // sin decimales
+        nf.setMaximumFractionDigits(0);
         nf.setMinimumFractionDigits(0);
         return nf.format(valor);
     }

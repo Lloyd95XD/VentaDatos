@@ -7,7 +7,6 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -17,139 +16,332 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: linear-gradient(to bottom, #141e30, #243b55);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.test2.ZonaPagoController">
+<StackPane prefHeight="600.0" prefWidth="900.0"
+           style="-fx-background-color: linear-gradient(to bottom, #141e30, #243b55);"
+           xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.test2.ZonaPagoController">
 
     <children>
 
-         <!-- Tarjeta moderna -->
-         <StackPane maxHeight="500" maxWidth="750">
-             <children>
+        <!-- Contenedor del panel central -->
+        <StackPane maxHeight="560" maxWidth="780">
+            <children>
 
-                 <Rectangle arcHeight="30" arcWidth="30" height="500" style="-fx-fill: rgba(15,22,40,0.96);" width="750">
-                     <effect>
-                  <Bloom />
-               </effect>
-                 </Rectangle>
+                <!-- Fondo oscuro del panel -->
+                <Rectangle arcHeight="30" arcWidth="30"
+                           height="560" width="780"
+                           style="-fx-fill: rgba(15,22,40,0.96);" />
 
-                 <BorderPane>
-                     <padding>
-                         <Insets bottom="25" left="30" right="30" top="25" />
-                     </padding>
+                <BorderPane>
+                    <padding>
+                        <Insets bottom="25" left="30" right="30" top="25"/>
+                    </padding>
 
-                     <!-- TOP: Título + Volver -->
-                     <top>
-                         <HBox alignment="CENTER_LEFT" spacing="10">
-                             <children>
+                    <!-- TOP: Título + Volver -->
+                    <top>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <children>
 
-                                 <Text style="-fx-fill: white;" text="Método de Pago">
-                                     <font>
-                                         <Font size="28.0" />
-                                     </font>
-                                 </Text>
+                                <Text text="Método de Pago" style="-fx-fill: white;">
+                                    <font>
+                                        <Font size="28.0"/>
+                                    </font>
+                                </Text>
 
-                                 <Region HBox.hgrow="ALWAYS" />
+                                <Region HBox.hgrow="ALWAYS"/>
 
-                                 <!-- Si tienes un método en el controller, ponle onAction="#NombreMetodo" -->
-                                 <Button onAction="#ExitToMenu" style="-fx-background-color: #c94c4c;                                                    -fx-text-fill: white;                                                    -fx-background-radius: 8;                                                    -fx-padding: 8 18;                                                    -fx-font-weight: bold;" text="Volver" />
-                             </children>
-                         </HBox>
-                     </top>
+                                <Button text="Volver"
+                                        onAction="#ExitToMenu"
+                                        style="-fx-background-color: #c94c4c;
+                                               -fx-text-fill: white;
+                                               -fx-background-radius: 8;
+                                               -fx-padding: 8 18;
+                                               -fx-font-weight: bold;"/>
+                            </children>
+                        </HBox>
+                    </top>
 
-                     <!-- CENTER -->
-                     <center>
-                         <HBox spacing="25">
-                             <children>
+                    <!-- CENTER -->
+                    <center>
+                        <HBox spacing="25">
+                            <children>
 
-                                 <!-- TABLA DEL CARRITO -->
-                                 <VBox spacing="10">
-                                     <children>
-                                         <Text style="-fx-fill: #9faac7;" text="Carrito">
-                                             <font>
-                                                 <Font size="15.0" />
-                                             </font>
-                                         </Text>
+                                <!-- IZQUIERDA: TABLA DEL CARRITO -->
+                                <VBox spacing="10">
+                                    <children>
 
-                                         <TableView fx:id="tablaCarrito" prefHeight="330" prefWidth="260" style="-fx-background-color: transparent;                                                               -fx-control-inner-background: rgba(10,17,35,0.9);                                                               -fx-border-color: #1391EB;                                                               -fx-border-radius: 10;                                                               -fx-background-radius: 10;">
-                                             <columns>
-                                                 <TableColumn fx:id="colNombreCarrito" prefWidth="120" text="Producto" />
-                                                 <TableColumn fx:id="colPrecioCarrito" prefWidth="70" text="Precio" />
-                                                 <TableColumn fx:id="colCantidadCarrito" minWidth="3.0" prefWidth="68.0" text="Cant." />
-                                             </columns>
-                                         </TableView>
-                                     </children>
-                                 </VBox>
+                                        <Text text="Carrito" style="-fx-fill: #e0ebff;">
+                                            <font>
+                                                <Font size="15.0"/>
+                                            </font>
+                                        </Text>
 
-                                 <!-- DERECHA: FORMULARIO DE PAGO -->
-                                 <VBox spacing="16">
-                                     <children>
+                                        <TableView fx:id="tablaCarrito"
+                                                   prefHeight="360" prefWidth="280"
+                                                   style="-fx-background-color: transparent;
+                                                          -fx-control-inner-background: rgba(10,17,35,0.9);
+                                                          -fx-border-color: #1391EB;
+                                                          -fx-border-radius: 10;
+                                                          -fx-background-radius: 10;">
+                                            <columns>
+                                                <TableColumn fx:id="colNombreCarrito"
+                                                             prefWidth="130" text="Producto"/>
+                                                <TableColumn fx:id="colPrecioCarrito"
+                                                             prefWidth="80" text="Precio"/>
+                                                <TableColumn fx:id="colCantidadCarrito"
+                                                             minWidth="3.0" prefWidth="70.0" text="Cant."/>
+                                            </columns>
+                                        </TableView>
 
-                                         <!-- MÉTODO DE PAGO -->
-                                         <Text style="-fx-fill: #9faac7;" text="Seleccionar método">
-                                             <font>
-                                    <Font size="14.0" />
-                                 </font>
-                                         </Text>
-                                         <ComboBox fx:id="comboMetodoPago" prefWidth="200" style="-fx-background-radius: 8;                                                              -fx-background-color: #111828;                                                              -fx-text-fill: white;" />
+                                    </children>
+                                </VBox>
 
-                                         <!-- RUT -->
-                                         <Text style="-fx-fill: #9faac7;" text="Rut (opcional)">
-                                             <font>
-                                    <Font size="14.0" />
-                                 </font>
-                                         </Text>
-                                         <TextField fx:id="txtRutCliente" prefWidth="200" style="-fx-background-radius: 8;                                                               -fx-background-color: #111828;                                                               -fx-text-fill: white;" />
+                                <!-- DERECHA: FORMULARIO DE PAGO -->
+                                <VBox spacing="10">
+                                    <children>
 
-                                         <!-- DIRECCIÓN -->
-                                         <Text style="-fx-fill: #9faac7;" text="Dirección">
-                                             <font>
-                                    <Font size="14.0" />
-                                 </font>
-                                         </Text>
-                                         <TextField fx:id="txtDireccion" prefWidth="200" style="-fx-background-radius: 8;                                                               -fx-background-color: #111828;                                                               -fx-text-fill: white;" />
+                                        <!-- MÉTODO DE PAGO -->
+                                        <Text text="Seleccionar método" style="-fx-fill: #e0ebff;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+                                        <ComboBox fx:id="comboMetodoPago"
+                                                  prefWidth="240"
+                                                  promptText="Seleccione un método"
+                                                  style="-fx-background-radius: 8;
+                                                         -fx-background-color: #182338;
+                                                         -fx-border-color: #3b82f6;
+                                                         -fx-border-radius: 8;
+                                                         -fx-text-fill: white;
+                                                         -fx-prompt-text-fill: #9ca3af;"/>
 
-                                         <!-- DESCRIPCIÓN -->
-                                         <Text style="-fx-fill: #9faac7;" text="Descripción">
-                                             <font>
-                                    <Font size="14.0" />
-                                 </font>
-                                         </Text>
-                                         <TextArea fx:id="txtDescripcion" editable="false" prefHeight="90" prefWidth="260" style="-fx-background-radius: 8; -fx-control-inner-background: #1118; -fx-text-fill: white;" />
+                                        <!-- CONTENEDOR FIJO PARA MÉTODOS (tarjeta / efectivo) -->
+                                        <VBox spacing="12" prefHeight="200">
 
-                                         <!-- MONTO TOTAL -->
-                                         <Text fx:id="lblMontoTotal" style="-fx-fill: #37cf6b;" text="Monto Total $ 0">
-                                             <font>
-                                                 <Font size="18.0" />
-                                             </font>
-                                         </Text>
+                                            <!-- DATOS TARJETA -->
+                                            <VBox fx:id="paneTarjeta"
+                                                  spacing="6"
+                                                  visible="false"
+                                                  managed="false">
 
-                                         <!-- ERROR -->
-                                         <Text fx:id="textoerror" style="-fx-fill: #ff5757;" text="">
-                                             <font>
-                                                 <Font size="14.0" />
-                                             </font>
-                                         </Text>
+                                                <Text text="Datos de tarjeta" style="-fx-fill: #e0ebff;">
+                                                    <font><Font size="14.0"/></font>
+                                                </Text>
 
-                                     </children>
-                                 </VBox>
-                             </children>
-                         </HBox>
-                     </center>
+                                                <Text text="Número de tarjeta" style="-fx-fill: #cbd5ff;">
+                                                    <font><Font size="12.0"/></font>
+                                                </Text>
+                                                <TextField fx:id="txtNumeroTarjeta"
+                                                           promptText="XXXX XXXX XXXX XXXX"
+                                                           style="-fx-background-radius: 8;
+                                                                  -fx-background-color: #182338;
+                                                                  -fx-border-color: #3b82f6;
+                                                                  -fx-border-radius: 8;
+                                                                  -fx-text-fill: white;"/>
 
-                     <!-- BOTTOM: botón pagar -->
-                     <bottom>
-                         <HBox alignment="CENTER_RIGHT">
-                             <children>
-                                 <Button onAction="#realizarPago" style="-fx-background-color: #4caf50;                                                    -fx-background-radius: 10;                                                    -fx-text-fill: white;                                                    -fx-font-weight: bold;                                                    -fx-padding: 10 20;" text="Realizar Pago" />
-                             </children>
-                         </HBox>
-                     </bottom>
+                                                <Text text="Nombre en la tarjeta" style="-fx-fill: #cbd5ff;">
+                                                    <font><Font size="12.0"/></font>
+                                                </Text>
+                                                <TextField fx:id="txtNombreTarjeta"
+                                                           promptText="Nombre y apellido"
+                                                           style="-fx-background-radius: 8;
+                                                                  -fx-background-color: #182338;
+                                                                  -fx-border-color: #3b82f6;
+                                                                  -fx-border-radius: 8;
+                                                                  -fx-text-fill: white;"/>
 
-                 </BorderPane>
+                                                <HBox spacing="8">
+                                                    <children>
+                                                        <VBox spacing="3">
+                                                            <children>
+                                                                <Text text="Vencimiento (MM/AA)"
+                                                                      style="-fx-fill: #cbd5ff;">
+                                                                    <font><Font size="12.0"/></font>
+                                                                </Text>
+                                                                <TextField fx:id="txtFechaVenc"
+                                                                           prefWidth="90"
+                                                                           promptText="MM/AA"
+                                                                           style="-fx-background-radius: 8;
+                                                                                  -fx-background-color: #182338;
+                                                                                  -fx-border-color: #3b82f6;
+                                                                                  -fx-border-radius: 8;
+                                                                                  -fx-text-fill: white;"/>
+                                                            </children>
+                                                        </VBox>
 
-             </children>
-         </StackPane>
+                                                        <VBox spacing="3">
+                                                            <children>
+                                                                <Text text="CVV"
+                                                                      style="-fx-fill: #cbd5ff;">
+                                                                    <font><Font size="12.0"/></font>
+                                                                </Text>
+                                                                <TextField fx:id="txtCVV"
+                                                                           prefWidth="70"
+                                                                           promptText="CVV"
+                                                                           style="-fx-background-radius: 8;
+                                                                                  -fx-background-color: #182338;
+                                                                                  -fx-border-color: #3b82f6;
+                                                                                  -fx-border-radius: 8;
+                                                                                  -fx-text-fill: white;"/>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
 
+                                            </VBox>
 
+                                            <!-- DATOS EFECTIVO -->
+                                            <VBox fx:id="paneEfectivo"
+                                                  spacing="6"
+                                                  visible="false"
+                                                  managed="false">
+
+                                                <Text text="Pago en efectivo" style="-fx-fill: #e0ebff;">
+                                                    <font><Font size="14.0"/></font>
+                                                </Text>
+
+                                                <Text text="¿Con cuánto paga el cliente?"
+                                                      style="-fx-fill: #cbd5ff;">
+                                                    <font><Font size="12.0"/></font>
+                                                </Text>
+
+                                                <HBox spacing="8">
+                                                    <children>
+                                                        <TextField fx:id="txtMontoEfectivo"
+                                                                   prefWidth="120"
+                                                                   promptText="Monto en CLP"
+                                                                   style="-fx-background-radius: 8;
+                                                                          -fx-background-color: #182338;
+                                                                          -fx-border-color: #3b82f6;
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;"/>
+                                                        <Button text="Calcular vuelto"
+                                                                onAction="#calcularVueltoEfectivo"
+                                                                style="-fx-background-color: #16a34a;
+                                                                       -fx-text-fill: white;
+                                                                       -fx-background-radius: 8;
+                                                                       -fx-font-weight: bold;
+                                                                       -fx-padding: 4 10;"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <Text fx:id="lblVuelto"
+                                                      text=""
+                                                      style="-fx-fill: #37cf6b;">
+                                                    <font><Font size="13.0"/></font>
+                                                </Text>
+
+                                            </VBox>
+
+                                        </VBox>
+
+                                        <!-- RUT -->
+                                        <Text text="Rut cliente (opcional)" style="-fx-fill: #e0ebff;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtRutCliente"
+                                                   prefWidth="240"
+                                                   style="-fx-background-radius: 8;
+                                                          -fx-background-color: #182338;
+                                                          -fx-border-color: #3b82f6;
+                                                          -fx-border-radius: 8;
+                                                          -fx-text-fill: white;"/>
+
+                                        <!-- Botón verificar descuento -->
+                                        <Button text="Verificar descuento"
+                                                onAction="#verificarDescuento"
+                                                style="-fx-background-color: #2563eb;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 8;
+                                                       -fx-font-weight: bold;
+                                                       -fx-padding: 4 10;"/>
+
+                                        <!-- DIRECCIÓN -->
+                                        <Text text="Dirección" style="-fx-fill: #e0ebff;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+                                        <TextField fx:id="txtDireccion"
+                                                   prefWidth="240"
+                                                   style="-fx-background-radius: 8;
+                                                          -fx-background-color: #182338;
+                                                          -fx-border-color: #3b82f6;
+                                                          -fx-border-radius: 8;
+                                                          -fx-text-fill: white;"/>
+
+                                        <!-- DESCRIPCIÓN -->
+                                        <Text text="Descripción" style="-fx-fill: #e0ebff;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+                                        <TextArea fx:id="txtDescripcion"
+                                                  editable="false"
+                                                  prefHeight="80" prefWidth="260"
+                                                  style="-fx-background-radius: 8;
+                                                         -fx-control-inner-background: #182338;
+                                                         -fx-border-color: #3b82f6;
+                                                         -fx-border-radius: 8;
+                                                         -fx-text-fill: white;"/>
+
+                                        <!-- MONTO TOTAL -->
+                                        <Text fx:id="lblMontoTotal"
+                                              text="Monto Total: $ 0"
+                                              style="-fx-fill: #37cf6b;">
+                                            <font>
+                                                <Font size="18.0"/>
+                                            </font>
+                                        </Text>
+
+                                        <!-- INFO DESCUENTO POR RUT -->
+                                        <Text fx:id="lblDescuentoInfo"
+                                              text=""
+                                              style="-fx-fill: #facc15;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+
+                                        <!-- ERROR -->
+                                        <Text fx:id="textoerror"
+                                              text=""
+                                              style="-fx-fill: #ff5757;">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Text>
+
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+                    </center>
+
+                    <!-- BOTTOM: botón pagar -->
+                    <bottom>
+                        <HBox alignment="CENTER_RIGHT">
+                            <children>
+                                <Button text="Realizar Pago"
+                                        onAction="#realizarPago"
+                                        style="-fx-background-color: #4caf50;
+                                               -fx-background-radius: 10;
+                                               -fx-text-fill: white;
+                                               -fx-font-weight: bold;
+                                               -fx-padding: 10 20;"/>
+                            </children>
+                        </HBox>
+                    </bottom>
+
+                </BorderPane>
+
+            </children>
+        </StackPane>
 
     </children>
 

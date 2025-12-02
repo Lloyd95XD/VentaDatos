@@ -70,26 +70,49 @@ public class ControladorVentanas {
             }
         }
 
-        // RUT automático
+        // Formato RUT con TextFormatter (ahora con caret al final)
         if (txtRut != null) {
-            final boolean[] actualizandoRut = { false };
-            txtRut.textProperty().addListener((obs, oldValue, newValue) -> {
-                if (actualizandoRut[0]) return;
-
-                actualizandoRut[0] = true;
-
-                String soloDigitos = newValue.replaceAll("\\D", "");
-                if (soloDigitos.length() > 9) {
-                    soloDigitos = soloDigitos.substring(0, 9);
+            UnaryOperator<TextFormatter.Change> rutFilter = change -> {
+                if (!change.isContentChange()) {
+                    return change;
                 }
 
-                String formateado = formatearRut(soloDigitos);
+                String newText = change.getControlNewText().toUpperCase();
 
-                txtRut.setText(formateado);
-                txtRut.positionCaret(formateado.length());
+                String limpio = newText
+                        .replace(".", "")
+                        .replace("-", "")
+                        .replaceAll("[^0-9K]", "");
 
-                actualizandoRut[0] = false;
-            });
+                if (limpio.length() > 9) {
+                    limpio = limpio.substring(0, 9);
+                }
+
+                if (limpio.isEmpty()) {
+                    // borrar todo
+                    change.setText("");
+                    change.setRange(0, change.getControlText().length());
+                    change.setCaretPosition(0);
+                    change.setAnchor(0);
+                    return change;
+                }
+
+                String formateado = formatearRut(limpio);
+
+                int oldLength = change.getControlText().length();
+
+                // reemplazamos todo el contenido por el formateado
+                change.setRange(0, oldLength);
+                change.setText(formateado);
+
+                // dejamos el cursor al final para que no "se vaya pa atrás"
+                change.setCaretPosition(formateado.length());
+                change.setAnchor(formateado.length());
+
+                return change;
+            };
+
+            txtRut.setTextFormatter(new TextFormatter<>(rutFilter));
         }
 
         // Teléfono +569 obligatorio
@@ -111,12 +134,12 @@ public class ControladorVentanas {
         }
     }
 
-    private String formatearRut(String digitos) {
-        if (digitos == null || digitos.isEmpty()) return "";
-        if (digitos.length() == 1) return digitos;
+    private String formatearRut(String rutLimpio) {
+        if (rutLimpio == null || rutLimpio.isEmpty()) return "";
+        if (rutLimpio.length() == 1) return rutLimpio;
 
-        String cuerpo = digitos.substring(0, digitos.length() - 1);
-        String dv = digitos.substring(digitos.length() - 1);
+        String cuerpo = rutLimpio.substring(0, rutLimpio.length() - 1);
+        String dv = rutLimpio.substring(rutLimpio.length() - 1);
 
         StringBuilder sb = new StringBuilder();
         int contador = 0;
@@ -140,9 +163,7 @@ public class ControladorVentanas {
 
         textoerror.setFill(Color.web("#ff4444"));
 
-        String rutFormateado = txtRut.getText().trim();
-        String idUsuario = rutFormateado.replaceAll("\\D", "");
-
+        String rutFormateado = txtRut.getText().trim().toUpperCase();
         String nombre   = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
         String correo   = txtCorreo.getText().trim();
@@ -150,17 +171,33 @@ public class ControladorVentanas {
         String pass1    = txtPassword.getText();
         String pass2    = txtRepetirPassword.getText();
 
-        if (idUsuario.isEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
+        if (rutFormateado.isEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
                 correo.isEmpty() || telefono.isEmpty() || pass1.isEmpty() || pass2.isEmpty()) {
 
             textoerror.setText("Faltan datos por completar");
             return;
         }
 
-        if (!idUsuario.matches("\\d{7,9}")) {
-            textoerror.setText("El RUT debe tener entre 7 y 9 dígitos");
+        String rutLimpio = rutFormateado.replace(".", "").replace("-", "");
+        if (rutLimpio.length() < 2) {
+            textoerror.setText("RUT inválido");
             return;
         }
+
+        String cuerpo = rutLimpio.substring(0, rutLimpio.length() - 1);
+        String dv = rutLimpio.substring(rutLimpio.length() - 1);
+
+        if (!cuerpo.matches("\\d{7,8}")) {
+            textoerror.setText("El RUT debe tener entre 7 y 8 dígitos en el cuerpo");
+            return;
+        }
+
+        if (!validarRutChileno(cuerpo, dv)) {
+            textoerror.setText("RUT inválido");
+            return;
+        }
+
+        String idUsuario = cuerpo;
 
         if (!telefono.matches("\\+569\\d{8}")) {
             textoerror.setText("Teléfono inválido. Formato: +569XXXXXXXX");
@@ -275,7 +312,38 @@ public class ControladorVentanas {
         if (txtRepetirPassword != null) txtRepetirPassword.clear();
     }
 
-    // ============ 🔹 Cambiar ventanas (versión limpia, sin maximizar) ============
+    private boolean validarRutChileno(String cuerpo, String dv) {
+        try {
+            int suma = 0;
+            int factor = 2;
+
+            for (int i = cuerpo.length() - 1; i >= 0; i--) {
+                int num = Character.getNumericValue(cuerpo.charAt(i));
+                suma += num * factor;
+                factor++;
+                if (factor > 7) {
+                    factor = 2;
+                }
+            }
+
+            int resto = suma % 11;
+            int dvCalculado = 11 - resto;
+
+            String dvFinal;
+            if (dvCalculado == 11) {
+                dvFinal = "0";
+            } else if (dvCalculado == 10) {
+                dvFinal = "K";
+            } else {
+                dvFinal = String.valueOf(dvCalculado);
+            }
+
+            return dvFinal.equalsIgnoreCase(dv);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public void cambiarAVentana(String ventanaFxml, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(ventanaFxml + ".fxml"));
@@ -289,7 +357,6 @@ public class ControladorVentanas {
         }
     }
 
-    // Navegación general
     @FXML private void PantallaIniciarsesion(ActionEvent event){ cambiarAVentana("iniciarSesion",event); }
     @FXML private void regresarmenuprincipal(ActionEvent event){ cambiarAVentana("VentanaLoginV2",event); }
     @FXML private void Registrarboton(ActionEvent event){ cambiarAVentana("registrarte",event); }
@@ -297,7 +364,6 @@ public class ControladorVentanas {
     @FXML private void compraaaboton(ActionEvent event){ cambiarAVentana("MenuMuebles",event); }
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
 
-    // Admin
     @FXML
     private void VerRegistrosUsuarios(ActionEvent event){
         if (!UsuarioSesion.isAdmin()) {

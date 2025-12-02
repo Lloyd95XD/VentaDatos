@@ -108,6 +108,10 @@ public class BoletaController implements Initializable {
                        v.Direccion,
                        v.Rut_Cliente,
                        v.Descuento,
+                       v.Monto_Efectivo,
+                       v.Vuelto,
+                       v.Marca_Tarjeta,
+                       v.Ultimos_4_Tarjeta,
                        s.localidad
                 FROM venta v
                 LEFT JOIN sucursales s ON v.Id_Sucursales = s.Id_Sucursales
@@ -161,6 +165,20 @@ public class BoletaController implements Initializable {
                 rutCliente = formatearRut(String.valueOf(rutNum));
             }
 
+            // Nuevos datos de pago (pueden ser nulos en boletas antiguas)
+            Integer montoEfectivo = null;
+            int montoEf = rsVenta.getInt("Monto_Efectivo");
+            boolean montoEfNull = rsVenta.wasNull();
+            if (!montoEfNull) montoEfectivo = montoEf;
+
+            Integer vuelto = null;
+            int vto = rsVenta.getInt("Vuelto");
+            boolean vtoNull = rsVenta.wasNull();
+            if (!vtoNull) vuelto = vto;
+
+            String marcaTarjeta = rsVenta.getString("Marca_Tarjeta");
+            String ultimos4 = rsVenta.getString("Ultimos_4_Tarjeta");
+
             String sucursal = rsVenta.getString("localidad");
 
             // ----- Detalles -----
@@ -173,12 +191,48 @@ public class BoletaController implements Initializable {
             sb.append("Fecha: ").append(fecha).append("\n");
             sb.append("Sucursal: ").append(sucursal != null ? sucursal : "-").append("\n");
             sb.append("Método de pago: ").append(metodo != null ? metodo : "-").append("\n");
+
             if (!rutEsNull && rutCliente != null) {
                 sb.append("Rut cliente: ").append(rutCliente).append("\n");
             }
             if (direccion != null && !direccion.isEmpty()) {
                 sb.append("Dirección: ").append(direccion).append("\n");
             }
+
+            // ----- Datos específicos según método ----- //
+            if (metodo != null) {
+                String metodoLower = metodo.toLowerCase();
+
+                // Efectivo: cuánto pagó y cuánto de vuelto
+                if (metodoLower.contains("efectivo")) {
+                    if (montoEfectivo != null) {
+                        sb.append("Pago en efectivo: $ ")
+                                .append(formatearCLP(montoEfectivo))
+                                .append("\n");
+                    }
+                    if (vuelto != null) {
+                        sb.append("Vuelto entregado: $ ")
+                                .append(formatearCLP(vuelto))
+                                .append("\n");
+                    }
+                }
+
+                // Tarjeta: marca + últimos 4 dígitos si existen
+                if (metodoLower.contains("visa") || metodoLower.contains("master")) {
+                    if ((marcaTarjeta != null && !marcaTarjeta.isEmpty())
+                            || (ultimos4 != null && !ultimos4.isEmpty())) {
+                        sb.append("Tarjeta: ");
+                        if (marcaTarjeta != null && !marcaTarjeta.isEmpty()) {
+                            sb.append(marcaTarjeta).append(" ");
+                        }
+                        if (ultimos4 != null && !ultimos4.isEmpty()) {
+                            sb.append("terminada en ").append(ultimos4);
+                        }
+                        sb.append("\n");
+                    }
+                }
+            }
+
             sb.append("----------------------------------------\n");
             sb.append(String.format("%-4s %-20s %12s\n", "Cant", "Producto", "Subtotal"));
             sb.append("----------------------------------------\n");
