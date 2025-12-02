@@ -104,12 +104,12 @@ public class ConexionBD {
                     try (var psI = cn.prepareStatement(insert)) {
                         psI.setInt(1, idProducto);
                         psI.executeUpdate();
-                        System.out.println("✅ inventario creado para producto ID=" + idProducto);
+                        System.out.println("inventario creado para producto ID=" + idProducto);
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println("⚠️ ensureInventarioRow: " + e.getMessage());
+            System.out.println("ensureInventarioRow: " + e.getMessage());
         }
     }
 
