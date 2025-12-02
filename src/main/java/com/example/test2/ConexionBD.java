@@ -104,7 +104,8 @@ public class ConexionBD {
                     try (var psI = cn.prepareStatement(insert)) {
                         psI.setInt(1, idProducto);
                         psI.executeUpdate();
-                        System.out.println("✅ inventario creado para producto ID=" + idProducto);
+                        // jorgito
+                        System.out.println(" inventario creado para producto ID=" + idProducto);
                     }
                 }
             }
