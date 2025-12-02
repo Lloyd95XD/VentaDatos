@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -95,6 +96,12 @@
                                                 </Text>
 
                                                 <Region HBox.hgrow="ALWAYS" />
+                                    <Text layoutX="10.0" layoutY="28.0" style="-fx-fill: #9faac7;" text="Cantidad:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Text>
+                                    <TextField fx:id="colCantidadAdd" prefHeight="25.0" prefWidth="120.0" />
 
                                                 <!-- Botón añadir al carrito (desde selección de la izquierda) -->
                                                 <Button onAction="#agregarAlCarrito" style="-fx-background-color: #1391EB;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 4 10;" text="Añadir" />

@@ -17,16 +17,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ResourceBundle;
-//
+
 public class TablasTienda implements Initializable {
 
     // ==========================
-    //  TABLA DE PRODUCTOS
+    //  PRODUCTOS
     // ==========================
     @FXML private TableView<MueblesControlador> tablaProductos;
     @FXML private TableColumn<MueblesControlador, Integer> colId;
-    @FXML private TableColumn<MueblesControlador, String>  colNombre;
-    @FXML private TableColumn<MueblesControlador, String>  colCategoria;
+    @FXML private TableColumn<MueblesControlador, String> colNombre;
+    @FXML private TableColumn<MueblesControlador, String> colCategoria;
     @FXML private TableColumn<MueblesControlador, Integer> colCantidad;
     @FXML private TableColumn<MueblesControlador, Integer> colPrecio;
 
@@ -36,14 +36,16 @@ public class TablasTienda implements Initializable {
             FXCollections.observableArrayList();
 
     // ==========================
-    //  TABLA DEL CARRITO
+    //  CARRITO
     // ==========================
     @FXML private TableView<ItemCarrito> tablaCarrito;
-    @FXML private TableColumn<ItemCarrito, String>  colCarritoNombre;
+    @FXML private TableColumn<ItemCarrito, String> colCarritoNombre;
     @FXML private TableColumn<ItemCarrito, Integer> colCarritoPrecio;
     @FXML private TableColumn<ItemCarrito, Integer> colCarritoCantidad;
 
     @FXML private Text lblMontoTotal;
+
+    @FXML private TextField colCantidadAdd;
 
     private final ObservableList<ItemCarrito> listaCarrito =
             FXCollections.observableArrayList();
@@ -52,7 +54,16 @@ public class TablasTienda implements Initializable {
     //  INITIALIZE
     // ==========================
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL url, ResourceBundle rb) {
+
+        // --- Restringir la cantidad solo a números ---
+        if (colCantidadAdd != null) {
+            colCantidadAdd.textProperty().addListener((obs, old, nuevo) -> {
+                if (!nuevo.matches("\\d*")) {
+                    colCantidadAdd.setText(nuevo.replaceAll("[^\\d]", ""));
+                }
+            });
+        }
 
         if (tablaProductos != null) {
             configurarColumnasProductos();
@@ -68,80 +79,81 @@ public class TablasTienda implements Initializable {
     }
 
     // ==========================
-    //  CARRITO - ACCIONES
+    //  AGREGAR AL CARRITO
     // ==========================
-
     @FXML
     private void agregarAlCarrito() {
+
         MueblesControlador seleccionado =
                 tablaProductos.getSelectionModel().getSelectedItem();
 
         if (seleccionado == null) {
-            System.out.println("⚠ Selecciona un mueble primero");
+            mostrarAlerta("Selecciona un producto primero.");
             return;
         }
 
-        int stockDisponible = seleccionado.getStock();
+        String txt = colCantidadAdd.getText().trim();
+        if (txt.isEmpty()) {
+            mostrarAlerta("Ingresa una cantidad válida.");
+            return;
+        }
 
-        // Cuántas unidades de este producto YA hay en el carrito
-        int cantidadEnCarrito = 0;
+        int cantidadSolicitada = Integer.parseInt(txt);
+        if (cantidadSolicitada <= 0) {
+            mostrarAlerta("La cantidad debe ser mayor a 0.");
+            return;
+        }
+
+        int stock = seleccionado.getStock();
+
         ItemCarrito itemExistente = null;
+        int cantidadEnCarrito = 0;
 
         for (ItemCarrito item : listaCarrito) {
             if (item.getIdProducto() == seleccionado.getIdProducto()) {
-                cantidadEnCarrito = item.getCantidad();
                 itemExistente = item;
+                cantidadEnCarrito = item.getCantidad();
                 break;
             }
         }
 
-        // Si ya llegamos al stock máximo, no dejamos agregar más
-        if (cantidadEnCarrito >= stockDisponible) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Stock máximo alcanzado");
-            alert.setHeaderText(null);
-            alert.setContentText("Llegaste al stock máximo de la tienda para \""
-                    + seleccionado.getNombre() + "\" (" + stockDisponible + " unidades).");
-            alert.showAndWait();
+        if (cantidadSolicitada + cantidadEnCarrito > stock) {
+            mostrarAlerta("Stock insuficiente. Máximo disponible: " +
+                    (stock - cantidadEnCarrito));
             return;
         }
 
-        // Si ya estaba, solo aumentamos la cantidad
         if (itemExistente != null) {
-            itemExistente.setCantidad(itemExistente.getCantidad() + 1);
-            tablaCarrito.refresh();  // actualiza la columna Cantidad
+            itemExistente.setCantidad(itemExistente.getCantidad() + cantidadSolicitada);
+            tablaCarrito.refresh();
         } else {
-            // Si no estaba, lo agregamos con cantidad 1
             ItemCarrito nuevo = new ItemCarrito(
                     seleccionado.getIdProducto(),
                     seleccionado.getNombre(),
                     seleccionado.getPrecio(),
-                    1
+                    cantidadSolicitada
             );
             listaCarrito.add(nuevo);
         }
 
         actualizarTotal();
+        colCantidadAdd.clear();
     }
 
+    // ==========================
+    //  ELIMINAR / VACIAR
+    // ==========================
     @FXML
     private void eliminarDelCarrito() {
-        ItemCarrito seleccionado =
-                tablaCarrito.getSelectionModel().getSelectedItem();
+        ItemCarrito seleccionado = tablaCarrito.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
 
-        if (seleccionado == null) {
-            System.out.println("⚠ Selecciona algo del carrito para eliminar");
-            return;
-        }
-
-        // Si hay más de 1, restamos uno; si no, eliminamos la fila
         if (seleccionado.getCantidad() > 1) {
             seleccionado.setCantidad(seleccionado.getCantidad() - 1);
             tablaCarrito.refresh();
         } else {
             listaCarrito.remove(seleccionado);
         }
-
         actualizarTotal();
     }
 
@@ -151,81 +163,82 @@ public class TablasTienda implements Initializable {
         actualizarTotal();
     }
 
+    // ==========================
+    //  TOTAL
+    // ==========================
     private void actualizarTotal() {
-        int total = calcularTotalCarrito();
-        if (lblMontoTotal != null) {
-            lblMontoTotal.setText("Monto Total $ " + total);
+        int total = 0;
+        for (ItemCarrito item : listaCarrito) {
+            total += item.getPrecio() * item.getCantidad();
         }
+        lblMontoTotal.setText("Monto Total $ " + total);
     }
 
+    // ==========================
+    //  COLUMNAS CARRITO
+    // ==========================
     private void configurarColumnasCarrito() {
-        colCarritoNombre.setCellValueFactory(
-                new PropertyValueFactory<>("nombre"));
-        colCarritoPrecio.setCellValueFactory(
-                new PropertyValueFactory<>("precio"));
-        colCarritoCantidad.setCellValueFactory(
-                new PropertyValueFactory<>("cantidad"));
+        colCarritoNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colCarritoPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
+        colCarritoCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
     }
 
     // ==========================
     //  PRODUCTOS
     // ==========================
-
     private void configurarColumnasProductos() {
-        colId.setCellValueFactory(
-                new PropertyValueFactory<>("idProducto"));
-        colNombre.setCellValueFactory(
-                new PropertyValueFactory<>("nombre"));
-        colCategoria.setCellValueFactory(
-                new PropertyValueFactory<>("categoria"));
-        colCantidad.setCellValueFactory(
-                new PropertyValueFactory<>("stock"));
-        colPrecio.setCellValueFactory(
-                new PropertyValueFactory<>("precio"));
+        colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        colCantidad.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
     }
 
     private void cargarProductos() {
         listaProductos.clear();
 
-        String sql = "SELECT Id_Producto, Categoria, Nombre, " +
-                "Descripcion, Stock, Precio FROM Producto";
+        String sql = "SELECT Id_Producto, Categoria, Nombre, Descripcion, Stock, Precio FROM Producto";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                MueblesControlador p = new MueblesControlador(
+                listaProductos.add(new MueblesControlador(
                         rs.getInt("Id_Producto"),
                         rs.getString("Categoria"),
                         rs.getString("Nombre"),
                         rs.getString("Descripcion"),
                         rs.getInt("Stock"),
                         rs.getInt("Precio")
-                );
-                listaProductos.add(p);
+                ));
             }
 
             tablaProductos.setItems(listaProductos);
 
         } catch (Exception e) {
-            System.out.println("Error cargando productos: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void configurarDescripcion() {
-        if (tablaProductos == null || txtDescripcion == null) return;
-
-        tablaProductos.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, viejo, nuevo) -> {
-                    if (nuevo != null) {
+        tablaProductos.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, nuevo) -> {
+                    if (nuevo != null)
                         txtDescripcion.setText(nuevo.getDescripcion());
-                    } else {
+                    else
                         txtDescripcion.clear();
-                    }
                 });
+    }
+
+    // ==========================
+    //  METODO ALERTA
+    // ==========================
+    private void mostrarAlerta(String msg) {
+        Alert a = new Alert(Alert.AlertType.WARNING);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 
     // ==========================
@@ -233,13 +246,8 @@ public class TablasTienda implements Initializable {
     // ==========================
     @FXML
     private void irAPagar() {
-        // No dejar pasar si el carrito está vacío
         if (listaCarrito.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Carrito vacío");
-            alert.setHeaderText(null);
-            alert.setContentText("Debes agregar al menos un producto al carrito antes de pagar.");
-            alert.showAndWait();
+            mostrarAlerta("El carrito está vacío.");
             return;
         }
 
@@ -247,57 +255,42 @@ public class TablasTienda implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ZonaDePago.fxml"));
             Parent root = loader.load();
 
-            // Obtener el controlador de la Zona de Pago
             ZonaPagoController controller = loader.getController();
-
-            // Pasar carrito y total
-            int total = calcularTotalCarrito();
             controller.setCarritoYTotal(
-                    FXCollections.observableArrayList(listaCarrito), // copia
-                    total
+                    FXCollections.observableArrayList(listaCarrito),
+                    calcularTotal()
             );
 
-            // Si quisieras también podrías pasar el id de usuario así:
-            // controller.setIdUsuario(UsuarioSesion.getIdUsuario());
-//
-            // REEMPLAZAR LA VENTANA ACTUAL
-            // Usa cualquier nodo de la escena actual, por ejemplo tablaProductos
             Stage stage = (Stage) tablaProductos.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
 
         } catch (Exception e) {
-            System.out.println("Error al abrir Zona de Pago: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-
-    private int calcularTotalCarrito() {
+    private int calcularTotal() {
         int total = 0;
-        for (ItemCarrito item : listaCarrito) {
+        for (ItemCarrito item : listaCarrito)
             total += item.getPrecio() * item.getCantidad();
-        }
         return total;
     }
-    @FXML
-    private Button btnVolver; // ← usa el botón real que tengas en tu FXML
+
+    // ==========================
+    //  VOLVER
+    // ==========================
+    @FXML private Button btnVolver;
+
     @FXML
     private void volverMenu1() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("MenuIniciadasesionListoV2.fxml"));
-
-            // Obtener la ventana actual desde el botón
             Stage stage = (Stage) btnVolver.getScene().getWindow();
-
             stage.setScene(new Scene(root));
             stage.show();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
-
 }
