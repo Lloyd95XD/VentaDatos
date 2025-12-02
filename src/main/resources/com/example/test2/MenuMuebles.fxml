@@ -101,7 +101,7 @@
                                           <Font size="14.0" />
                                        </font>
                                     </Text>
-                                    <TextField fx:id="colCantidadAdd" prefHeight="25.0" prefWidth="120.0" />
+                                    <TextField fx:id="colCantidadAdd" prefHeight="25.0" prefWidth="23.0" text="1" />
 
                                                 <!-- Botón añadir al carrito (desde selección de la izquierda) -->
                                                 <Button onAction="#agregarAlCarrito" style="-fx-background-color: #1391EB;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 4 10;" text="Añadir" />

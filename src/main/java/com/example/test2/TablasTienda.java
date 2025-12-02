@@ -103,6 +103,7 @@ public class TablasTienda implements Initializable {
         int cantidadSolicitada = Integer.parseInt(txt);
         if (cantidadSolicitada <= 0) {
             mostrarAlerta("La cantidad debe ser mayor a 0.");
+
             return;
         }
 
@@ -139,7 +140,8 @@ public class TablasTienda implements Initializable {
         }
 
         actualizarTotal();
-        colCantidadAdd.clear();
+        //colCantidadAdd.clear();//
+        colCantidadAdd.setText("1");
     }
 
     // ==========================

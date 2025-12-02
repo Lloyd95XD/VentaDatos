@@ -118,7 +118,7 @@ public class VentanaGrafico implements Initializable {
 
         try (cn) {
 
-            // 💰 Ventas HOY
+            //  Ventas HOY
             try (PreparedStatement ps = cn.prepareStatement(sqlVentasHoy);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next() && lblVentasHoy != null) {
@@ -126,7 +126,7 @@ public class VentanaGrafico implements Initializable {
                 }
             }
 
-            // 💰 Ventas este mes
+            // Ventas este mes
             try (PreparedStatement ps = cn.prepareStatement(sqlVentasMes);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next() && lblVentasMes != null) {
@@ -134,7 +134,7 @@ public class VentanaGrafico implements Initializable {
                 }
             }
 
-            // 🧾 Total registros
+            //  Total registros
             try (PreparedStatement ps = cn.prepareStatement(sqlTotalRegistros);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next() && lblTotalRegistros != null) {
