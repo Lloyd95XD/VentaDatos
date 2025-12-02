@@ -109,8 +109,6 @@
 
                                                 <Region HBox.hgrow="ALWAYS" />
 
-                                                <Button onAction="#EliminarCuenta" style="-fx-background-color: #c94c4c;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 8 16;" text="Eliminar cuenta" />
-
                                                 <Button fx:id="btnAplicarCambios" onAction="#guardarCambiosRolSucursal" style="-fx-background-color: #1391EB;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 8 18;" text="Aplicar cambios" />
                                     <Button layoutX="684.0" layoutY="18.0" onAction="#SuspenderCuenta" style="-fx-background-color: #c94c4c;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 8 16;" text="Suspender Cuenta" />
                                             </children>

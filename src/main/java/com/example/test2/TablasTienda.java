@@ -16,6 +16,8 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class TablasTienda implements Initializable {
@@ -39,7 +41,7 @@ public class TablasTienda implements Initializable {
     //  CARRITO
     // ==========================
     @FXML private TableView<ItemCarrito> tablaCarrito;
-    @FXML private TableColumn<ItemCarrito, String> colCarritoNombre;
+    @FXML private TableColumn<ItemCarrito, String>  colCarritoNombre;
     @FXML private TableColumn<ItemCarrito, Integer> colCarritoPrecio;
     @FXML private TableColumn<ItemCarrito, Integer> colCarritoCantidad;
 
@@ -171,7 +173,7 @@ public class TablasTienda implements Initializable {
         for (ItemCarrito item : listaCarrito) {
             total += item.getPrecio() * item.getCantidad();
         }
-        lblMontoTotal.setText("Monto Total $ " + total);
+        lblMontoTotal.setText("Monto Total $ " + formatearCLP(total));
     }
 
     // ==========================
@@ -181,6 +183,19 @@ public class TablasTienda implements Initializable {
         colCarritoNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCarritoPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colCarritoCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
+
+        // Formato CLP en la columna de precio del carrito
+        colCarritoPrecio.setCellFactory(col -> new TableCell<ItemCarrito, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(formatearCLP(item));
+                }
+            }
+        });
     }
 
     // ==========================
@@ -192,6 +207,19 @@ public class TablasTienda implements Initializable {
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("stock"));
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
+
+        // Formato CLP en la columna de precio de productos
+        colPrecio.setCellFactory(col -> new TableCell<MueblesControlador, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(formatearCLP(item));
+                }
+            }
+        });
     }
 
     private void cargarProductos() {
@@ -229,6 +257,16 @@ public class TablasTienda implements Initializable {
                     else
                         txtDescripcion.clear();
                 });
+    }
+
+    // ==========================
+    //  FORMATO CLP
+    // ==========================
+    private String formatearCLP(int valor) {
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
+        nf.setMaximumFractionDigits(0); // sin decimales
+        nf.setMinimumFractionDigits(0);
+        return nf.format(valor);
     }
 
     // ==========================

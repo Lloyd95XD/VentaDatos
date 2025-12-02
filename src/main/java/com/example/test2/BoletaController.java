@@ -20,7 +20,9 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class BoletaController implements Initializable {
@@ -178,7 +180,7 @@ public class BoletaController implements Initializable {
                 sb.append("Dirección: ").append(direccion).append("\n");
             }
             sb.append("----------------------------------------\n");
-            sb.append(String.format("%-4s %-20s %8s\n", "Cant", "Producto", "Subtotal"));
+            sb.append(String.format("%-4s %-20s %12s\n", "Cant", "Producto", "Subtotal"));
             sb.append("----------------------------------------\n");
 
             while (rsDet.next()) {
@@ -187,18 +189,20 @@ public class BoletaController implements Initializable {
                 int precio = rsDet.getInt("Precio");
                 int subtotal = cant * precio;
 
-                sb.append(String.format("%-4d %-20s %8d\n",
+                String subtotalStr = "$ " + formatearCLP(subtotal);
+
+                sb.append(String.format("%-4d %-20s %12s\n",
                         cant,
                         nombre != null ? nombre : "-",
-                        subtotal));
+                        subtotalStr));
             }
 
             sb.append("----------------------------------------\n");
-            sb.append(String.format("TOTAL BRUTO: %20d\n", totalBruto));
+            sb.append(String.format("TOTAL BRUTO: %18s\n", "$ " + formatearCLP(totalBruto)));
             if (descuento > 0) {
-                sb.append(String.format("DESCUENTO (10%%): %15d-\n", descuento));
+                sb.append(String.format("DESCUENTO (10%%): %13s-\n", "$ " + formatearCLP(descuento)));
             }
-            sb.append(String.format("TOTAL A PAGAR: %16d\n", totalFinal));
+            sb.append(String.format("TOTAL A PAGAR: %15s\n", "$ " + formatearCLP(totalFinal)));
             sb.append("\nGracias por su compra.\n");
             sb.append("      JOHEX.inc\n");
             txtBoleta.setText(sb.toString());
@@ -208,6 +212,14 @@ public class BoletaController implements Initializable {
             mostrarAlerta(Alert.AlertType.ERROR,
                     "Error", "No se pudo cargar el detalle de la boleta.");
         }
+    }
+
+    // Formatear CLP con puntos: 25990 -> 25.990
+    private String formatearCLP(int valor) {
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+        return nf.format(valor);
     }
 
     // Formatear RUT tipo 12345678K -> 12.345.678-K

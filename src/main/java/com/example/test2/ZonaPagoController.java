@@ -16,6 +16,8 @@ import java.net.URL;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ZonaPagoController implements Initializable {
@@ -39,7 +41,7 @@ public class ZonaPagoController implements Initializable {
 
     private int totalAPagar = 0;
 
-    // Usuario logueado y sucursal asociada a su cuenta
+    // Usuario
     private String idUsuario = "";
     private int idSucursalUsuario = -1;
     private String nombreSucursalUsuario = "";
@@ -50,7 +52,7 @@ public class ZonaPagoController implements Initializable {
         configurarDescripcion();
         cargarMetodosPago();
         cargarDatosUsuarioYSucursal();
-        configurarFormatoRutCliente();   // <-- NUEVO: formateo del RUT
+        configurarFormatoRutCliente();
         actualizarTextoTotal();
     }
 
@@ -73,14 +75,43 @@ public class ZonaPagoController implements Initializable {
         actualizarTextoTotal();
     }
 
+    // ==========================
+    //  CONFIG TABLA CARRITO + CLP
+    // ==========================
     private void configurarTablaCarrito() {
         colNombreCarrito.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colPrecioCarrito.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colCantidadCarrito.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
 
+        // Formatear precios CLP
+        colPrecioCarrito.setCellFactory(col -> new TableCell<ItemCarrito, Integer>() {
+            @Override
+            protected void updateItem(Integer p, boolean empty) {
+                super.updateItem(p, empty);
+                if (empty || p == null) {
+                    setText(null);
+                } else {
+                    setText("$ " + formatearCLP(p));
+                }
+            }
+        });
+
         tablaCarrito.setItems(carrito);
     }
 
+    // ==========================
+    //  FORMATO CLP
+    // ==========================
+    private String formatearCLP(int valor) {
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+        return nf.format(valor);
+    }
+
+    // ==========================
+    // DESCRIPCIÓN (con CLP)
+    // ==========================
     private void configurarDescripcion() {
         tablaCarrito.getSelectionModel()
                 .selectedItemProperty()
@@ -93,21 +124,19 @@ public class ZonaPagoController implements Initializable {
                     txtDescripcion.setText(
                             "Producto: " + nuevo.getNombre() +
                                     "\nCantidad: " + nuevo.getCantidad() +
-                                    "\nPrecio unidad: " + nuevo.getPrecio()
+                                    "\nPrecio unidad: $ " + formatearCLP(nuevo.getPrecio())
                     );
                 });
     }
 
     private void cargarMetodosPago() {
         comboMetodoPago.setItems(FXCollections.observableArrayList(
-                "Débito",
-                "Crédito",
-                "Efectivo"
+                "Débito", "Crédito", "Efectivo"
         ));
     }
 
     // ==========================
-    // FORMATEO AUTOMÁTICO RUT CLIENTE
+    // FORMATO AUTOMÁTICO RUT CLIENTE
     // ==========================
     private void configurarFormatoRutCliente() {
         if (txtRutCliente == null) return;
@@ -118,11 +147,9 @@ public class ZonaPagoController implements Initializable {
             if (actualizando[0]) return;
             actualizando[0] = true;
 
-            // Solo dígitos
             String soloDigitos = newValue.replaceAll("\\D", "");
-            if (soloDigitos.length() > 9) {
+            if (soloDigitos.length() > 9)
                 soloDigitos = soloDigitos.substring(0, 9);
-            }
 
             String formateado = formatearRut(soloDigitos);
             txtRutCliente.setText(formateado);
@@ -132,25 +159,22 @@ public class ZonaPagoController implements Initializable {
         });
     }
 
-    // 12345678K -> 12.345.678-K
     private String formatearRut(String digitos) {
-        if (digitos == null || digitos.isEmpty()) return "";
-
+        if (digitos.isEmpty()) return "";
         if (digitos.length() == 1) return digitos;
 
         String cuerpo = digitos.substring(0, digitos.length() - 1);
         String dv = digitos.substring(digitos.length() - 1);
 
         StringBuilder sb = new StringBuilder();
-        int contador = 0;
+        int c = 0;
 
         for (int i = cuerpo.length() - 1; i >= 0; i--) {
             sb.insert(0, cuerpo.charAt(i));
-            contador++;
-
-            if (contador == 3 && i != 0) {
+            c++;
+            if (c == 3 && i != 0) {
                 sb.insert(0, ".");
-                contador = 0;
+                c = 0;
             }
         }
 
@@ -164,10 +188,9 @@ public class ZonaPagoController implements Initializable {
     private void cargarDatosUsuarioYSucursal() {
         String idUsuarioSesion = UsuarioSesion.getIdUsuario();
 
-        if (idUsuarioSesion == null || idUsuarioSesion.trim().isEmpty()) {
+        if (idUsuarioSesion == null || idUsuarioSesion.isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR,
-                    "Sesión",
-                    "No se encontró un usuario logueado. Inicie sesión nuevamente.");
+                    "Sesión", "Usuario no encontrado.");
             return;
         }
 
@@ -175,7 +198,7 @@ public class ZonaPagoController implements Initializable {
 
         String sql = """
                 SELECT u.Id_Sucursales, s.localidad
-                FROM Usuario u
+                FROM usuario u
                 LEFT JOIN sucursales s ON u.Id_Sucursales = s.Id_Sucursales
                 WHERE u.Id_Usuario = ?
                 """;
@@ -189,206 +212,183 @@ public class ZonaPagoController implements Initializable {
                 if (rs.next()) {
                     idSucursalUsuario = rs.getInt("Id_Sucursales");
                     nombreSucursalUsuario = rs.getString("localidad");
-
-                    if (rs.wasNull() || idSucursalUsuario == 0 || nombreSucursalUsuario == null) {
-                        mostrarAlerta(Alert.AlertType.WARNING,
-                                "Sucursal no definida",
-                                "Tu cuenta no tiene una sucursal asociada.\n" +
-                                        "Por favor, contacta al administrador.");
-                    }
-                } else {
-                    mostrarAlerta(Alert.AlertType.ERROR,
-                            "Usuario no encontrado",
-                            "No se pudo encontrar el usuario en la base de datos.");
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta(Alert.AlertType.ERROR,
-                    "Error",
-                    "No se pudo cargar la sucursal del usuario.");
-        }
-    }
-
-    private void actualizarTextoTotal() {
-        if (lblMontoTotal != null) {
-            lblMontoTotal.setText("Monto Total $ " + totalAPagar);
+                    "Error", "No se pudo cargar la sucursal.");
         }
     }
 
     // ==========================
-    //   REALIZAR PAGO
+    // TOTAL CLP
+    // ==========================
+    private void actualizarTextoTotal() {
+        if (lblMontoTotal != null) {
+            lblMontoTotal.setText("Monto Total: $ " + formatearCLP(totalAPagar));
+        }
+    }
+
+    // ==========================
+    // REALIZAR PAGO
     // ==========================
     @FXML
     private void realizarPago() {
+
         if (carrito.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING,
-                    "Carrito vacío", "No hay productos para pagar.");
+                    "Carrito vacío", "No hay productos.");
             return;
         }
 
         String metodo = comboMetodoPago.getValue();
         String direccion = txtDireccion.getText().trim();
-        String rutFormateado = txtRutCliente.getText().trim();      // con puntos y guion
-        String rutSoloDigitos = rutFormateado.replaceAll("\\D", ""); // solo números
+        String rutF = txtRutCliente.getText().trim();
+        String rutNum = rutF.replaceAll("\\D", "");
 
-        if (idSucursalUsuario <= 0 || nombreSucursalUsuario == null || nombreSucursalUsuario.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR,
-                    "Sucursal no definida",
-                    "Tu cuenta no tiene una sucursal asociada.\nNo se puede realizar la venta.");
-            return;
-        }
-
-        if (metodo == null || metodo.isEmpty()) {
+        if (metodo == null) {
             mostrarAlerta(Alert.AlertType.WARNING,
-                    "Datos faltantes", "Selecciona un método de pago.");
+                    "Método de pago", "Selecciona un método.");
             return;
         }
 
         Integer rutCliente = null;
-        if (!rutSoloDigitos.isEmpty()) {
+        if (!rutNum.isEmpty()) {
             try {
-                rutCliente = Integer.parseInt(rutSoloDigitos);
+                rutCliente = Integer.parseInt(rutNum);
             } catch (NumberFormatException e) {
-                mostrarAlerta(Alert.AlertType.WARNING,
-                        "RUT inválido", "El RUT debe ser numérico (sin puntos ni guion).");
+                mostrarAlerta(Alert.AlertType.ERROR, "RUT inválido",
+                        "Debe ser solo números.");
                 return;
             }
         }
 
-        // ===== DESCUENTO POR RUT (segunda compra o más) =====
-        int totalVenta = totalAPagar;
-        int descuentoAplicado = 0;
+        // Descuento por segunda compra
+        int descuento = 0;
+        int totalFinal = totalAPagar;
 
         if (rutCliente != null && clienteYaComproAntes(rutCliente)) {
-            descuentoAplicado = (int) Math.round(totalAPagar * 0.10);  // 10%
-            totalVenta = totalAPagar - descuentoAplicado;
+            descuento = (int) (totalAPagar * 0.10);
+            totalFinal = totalAPagar - descuento;
         }
 
-        // ==========================
-        // Insertar en VENTA
-        // ==========================
-        String sqlVenta = """
+        // Insertar venta
+        int idBoleta = insertarVenta(totalFinal, metodo, direccion, rutCliente, descuento);
+
+        if (idBoleta == -1) {
+            mostrarAlerta(Alert.AlertType.ERROR,
+                    "Error", "No se pudo registrar la venta.");
+            return;
+        }
+
+        insertarDetalles(idBoleta);
+        actualizarStock();
+
+        abrirVentanaBoleta(idBoleta, nombreSucursalUsuario, metodo,
+                rutF, direccion, totalAPagar, descuento, totalFinal, carrito);
+    }
+
+    private int insertarVenta(int totalFinal, String metodo, String direccion,
+                              Integer rutCliente, int descuento) {
+
+        String sql = """
             INSERT INTO venta
             (Id_Usuario, Id_Sucursales, Precio_Total, Metodo_de_pago, Direccion, Rut_Cliente, Descuento)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
-
-        int idBoletaGenerada = -1;
+        """;
 
         try (Connection conn = ConexionBD.conectar();
-             PreparedStatement stmtVenta = conn.prepareStatement(
-                     sqlVenta, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmtVenta.setString(1, idUsuario);
-            stmtVenta.setInt(2, idSucursalUsuario);
-            stmtVenta.setInt(3, totalVenta);              // total con descuento (si aplica)
-            stmtVenta.setString(4, metodo);
-            stmtVenta.setString(5, direccion.isEmpty() ? null : direccion);
+            stmt.setString(1, idUsuario);
+            stmt.setInt(2, idSucursalUsuario);
+            stmt.setInt(3, totalFinal);
+            stmt.setString(4, metodo);
+            stmt.setString(5, direccion.isEmpty() ? null : direccion);
 
-            if (rutCliente == null) {
-                stmtVenta.setNull(6, Types.INTEGER);
-            } else {
-                stmtVenta.setInt(6, rutCliente);
+            if (rutCliente == null)
+                stmt.setNull(6, Types.INTEGER);
+            else
+                stmt.setInt(6, rutCliente);
+
+            stmt.setInt(7, descuento);
+
+            stmt.executeUpdate();
+
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
             }
-
-            stmtVenta.setInt(7, descuentoAplicado);       // monto descontado (0 si no hay promo)
-
-            stmtVenta.executeUpdate();
-
-            try (ResultSet keys = stmtVenta.getGeneratedKeys()) {
-                if (keys.next()) {
-                    idBoletaGenerada = keys.getInt(1);
-                }
-            }
-
-            if (idBoletaGenerada == -1) {
-                throw new Exception("No se pudo obtener el Id_Boleta generado.");
-            }
-
-            // ==========================
-            // DETALLES_VENTAS
-            // ==========================
-            String sqlDetalles = """
-                INSERT INTO detalles_ventas
-                (Id_Boleta, Id_Producto, Cantidad_de_compras)
-                VALUES (?, ?, ?)
-                """;
-
-            try (PreparedStatement stmtDet = conn.prepareStatement(sqlDetalles)) {
-                for (ItemCarrito item : carrito) {
-                    stmtDet.setInt(1, idBoletaGenerada);
-                    stmtDet.setInt(2, item.getIdProducto());
-                    stmtDet.setInt(3, item.getCantidad());
-                    stmtDet.addBatch();
-                }
-                stmtDet.executeBatch();
-            }
-
-            // ==========================
-            // ACTUALIZAR STOCK
-            // ==========================
-            String sqlUpdateStock = """
-                UPDATE producto
-                SET Stock = Stock - ?
-                WHERE Id_Producto = ?
-                """;
-            try (PreparedStatement stmtStock = conn.prepareStatement(sqlUpdateStock)) {
-                for (ItemCarrito item : carrito) {
-                    stmtStock.setInt(1, item.getCantidad());
-                    stmtStock.setInt(2, item.getIdProducto());
-                    stmtStock.addBatch();
-                }
-                stmtStock.executeBatch();
-            }
-
-            // Boleta final
-            abrirVentanaBoleta(
-                    idBoletaGenerada,
-                    nombreSucursalUsuario,
-                    metodo,
-                    rutFormateado,        // se muestra formateado en la boleta
-                    direccion,
-                    totalAPagar,          // total original
-                    descuentoAplicado,
-                    totalVenta,           // total final
-                    carrito
-            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR,
-                    "Error al pagar", "Ocurrió un error al procesar el pago.");
+        }
+        return -1;
+    }
+
+    private void insertarDetalles(int idBoleta) {
+
+        String sql = """
+            INSERT INTO detalles_ventas (Id_Boleta, Id_Producto, Cantidad_de_compras)
+            VALUES (?, ?, ?)
+        """;
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (ItemCarrito item : carrito) {
+                stmt.setInt(1, idBoleta);
+                stmt.setInt(2, item.getIdProducto());
+                stmt.setInt(3, item.getCantidad());
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    // ==========================
-    //  ¿Cliente ya compró antes?
-    // ==========================
+    private void actualizarStock() {
+
+        String sql = """
+            UPDATE producto SET Stock = Stock - ? WHERE Id_Producto = ?
+        """;
+
+        try (Connection conn = ConexionBD.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (ItemCarrito item : carrito) {
+                stmt.setInt(1, item.getCantidad());
+                stmt.setInt(2, item.getIdProducto());
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean clienteYaComproAntes(int rutCliente) {
         String sql = "SELECT COUNT(*) AS total FROM venta WHERE Rut_Cliente = ?";
-
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, rutCliente);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    int total = rs.getInt("total");
-                    // Si ya tiene al menos 1 compra previa → esta es la segunda o más
-                    return total >= 1;
-                }
+                if (rs.next()) return rs.getInt("total") >= 1;
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            // Si hay error, no aplicamos descuento por seguridad
         }
         return false;
     }
 
     // ==========================
-    //   ABRIR VENTANA BOLETA
+    // BOLETA (CON CLP)
     // ==========================
     private void abrirVentanaBoleta(int idBoleta,
                                     String nombreSucursal,
@@ -399,25 +399,18 @@ public class ZonaPagoController implements Initializable {
                                     int descuento,
                                     int totalFinal,
                                     ObservableList<ItemCarrito> carrito) {
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ZonadePagoRealizado.fxml"));
             Parent root = loader.load();
 
             BoletaController controller = loader.getController();
 
-            String textoBoleta = construirTextoBoleta(
-                    idBoleta,
-                    nombreSucursal,
-                    metodoPago,
-                    rut,
-                    direccion,
-                    totalOriginal,
-                    descuento,
-                    totalFinal,
-                    carrito
+            controller.setTextoBoleta(
+                    construirTextoBoleta(idBoleta, nombreSucursal, metodoPago,
+                            rut, direccion, totalOriginal, descuento, totalFinal,
+                            carrito)
             );
-
-            controller.setTextoBoleta(textoBoleta);
 
             Stage stage = (Stage) lblMontoTotal.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -425,8 +418,7 @@ public class ZonaPagoController implements Initializable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR,
-                    "Error", "No se pudo abrir la boleta.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir la boleta.");
         }
     }
 
@@ -440,39 +432,39 @@ public class ZonaPagoController implements Initializable {
                                         int totalFinal,
                                         ObservableList<ItemCarrito> carrito) {
 
-        String fecha = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-
+        String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         StringBuilder sb = new StringBuilder();
 
         sb.append("      Boleta N° ").append(idBoleta).append("\n\n");
         sb.append("Fecha: ").append(fecha).append("\n");
-        sb.append("Sucursal: ").append(nombreSucursal != null ? nombreSucursal : "Sin sucursal").append("\n");
+        sb.append("Sucursal: ").append(nombreSucursal).append("\n");
         sb.append("Método de pago: ").append(metodoPago).append("\n");
-        if (rut != null && !rut.isEmpty())
-            sb.append("Rut cliente: ").append(rut).append("\n");
-        if (direccion != null && !direccion.isEmpty())
-            sb.append("Dirección: ").append(direccion).append("\n");
+
+        if (rut != null && !rut.isEmpty()) sb.append("Rut cliente: ").append(rut).append("\n");
+        if (direccion != null && !direccion.isEmpty()) sb.append("Dirección: ").append(direccion).append("\n");
+
         sb.append("----------------------------------------\n");
-        sb.append(String.format("%-4s %-20s %8s\n", "Cant", "Producto", "Subtotal"));
+        sb.append(String.format("%-4s %-20s %12s\n", "Cant", "Producto", "Subtotal"));
         sb.append("----------------------------------------\n");
 
         for (ItemCarrito item : carrito) {
             int subtotal = item.getCantidad() * item.getPrecio();
-            sb.append(String.format("%-4d %-20s %8d\n",
+            sb.append(String.format("%-4d %-20s %12s\n",
                     item.getCantidad(),
                     item.getNombre(),
-                    subtotal));
+                    "$ " + formatearCLP(subtotal)));
         }
 
         sb.append("----------------------------------------\n");
-        sb.append(String.format("TOTAL BRUTO: %20d\n", totalOriginal));
-        if (descuento > 0) {
-            sb.append(String.format("DESCUENTO (10%%): %15d-\n", descuento));
-        }
-        sb.append(String.format("TOTAL A PAGAR: %16d\n", totalFinal));
+        sb.append(String.format("TOTAL BRUTO: %18s\n", "$ " + formatearCLP(totalOriginal)));
+
+        if (descuento > 0)
+            sb.append(String.format("DESCUENTO (10%%): %13s-\n", "$ " + formatearCLP(descuento)));
+
+        sb.append(String.format("TOTAL A PAGAR: %15s\n", "$ " + formatearCLP(totalFinal)));
         sb.append("\nGracias por su compra.\n");
         sb.append("      JOHEX.inc\n");
+
         return sb.toString();
     }
 
@@ -493,7 +485,8 @@ public class ZonaPagoController implements Initializable {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo volver al menú.");
+            mostrarAlerta(Alert.AlertType.ERROR,
+                    "Error", "No se pudo volver al menú.");
         }
     }
 }

@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 
 import java.net.URL;
 import java.sql.*;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class MueblesTablaController implements Initializable {
@@ -30,8 +32,8 @@ public class MueblesTablaController implements Initializable {
     // ===================== ELEMENTOS FXML =====================
     @FXML private TableView<Producto> tablaProductos;
     @FXML private TableColumn<Producto, Integer> colIdProducto;
-    @FXML private TableColumn<Producto, String> colCategoria;
-    @FXML private TableColumn<Producto, String> colNombre;
+    @FXML private TableColumn<Producto, String>  colCategoria;
+    @FXML private TableColumn<Producto, String>  colNombre;
     @FXML private TableColumn<Producto, Integer> colStock;
     @FXML private TableColumn<Producto, Integer> colPrecio;
 
@@ -44,7 +46,6 @@ public class MueblesTablaController implements Initializable {
     @FXML private Button btnNuevoProducto;
     @FXML private Button btnGuardarProducto;
     @FXML private Button btnEliminarProducto;
-
 
     private final ObservableList<Producto> listaProductos = FXCollections.observableArrayList();
     private Producto productoSeleccionado = null;
@@ -68,8 +69,6 @@ public class MueblesTablaController implements Initializable {
         btnNuevoProducto.setOnAction(e -> limpiarFormulario());
         btnGuardarProducto.setOnAction(e -> guardarProducto());
         btnEliminarProducto.setOnAction(e -> eliminarProducto());
-
-
     }
 
     // ===================== CONFIG TABLA =====================
@@ -79,6 +78,19 @@ public class MueblesTablaController implements Initializable {
         colNombre.setCellValueFactory(data -> data.getValue().nombreProperty());
         colStock.setCellValueFactory(data -> data.getValue().stockProperty().asObject());
         colPrecio.setCellValueFactory(data -> data.getValue().precioProperty().asObject());
+
+        // Formatear la columna de precio como CLP (con puntos)
+        colPrecio.setCellFactory(col -> new TableCell<Producto, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(formatearCLP(item));
+                }
+            }
+        });
 
         tablaProductos.setItems(listaProductos);
     }
@@ -121,7 +133,7 @@ public class MueblesTablaController implements Initializable {
         txtNombreProducto.setText(p.getNombre());
         txtDescripcionProducto.setText(p.getDescripcion());
         txtStockProducto.setText(String.valueOf(p.getStock()));
-        txtPrecioProducto.setText(String.valueOf(p.getPrecio()));
+        txtPrecioProducto.setText(String.valueOf(p.getPrecio())); // sin formato, para editar
     }
 
     private void limpiarFormulario() {
@@ -244,7 +256,7 @@ public class MueblesTablaController implements Initializable {
         cargarProductos();
         limpiarFormulario();
     }
-//
+
     // ===================== VOLVER AL MENÚ =====================
     @FXML
     private void volverAlMenu() {
@@ -254,9 +266,8 @@ public class MueblesTablaController implements Initializable {
             );
             javafx.scene.Parent root = loader.load();
 
-            // Obtener la ventana actual desde cualquier elemento del controller
             javafx.stage.Stage stage = (javafx.stage.Stage)
-                    tablaProductos.getScene().getWindow(); // ← usa la tabla como referencia
+                    tablaProductos.getScene().getWindow();
 
             stage.setScene(new javafx.scene.Scene(root));
             stage.show();
@@ -264,6 +275,14 @@ public class MueblesTablaController implements Initializable {
         } catch (Exception e) {
             mostrarError("Error al volver al menú", e.getMessage());
         }
+    }
+
+    // ===================== FORMATO CLP =====================
+    private String formatearCLP(int valor) {
+        NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+        return nf.format(valor);
     }
 
     // ===================== ALERTAS =====================

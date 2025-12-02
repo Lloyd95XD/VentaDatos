@@ -23,9 +23,6 @@ public class ControladorVentanas {
             "(Id_Usuario, Nombre, Apellido, Email, Telefono, Password, Fecha_creacion_de_cuenta, Admin) " +
             "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?)";
 
-    // -------------------------------
-    // Campos del formulario
-    // -------------------------------
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellido;
     @FXML private TextField txtRut;
@@ -41,30 +38,23 @@ public class ControladorVentanas {
     @FXML private TextField txtnombrecuenta;
     @FXML private TextField txtpassword2;
 
-    // Botón de registro solo para admin
     @FXML private Button registrousuariooo;
 
-    // 🔹 Hyperlinks del menú (solo admin)
-    @FXML private Hyperlink linkRegistroMuebles;     // "Registro de Muebles"
-    @FXML private Hyperlink linkRegistroUsuarios;    // "Registro de usuarios"
-    @FXML private Hyperlink linkVerTablasMuebles;    // "Ver Tabla de muebles"
+    @FXML private Hyperlink linkRegistroMuebles;
+    @FXML private Hyperlink linkRegistroUsuarios;
+    @FXML private Hyperlink linkVerTablasMuebles;
 
-    // -------------------------------
-    // Inicialización
-    // -------------------------------
     @FXML
     private void initialize() {
 
         boolean esAdmin = UsuarioSesion.isAdmin();
 
-        // Botón de registrar usuario (solo admin)
         if (registrousuariooo != null) {
             registrousuariooo.setDisable(!esAdmin);
             registrousuariooo.setVisible(esAdmin);
             registrousuariooo.setManaged(esAdmin);
         }
 
-        // 🔒 Ocultar links de admin si NO es admin
         if (!esAdmin) {
             if (linkRegistroMuebles != null) {
                 linkRegistroMuebles.setVisible(false);
@@ -80,11 +70,9 @@ public class ControladorVentanas {
             }
         }
 
-        // ====== FORMATEO AUTOMÁTICO DEL RUT ======
+        // RUT automático
         if (txtRut != null) {
-
             final boolean[] actualizandoRut = { false };
-
             txtRut.textProperty().addListener((obs, oldValue, newValue) -> {
                 if (actualizandoRut[0]) return;
 
@@ -104,7 +92,7 @@ public class ControladorVentanas {
             });
         }
 
-        // ====== Teléfono +569 obligatorio ======
+        // Teléfono +569 obligatorio
         if (txtTelefono != null) {
 
             if (txtTelefono.getText() == null || txtTelefono.getText().isEmpty()) {
@@ -123,13 +111,8 @@ public class ControladorVentanas {
         }
     }
 
-
-    // ===========================================
-    // Formatear RUT: 12345678K -> 12.345.678-K
-    // ===========================================
     private String formatearRut(String digitos) {
         if (digitos == null || digitos.isEmpty()) return "";
-
         if (digitos.length() == 1) return digitos;
 
         String cuerpo = digitos.substring(0, digitos.length() - 1);
@@ -152,11 +135,6 @@ public class ControladorVentanas {
         return sb.toString();
     }
 
-
-
-    // ===================================================
-    // REGISTRO DE USUARIO
-    // ===================================================
     @FXML
     private void RegistroTablaUsuario() {
 
@@ -180,7 +158,7 @@ public class ControladorVentanas {
         }
 
         if (!idUsuario.matches("\\d{7,9}")) {
-            textoerror.setText("El RUT debe tener entre 7 y 9 dígitos (sin puntos ni guion)");
+            textoerror.setText("El RUT debe tener entre 7 y 9 dígitos");
             return;
         }
 
@@ -205,7 +183,7 @@ public class ControladorVentanas {
             stmt.setString(4, correo);
             stmt.setString(5, telefono);
             stmt.setString(6, hashedPassword);
-            stmt.setInt(7, 0);   // no admin por defecto
+            stmt.setInt(7, 0);
 
             stmt.executeUpdate();
 
@@ -221,11 +199,6 @@ public class ControladorVentanas {
         }
     }
 
-
-
-    // ===================================================
-    // LOGIN (con bloqueo de suspendido)
-    // ===================================================
     @FXML
     private void iniciarSesion(ActionEvent event) {
 
@@ -268,9 +241,8 @@ public class ControladorVentanas {
                 return;
             }
 
-            // 🔒 REVISAR SUSPENSIÓN
             if (rs.getInt("Suspendido") == 1) {
-                textoerrorLogin.setText("Cuenta suspendida. Contacte con un administrador.");
+                textoerrorLogin.setText("Cuenta suspendida.");
                 textoerrorLogin.setFill(Color.web("#ff4444"));
                 return;
             }
@@ -293,11 +265,6 @@ public class ControladorVentanas {
         }
     }
 
-
-
-    // ===================================================
-    // Limpieza
-    // ===================================================
     private void limpiarCampos() {
         if (txtNombre != null) txtNombre.clear();
         if (txtApellido != null) txtApellido.clear();
@@ -308,11 +275,7 @@ public class ControladorVentanas {
         if (txtRepetirPassword != null) txtRepetirPassword.clear();
     }
 
-
-
-    // ===================================================
-    // Cambiar Ventanas
-    // ===================================================
+    // ============ 🔹 Cambiar ventanas (versión limpia, sin maximizar) ============
     public void cambiarAVentana(String ventanaFxml, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(ventanaFxml + ".fxml"));
@@ -326,15 +289,15 @@ public class ControladorVentanas {
         }
     }
 
-    // ---- Navegación general
+    // Navegación general
     @FXML private void PantallaIniciarsesion(ActionEvent event){ cambiarAVentana("iniciarSesion",event); }
     @FXML private void regresarmenuprincipal(ActionEvent event){ cambiarAVentana("VentanaLoginV2",event); }
     @FXML private void Registrarboton(ActionEvent event){ cambiarAVentana("registrarte",event); }
     @FXML public  void menuventa(ActionEvent event){ cambiarAVentana("MenuiniciadasesionListoV2",event); }
     @FXML private void compraaaboton(ActionEvent event){ cambiarAVentana("MenuMuebles",event); }
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
-//
-    // ---- SOLO ADMIN (con seguridad extra) ----
+
+    // Admin
     @FXML
     private void VerRegistrosUsuarios(ActionEvent event){
         if (!UsuarioSesion.isAdmin()) {
@@ -361,8 +324,7 @@ public class ControladorVentanas {
         }
         cambiarAVentana("TablaMueblesVentana", event);
     }
-//
-    // Pequeña alerta opcional
+
     private void mostrarAlertaNoAdmin() {
         Alert alerta = new Alert(Alert.AlertType.WARNING);
         alerta.setTitle("Acceso restringido");

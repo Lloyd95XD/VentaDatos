@@ -11,7 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
-//
+
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +19,7 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-//
+
 public class AdminUsuariosController implements Initializable {
 
     @FXML private TableView<DatosControlador> tablaUsuarios;
@@ -33,8 +33,6 @@ public class AdminUsuariosController implements Initializable {
     @FXML private TableColumn<DatosControlador, Integer> colAdmin;
     @FXML private TableColumn<DatosControlador, String> colRol;
     @FXML private TableColumn<DatosControlador, String> colSucursal;
-
-    // 🔹 Nueva columna
     @FXML private TableColumn<DatosControlador, Integer> colSuspendido;
 
     @FXML private ComboBox<String> cbRol;
@@ -51,10 +49,6 @@ public class AdminUsuariosController implements Initializable {
     private final Map<String, Integer> mapaRoles = new HashMap<>();
     private final Map<String, Integer> mapaSucursales = new HashMap<>();
 
-
-    // ==============================================
-    // INIT
-    // ==============================================
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarColumnas();
@@ -68,7 +62,6 @@ public class AdminUsuariosController implements Initializable {
         );
     }
 
-
     private void configurarColumnas() {
         colRut.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -79,15 +72,44 @@ public class AdminUsuariosController implements Initializable {
         colAdmin.setCellValueFactory(new PropertyValueFactory<>("admin"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("nombreRol"));
         colSucursal.setCellValueFactory(new PropertyValueFactory<>("nombreSucursal"));
-
-        // 🔹 NUEVO
         colSuspendido.setCellValueFactory(new PropertyValueFactory<>("suspendido"));
+
+        colAdmin.setCellFactory(col -> new TableCell<DatosControlador, Integer>() {
+            @Override
+            protected void updateItem(Integer valor, boolean empty) {
+                super.updateItem(valor, empty);
+
+                if (empty || valor == null) {
+                    setText(null);
+                    return;
+                }
+                setText(valor == 1 ? "Si" : "No");
+                setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            }
+        });
+        colAdmin.setEditable(false);
+
+        colSuspendido.setCellFactory(col -> new TableCell<DatosControlador, Integer>() {
+            @Override
+            protected void updateItem(Integer valor, boolean empty) {
+                super.updateItem(valor, empty);
+
+                if (empty || valor == null) {
+                    setText(null);
+                    return;
+                }
+                if (valor == 1) {
+                    setText("Suspendido");
+                    setStyle("-fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
+                } else {
+                    setText("Activo");
+                    setStyle("-fx-text-fill: #66ff99; -fx-font-weight: bold;");
+                }
+            }
+        });
+        colSuspendido.setEditable(false);
     }
 
-
-    // ==============================================
-    // EDICIÓN
-    // ==============================================
     private void configurarEdicionColumnas() {
 
         tablaUsuarios.setEditable(true);
@@ -128,18 +150,15 @@ public class AdminUsuariosController implements Initializable {
         });
     }
 
-
     private boolean actualizarCampoUsuario(String columna, String nuevo, String idActual) {
-        String sql = "UPDATE Usuario SET ? = ? WHERE Id_Usuario = ?";
+        String sql = "UPDATE Usuario SET " + columna + " = ? WHERE Id_Usuario = ?";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, columna);
-            stmt.setString(2, nuevo);
-            stmt.setString(3, idActual);
+            stmt.setString(1, nuevo);
+            stmt.setString(2, idActual);
             stmt.executeUpdate();
-
             return true;
 
         } catch (Exception e) {
@@ -149,10 +168,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // CARGAR ROLES
-    // ==============================================
     private void cargarRoles() {
         cbRol.getItems().clear();
         mapaRoles.clear();
@@ -173,10 +188,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // CARGAR SUCURSALES
-    // ==============================================
     private void cargarSucursales() {
         cbSucursal.getItems().clear();
         mapaSucursales.clear();
@@ -197,10 +208,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // CARGAR USUARIOS
-    // ==============================================
     private void cargarUsuarios() {
 
         listaUsuarios.clear();
@@ -246,10 +253,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // SELECCIONAR USUARIO
-    // ==============================================
     private void mostrarUsuarioSeleccionado(DatosControlador u) {
         if (u == null) {
             lblUsuarioSeleccionado.setText("(ninguno)");
@@ -262,10 +265,6 @@ public class AdminUsuariosController implements Initializable {
         cbSucursal.setValue(u.getNombreSucursal());
     }
 
-
-    // ==============================================
-    // GUARDAR CAMBIOS
-    // ==============================================
     @FXML
     private void guardarCambiosRolSucursal() {
 
@@ -304,48 +303,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // ELIMINAR CUENTA ✔
-    // ==============================================
-    @FXML
-    private void EliminarCuenta() {
-
-        DatosControlador u = tablaUsuarios.getSelectionModel().getSelectedItem();
-
-        if (u == null) {
-            lblMensaje.setText("Selecciona un usuario primero");
-            return;
-        }
-
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
-        alerta.setTitle("Eliminar cuenta");
-        alerta.setHeaderText("¿Eliminar al usuario " + u.getIdUsuario() + "?");
-        alerta.setContentText("Esta acción es irreversible.");
-
-        if (alerta.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
-            return;
-        }
-
-        try (Connection conn = ConexionBD.conectar();
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM Usuario WHERE Id_Usuario = ?")) {
-
-            stmt.setString(1, u.getIdUsuario());
-            stmt.executeUpdate();
-
-            listaUsuarios.remove(u);
-            lblMensaje.setText("Usuario eliminado");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            lblMensaje.setText("Error al eliminar usuario");
-        }
-    }
-
-
-    // ==============================================
-    // SUSPENDER / REACTIVAR CUENTA ✔
-    // ==============================================
     @FXML
     private void SuspenderCuenta() {
 
@@ -362,13 +319,13 @@ public class AdminUsuariosController implements Initializable {
         alerta.setTitle(suspendido ? "Reactivar cuenta" : "Suspender cuenta");
         alerta.setHeaderText(
                 suspendido
-                        ? "¿Deseas reactivar la cuenta del usuario " + u.getIdUsuario() + "?"
-                        : "¿Deseas suspender al usuario " + u.getIdUsuario() + "?"
+                        ? "Reactivar al usuario " + u.getIdUsuario()
+                        : "Suspender al usuario " + u.getIdUsuario()
         );
         alerta.setContentText(
                 suspendido
-                        ? "El usuario podrá volver a iniciar sesión."
-                        : "El usuario NO podrá iniciar sesión hasta ser reactivado."
+                        ? "El usuario podrá iniciar sesión nuevamente."
+                        : "El usuario no podrá iniciar sesión."
         );
 
         if (alerta.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
@@ -397,10 +354,6 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
-
-    // ==============================================
-    // VOLVER AL MENÚ
-    // ==============================================
     @FXML
     private void VolverMenu2() {
         try {
