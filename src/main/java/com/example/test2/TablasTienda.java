@@ -189,10 +189,10 @@ public class TablasTienda implements Initializable {
         }
 
         actualizarTotal();
-<<<<<<< HEAD
+
         //colCantidadAdd.clear();//
-=======
->>>>>>> 905c37f (MegaCambioooo)
+
+
         colCantidadAdd.setText("1");
     }
 

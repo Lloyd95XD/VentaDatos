@@ -96,13 +96,13 @@
                                           <Font size="14.0" />
                                        </font>
                                     </Text>
-<<<<<<< HEAD
+
                                     <TextField fx:id="colCantidadAdd" prefHeight="25.0" prefWidth="23.0" text="1" />
 
-=======
-                                    <TextField fx:id="colCantidadAdd" prefHeight="25.0" prefWidth="35.0" text="1" />
+
+
             
->>>>>>> 905c37f (MegaCambioooo)
+
                                                 <!-- Botón añadir al carrito (desde selección de la izquierda) -->
                                                 <Button onAction="#agregarAlCarrito" prefHeight="25.0" prefWidth="112.0" style="-fx-background-color: #1391EB;                                                                -fx-text-fill: white;                                                                -fx-font-weight: bold;                                                                -fx-background-radius: 8;                                                                -fx-padding: 4 10;" text="Añadir/editar" />
                                             </children>
