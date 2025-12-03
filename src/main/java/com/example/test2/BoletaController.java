@@ -37,6 +37,7 @@ public class BoletaController implements Initializable {
     private final ObservableList<BoletaItem> listaBoletas =
             FXCollections.observableArrayList();
 
+    /// Inicializa el controlador y configura la tabla si existe
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Si tablaBoletas es null, significa que estamos en la ventana de "Boleta simple"
@@ -50,6 +51,7 @@ public class BoletaController implements Initializable {
     // --------------------------------------------------------------------
     //  USADO POR ZONAPAGOCONTROLLER PARA MOSTRAR UNA BOLETA CONCRETA
     // --------------------------------------------------------------------
+    /// Establece el texto del area de texto de la boleta
     public void setTextoBoleta(String texto) {
         if (txtBoleta != null) {
             txtBoleta.setText(texto);
@@ -59,11 +61,13 @@ public class BoletaController implements Initializable {
     // --------------------------------------------------------------------
     //  CONFIGURACIÓN DE LA VENTANA DE HISTORIAL
     // --------------------------------------------------------------------
+    /// Configura las columnas de la tabla de boletas
     private void configurarTabla() {
         colIdBoleta.setCellValueFactory(new PropertyValueFactory<>("idBoleta"));
         tablaBoletas.setItems(listaBoletas);
     }
 
+    /// Carga la lista de boletas desde la base de datos
     private void cargarBoletas() {
         listaBoletas.clear();
 
@@ -86,6 +90,7 @@ public class BoletaController implements Initializable {
     }
 
 
+    /// Configura el listener para detectar seleccion en la tabla
     private void configurarSeleccion() {
         tablaBoletas.getSelectionModel()
                 .selectedItemProperty()
@@ -98,6 +103,7 @@ public class BoletaController implements Initializable {
                 });
     }
 
+    /// Obtiene y muestra los detalles completos de una boleta
     private void mostrarBoletaCompleta(int idBoleta) {
         if (txtBoleta == null) return;
 
@@ -177,7 +183,7 @@ public class BoletaController implements Initializable {
                 sb.append("Dirección: ").append(direccion).append("\n");
             }
 
-            // ----- Datos específicos según método ----- //
+            // ----- Datos específicos según metodo ----- //
             if (metodo != null) {
                 String metodoLower = metodo.toLowerCase();
 
@@ -283,6 +289,7 @@ public class BoletaController implements Initializable {
     // --------------------------------------------------------------------
     //  BOTÓN VOLVER (para ambas ventanas)
     // --------------------------------------------------------------------
+    /// Regresa a la ventana del menu principal
     @FXML
     private void volver(ActionEvent event) {
         try {
@@ -301,6 +308,7 @@ public class BoletaController implements Initializable {
         }
     }
 
+    /// Muestra una alerta en pantalla
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -309,6 +317,7 @@ public class BoletaController implements Initializable {
         alert.showAndWait();
     }
 
+    /// Regresa a la ventana del menu principal (alternativa)
     @FXML
     private void volveralmenu(ActionEvent event) {
         try {

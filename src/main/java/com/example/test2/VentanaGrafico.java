@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/// Controlador para la ventana de graficos y resumenes de ventas
 public class VentanaGrafico implements Initializable {
 
     // ====== Formato CLP ======
@@ -40,6 +41,7 @@ public class VentanaGrafico implements Initializable {
 
     @FXML private Button btnCambiarVentana;
 
+    /// Inicializa el controlador y carga los datos del grafico
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -55,6 +57,7 @@ public class VentanaGrafico implements Initializable {
     //   VENTAS AGRUPADAS POR DÍA (ÚNICA LÍNEA) - SP
     //   Usa: sp_ventas_por_dia()
     // =====================================================
+    /// Consulta la base de datos y rellena el grafico lineal con las ventas por dia
     private void cargarGraficoPorDia() {
         if (lineChartVentas == null) return;
 
@@ -97,6 +100,7 @@ public class VentanaGrafico implements Initializable {
     //   RESUMEN: ventas hoy, ventas mes, total registros
     //   Usa: sp_resumen_ventas()
     // =====================================================
+    /// Consulta los totales de ventas de hoy, del mes y registros totales
     private void cargarResumen() {
 
         String sqlResumen = "{ CALL sp_resumen_ventas() }";
@@ -140,6 +144,7 @@ public class VentanaGrafico implements Initializable {
     // =====================================================
     //   BOTONES
     // =====================================================
+    /// Recarga los datos del grafico de ventas
     @FXML
     private void verVentasPorDia() {
         cargarGraficoPorDia();
@@ -151,6 +156,7 @@ public class VentanaGrafico implements Initializable {
         cargarResumen();
     }
 
+    /// Regresa al menu principal de la aplicacion
     @FXML
     private void volvermenuprincipal() {
         try {

@@ -51,6 +51,7 @@ public class MueblesTablaController implements Initializable {
     private Producto productoSeleccionado = null;
 
     // ===================== INICIALIZACIÓN =====================
+    /// Inicializa el controlador, configura la tabla y carga los datos
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarTabla();
@@ -74,6 +75,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== CONFIG TABLA =====================
+    /// Configura las columnas de la tabla de productos
     private void configurarTabla() {
         colIdProducto.setCellValueFactory(data -> data.getValue().idProductoProperty().asObject());
         colCategoria.setCellValueFactory(data -> data.getValue().categoriaProperty());
@@ -98,6 +100,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== CONEXIÓN =====================
+    /// Obtiene una conexion a la base de datos
     private Connection getConnection() throws SQLException {
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
@@ -107,6 +110,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== CARGAR DATOS =====================
+    /// Carga la lista de productos desde la base de datos
     private void cargarProductos() {
         listaProductos.clear();
 
@@ -133,6 +137,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== FORMULARIO =====================
+    /// Rellena el formulario con los datos del producto seleccionado
     private void llenarFormularioDesdeProducto(Producto p) {
         comboCategoria.setValue(p.getCategoria());
         txtNombreProducto.setText(p.getNombre());
@@ -141,6 +146,7 @@ public class MueblesTablaController implements Initializable {
         txtPrecioProducto.setText(String.valueOf(p.getPrecio())); // sin formato, para editar
     }
 
+    /// Limpia los campos del formulario de producto
     private void limpiarFormulario() {
         tablaProductos.getSelectionModel().clearSelection();
         productoSeleccionado = null;
@@ -152,6 +158,7 @@ public class MueblesTablaController implements Initializable {
         txtPrecioProducto.clear();
     }
 
+    /// Valida que los datos ingresados en el formulario sean correctos
     private boolean validarFormulario() {
         if (comboCategoria.getValue() == null) {
             mostrarAlerta("Selecciona una categoría.");
@@ -173,6 +180,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== GUARDAR =====================
+    /// Guarda un producto nuevo o actualiza uno existente
     private void guardarProducto() {
         if (!validarFormulario()) {
             return;
@@ -194,6 +202,7 @@ public class MueblesTablaController implements Initializable {
         limpiarFormulario();
     }
 
+    /// Inserta un nuevo producto en la base de datos
     private void insertarProducto(String categoria, String nombre, String descripcion, int stock, int precio) {
         final String sql = "{ CALL sp_insertar_producto(?, ?, ?, ?, ?) }";
 
@@ -213,6 +222,7 @@ public class MueblesTablaController implements Initializable {
         }
     }
 
+    /// Actualiza los datos de un producto existente
     private void actualizarProducto(int id, String categoria, String nombre,
                                     String descripcion, int stock, int precio) {
 
@@ -236,6 +246,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== ELIMINAR =====================
+    /// Elimina el producto seleccionado de la base de datos
     private void eliminarProducto() {
         Producto seleccionado = tablaProductos.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
@@ -269,6 +280,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== VOLVER AL MENÚ =====================
+    /// Regresa a la ventana del menu principal
     @FXML
     private void volverAlMenu() {
         try {
@@ -289,6 +301,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== FORMATO CLP =====================
+    /// Formatea el valor a moneda chilena
     private String formatearCLP(int valor) {
         NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
         nf.setMaximumFractionDigits(0);
@@ -297,6 +310,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     // ===================== ALERTAS =====================
+    /// Muestra una alerta de advertencia
     private void mostrarAlerta(String msg) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setHeaderText(null);
@@ -304,6 +318,7 @@ public class MueblesTablaController implements Initializable {
         alert.showAndWait();
     }
 
+    /// Muestra una alerta de error
     private void mostrarError(String titulo, String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titulo);
@@ -322,6 +337,7 @@ class Producto {
     private final IntegerProperty stock = new SimpleIntegerProperty();
     private final IntegerProperty precio = new SimpleIntegerProperty();
 
+    /// Constructor de la clase Producto
     public Producto(int id, String cat, String nom, String desc, int stock, int precio) {
         this.idProducto.set(id);
         this.categoria.set(cat);
@@ -331,6 +347,7 @@ class Producto {
         this.precio.set(precio);
     }
 
+    /// Obtiene:
     public int getIdProducto() { return idProducto.get(); }
     public String getCategoria() { return categoria.get(); }
     public String getNombre() { return nombre.get(); }
@@ -338,6 +355,7 @@ class Producto {
     public int getStock() { return stock.get(); }
     public int getPrecio() { return precio.get(); }
 
+    /// Propiedad de:
     public IntegerProperty idProductoProperty() { return idProducto; }
     public StringProperty categoriaProperty() { return categoria; }
     public StringProperty nombreProperty() { return nombre; }

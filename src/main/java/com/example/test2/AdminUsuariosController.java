@@ -49,6 +49,7 @@ public class AdminUsuariosController implements Initializable {
     private final Map<String, Integer> mapaRoles = new HashMap<>();
     private final Map<String, Integer> mapaSucursales = new HashMap<>();
 
+    /// Inicializa el controlador y carga los datos necesarios
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarColumnas();
@@ -62,6 +63,7 @@ public class AdminUsuariosController implements Initializable {
         );
     }
 
+    /// Configura las columnas de la tabla de usuarios
     private void configurarColumnas() {
         colRut.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -110,11 +112,12 @@ public class AdminUsuariosController implements Initializable {
         colSuspendido.setEditable(false);
     }
 
+    /// Configura la capacidad de edicion de las columnas
     private void configurarEdicionColumnas() {
 
         tablaUsuarios.setEditable(true);
 
-        // ⚠️ ADVERTENCIA: Cambiar Id_Usuario puede romper las FK
+        /// ADVERTENCIA: Cambiar Id_Usuario puede romper las FK
         colRut.setCellFactory(TextFieldTableCell.forTableColumn());
         colRut.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
@@ -151,6 +154,7 @@ public class AdminUsuariosController implements Initializable {
         });
     }
 
+    /// Actualiza un campo especifico de un usuario en la base de datos
     private boolean actualizarCampoUsuario(String columna, String nuevo, String idActual) {
         String sql = "{ CALL sp_actualizar_campo_usuario_perfil(?, ?, ?) }";
 
@@ -172,6 +176,7 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
+    /// Carga los roles disponibles desde la base de datos
     private void cargarRoles() {
         cbRol.getItems().clear();
         mapaRoles.clear();
@@ -193,6 +198,7 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
+    /// Carga las sucursales disponibles desde la base de datos
     private void cargarSucursales() {
         cbSucursal.getItems().clear();
         mapaSucursales.clear();
@@ -214,6 +220,7 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
+    /// Carga la lista completa de usuarios desde la base de datos
     private void cargarUsuarios() {
 
         listaUsuarios.clear();
@@ -253,6 +260,7 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
+    /// Muestra los detalles del usuario seleccionado en los campos correspondientes
     private void mostrarUsuarioSeleccionado(DatosControlador u) {
         if (u == null) {
             lblUsuarioSeleccionado.setText("(ninguno)");
@@ -265,6 +273,7 @@ public class AdminUsuariosController implements Initializable {
         cbSucursal.setValue(u.getNombreSucursal());
     }
 
+    /// Guarda los cambios de rol y sucursal del usuario seleccionado
     @FXML
     private void guardarCambiosRolSucursal() {
 
@@ -283,7 +292,7 @@ public class AdminUsuariosController implements Initializable {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // ✔ ORDEN CORRECTO
+            // ORDEN CORRECTO
             stmt.setString(1, u.getIdUsuario());
             stmt.setInt(2, idRol);
             stmt.setInt(3, idSuc);
@@ -305,6 +314,7 @@ public class AdminUsuariosController implements Initializable {
     }
 
 
+    /// Suspende o reactiva la cuenta del usuario seleccionado
     @FXML
     private void SuspenderCuenta() {
 
@@ -340,7 +350,7 @@ public class AdminUsuariosController implements Initializable {
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // ✔ ORDEN CORRECTO (ARREGLADO)
+            // ORDEN CORRECTO (ARREGLADO)
             stmt.setString(1, u.getIdUsuario()); // p_id_usuario
             stmt.setInt(2, nuevoEstado);         // p_suspendido
 
@@ -359,6 +369,7 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+    /// Regresa a la ventana del menu principal
     @FXML
     private void VolverMenu2() {
         try {

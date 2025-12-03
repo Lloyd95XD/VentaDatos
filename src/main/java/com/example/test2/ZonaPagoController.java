@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
+/// Controlador que gestiona el proceso de pago y venta
 public class ZonaPagoController implements Initializable {
 
     // ======== TABLA CARRITO ========
@@ -62,6 +63,7 @@ public class ZonaPagoController implements Initializable {
     private int idSucursalUsuario = -1;
     private String nombreSucursalUsuario = "";
 
+    /// Inicializa la interfaz y las validaciones de entrada
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         configurarTablaCarrito();
@@ -78,14 +80,17 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     //  Setters desde ventana anterior
     // ==========================
+    /// Establece el ID del usuario actual (version int)
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = String.valueOf(idUsuario);
     }
 
+    /// Establece el ID del usuario actual (version String)
     public void setIdUsuario(String idUsuario) {
         this.idUsuario = idUsuario;
     }
 
+    /// Recibe el carrito y el total calculado desde la ventana anterior
     public void setCarritoYTotal(ObservableList<ItemCarrito> carritoOrigen, int total) {
         carrito.clear();
         carrito.addAll(carritoOrigen);
@@ -97,6 +102,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     //  CONFIG TABLA CARRITO + CLP
     // ==========================
+    /// Configura las columnas de la tabla del carrito
     private void configurarTablaCarrito() {
         colNombreCarrito.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colPrecioCarrito.setCellValueFactory(new PropertyValueFactory<>("precio"));
@@ -120,6 +126,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     //  FORMATO CLP
     // ==========================
+    /// Formatea un valor entero a moneda chilena
     private String formatearCLP(int valor) {
         NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
         nf.setMaximumFractionDigits(0);
@@ -130,6 +137,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // DESCRIPCIÓN (con CLP)
     // ==========================
+    /// Muestra la descripcion del producto seleccionado en el carrito
     private void configurarDescripcion() {
         tablaCarrito.getSelectionModel()
                 .selectedItemProperty()
@@ -147,6 +155,7 @@ public class ZonaPagoController implements Initializable {
                 });
     }
 
+    /// Carga los metodos de pago disponibles en el ComboBox
     private void cargarMetodosPago() {
         comboMetodoPago.setItems(FXCollections.observableArrayList(
                 "Visa", "Mastercard", "Efectivo"
@@ -160,6 +169,7 @@ public class ZonaPagoController implements Initializable {
         actualizarSeccionesPago(null);
     }
 
+    /// Muestra u oculta secciones segun el metodo de pago seleccionado
     private void actualizarSeccionesPago(String metodo) {
         if (paneTarjeta != null && paneEfectivo != null) {
             boolean esTarjeta = "Visa".equals(metodo) || "Mastercard".equals(metodo);
@@ -180,6 +190,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // FORMATO AUTOMÁTICO RUT CLIENTE + MÓDULO 11
     // ==========================
+    /// Aplica formato automatico al RUT del cliente mientras escribe
     private void configurarFormatoRutCliente() {
         if (txtRutCliente == null) return;
 
@@ -206,6 +217,7 @@ public class ZonaPagoController implements Initializable {
         });
     }
 
+    /// Devuelve un string con el formato RUT visual
     private String formatearRut(String digitos) {
         if (digitos.isEmpty()) return "";
         if (digitos.length() == 1) return digitos;
@@ -229,6 +241,7 @@ public class ZonaPagoController implements Initializable {
         return sb.toString();
     }
 
+    /// Valida el digito verificador del RUT chileno
     private boolean validarRutChileno(String cuerpo, String dv) {
         try {
             int suma = 0;
@@ -264,6 +277,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // FORMATO TARJETA / FECHA / CVV
     // ==========================
+    /// Aplica formato visual al campo de numero de tarjeta
     private void configurarFormatoTarjeta() {
         if (txtNumeroTarjeta == null) return;
 
@@ -297,6 +311,7 @@ public class ZonaPagoController implements Initializable {
         txtNumeroTarjeta.setTextFormatter(new TextFormatter<>(filter));
     }
 
+    /// Aplica formato MM/AA al campo de fecha de vencimiento
     private void configurarFormatoFechaVenc() {
         if (txtFechaVenc == null) return;
 
@@ -330,6 +345,7 @@ public class ZonaPagoController implements Initializable {
         txtFechaVenc.setTextFormatter(new TextFormatter<>(filter));
     }
 
+    /// Restringe el campo CVV a solo digitos
     private void configurarFormatoCVV() {
         if (txtCVV == null) return;
 
@@ -358,6 +374,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // DATOS DE USUARIO / SUCURSAL
     // ==========================
+    /// Carga la informacion de la sucursal asociada al usuario actual
     private void cargarDatosUsuarioYSucursal() {
         String idUsuarioSesion = UsuarioSesion.getIdUsuario();
 
@@ -398,6 +415,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // TOTAL CLP
     // ==========================
+    /// Actualiza la etiqueta del monto total
     private void actualizarTextoTotal() {
         if (lblMontoTotal != null) {
             lblMontoTotal.setText("Monto Total: $ " + formatearCLP(totalAPagar));
@@ -407,12 +425,13 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // HELPERS VISUALES (BORDES Y TOOLTIP)
     // ==========================
+    /// Muestra un mensaje de error en la interfaz
     private void setMensajeError(String msg) {
         if (textoerror != null) {
             textoerror.setText(msg == null ? "" : msg);
         }
     }
-
+    /// Resalta un campo con borde rojo y muestra un tooltip
     private void marcarErrorCampo(TextField campo, String mensaje) {
         if (campo == null) return;
 
@@ -426,6 +445,7 @@ public class ZonaPagoController implements Initializable {
         campo.setTooltip(tooltip);
     }
 
+    /// Restaura el estilo original de un campo de texto
     private void limpiarEstiloCampo(TextField campo) {
         if (campo == null) return;
         Object baseObj = campo.getProperties().get("baseStyle");
@@ -434,7 +454,7 @@ public class ZonaPagoController implements Initializable {
         }
         campo.setTooltip(null);
     }
-
+    /// Limpia todos los mensajes y estilos de error
     private void limpiarErroresCampos() {
         setMensajeError("");
         if (lblVuelto != null) lblVuelto.setText("");
@@ -450,6 +470,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // VALIDACIÓN TARJETA (Luhn + marca + formato)
     // ==========================
+    /// Valida los datos ingresados para el pago con tarjeta
     private boolean validarDatosTarjeta(String metodo) {
 
         String numero = txtNumeroTarjeta != null
@@ -527,6 +548,7 @@ public class ZonaPagoController implements Initializable {
         return true;
     }
 
+    /// Algoritmo de Luhn para validar numeros de tarjeta
     private boolean validarLuhn(String numero) {
         int suma = 0;
         boolean alternar = false;
@@ -543,6 +565,7 @@ public class ZonaPagoController implements Initializable {
         return suma % 10 == 0;
     }
 
+    /// Detecta la marca de la tarjeta segun el prefijo
     private String detectarMarcaTarjeta(String numero) {
         if (numero == null || numero.isEmpty()) return "Desconocida";
 
@@ -571,6 +594,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // BOTÓN VERIFICAR DESCUENTO (PREVIEW EN VENTANA)
     // ==========================
+    /// Verifica si el cliente tiene derecho a descuento por compras previas
     @FXML
     private void verificarDescuento() {
         if (lblDescuentoInfo != null) {
@@ -641,6 +665,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // REALIZAR PAGO
     // ==========================
+    /// Ejecuta el proceso de pago, validando y registrando la venta
     @FXML
     private void realizarPago() {
 
@@ -783,6 +808,8 @@ public class ZonaPagoController implements Initializable {
         );
     }
 
+
+    /// Calcula el vuelto en efectivo basado en el monto ingresado
     @FXML
     private void calcularVueltoEfectivo() {
         limpiarErroresCampos();
@@ -825,6 +852,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // AHORA VIENEN LAS PARTES QUE CAMBIAN A PROCEDIMIENTOS
     // ==========================
+    /// Inserta el registro de la venta en la base de datos
 
     private int insertarVenta(int totalFinal,
                               String metodo,
@@ -890,6 +918,7 @@ public class ZonaPagoController implements Initializable {
         return -1;
     }
 
+    /// Guarda los detalles de cada producto de la venta
     private void insertarDetalles(int idBoleta) {
 
         String sql = "{ CALL sp_insertar_detalle_venta(?, ?, ?) }";
@@ -910,6 +939,7 @@ public class ZonaPagoController implements Initializable {
         }
     }
 
+    /// Descuenta el stock de los productos vendidos
     private void actualizarStock() {
 
         String sql = "{ CALL sp_actualizar_stock_producto(?, ?) }";
@@ -929,6 +959,7 @@ public class ZonaPagoController implements Initializable {
         }
     }
 
+    /// Verifica si un cliente ya ha realizado compras anteriormente
     private boolean clienteYaComproAntes(int rutCliente) {
 
         String sql = "{ CALL sp_contar_compras_por_rut(?) }";
@@ -953,6 +984,7 @@ public class ZonaPagoController implements Initializable {
     // ==========================
     // BOLETA (CON CLP + DETALLES DE PAGO)
     // ==========================
+    /// Abre la ventana de la boleta con los datos de la venta realizada
     private void abrirVentanaBoleta(int idBoleta,
                                     String nombreSucursal,
                                     String metodoPago,
@@ -1001,6 +1033,7 @@ public class ZonaPagoController implements Initializable {
         }
     }
 
+    /// Genera el texto que se mostrara en la boleta
     private String construirTextoBoleta(int idBoleta,
                                         String nombreSucursal,
                                         String metodoPago,
@@ -1082,6 +1115,7 @@ public class ZonaPagoController implements Initializable {
         return sb.toString();
     }
 
+    /// Muestra una alerta en pantalla
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -1090,6 +1124,7 @@ public class ZonaPagoController implements Initializable {
         alert.showAndWait();
     }
 
+    /// Regresa a la ventana del menu principal
     @FXML
     private void ExitToMenu() {
         try {

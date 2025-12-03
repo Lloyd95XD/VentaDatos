@@ -6,8 +6,10 @@ import java.sql.DriverManager;
 public class ConexionBD {
     private static final String URL  = "jdbc:mysql://localhost:3306/gestor_de_ventas?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
     private static final String USER = "jorge";
-    private static final String PASS = "1234"; // contraseña
+    private static final String PASS = "1234"; /// contraseña
 
+
+    /// Establece la conexion con la base de datos
     public static Connection conectar() {
         try {
             return DriverManager.getConnection(URL, USER, PASS);
@@ -17,8 +19,9 @@ public class ConexionBD {
         }
     }
 
-    // ==================== USUARIOS ====================
-    // Id_Usuario ahora es VARCHAR(15) → usamos String
+    /// ==================== USUARIOS ====================
+    /// Actualiza un campo especifico de un usuario en la base de datos
+    /// Id_Usuario ahora es VARCHAR(15) → usamos String
     public static int updateCampoUsuario(String idUsuario, String columna, String valor) {
         final String sql = "{ CALL sp_actualizar_campo_usuario(?, ?, ?) }";
         try (var cn = conectar(); var ps = cn.prepareStatement(sql)) {
@@ -45,6 +48,7 @@ public class ConexionBD {
         }
     }
 
+    /// Actualiza un campo de la tabla admin
     public static int updateCampoAdmin(String idUsuario, String columna, String valor) {
         final String sql = "{ CALL sp_actualizar_campo_admin(?, ?, ?) }";
 
@@ -78,6 +82,7 @@ public class ConexionBD {
 
 
     // ==================== INVENTARIO ====================
+    /// Asegura que exista una fila de inventario para el producto dado
     public static void ensureInventarioRow(int idProducto) {
         final String sql = "{ CALL sp_ensure_inventario_row(?) }";
 
@@ -90,7 +95,7 @@ public class ConexionBD {
         }
     }
 
-
+    /// Actualiza un campo en la tabla de inventario
     public static int updateCampoInventario(int idProducto, String columna, String valor) {
         final String sql = "{ CALL sp_actualizar_campo_inventario(?, ?, ?) }";
 

@@ -20,6 +20,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/// Controlador para la visualizacion de productos y gestion del carrito
 public class TablasTienda implements Initializable {
 
     // ==========================
@@ -60,6 +61,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  INITIALIZE
     // ==========================
+    /// Inicializa el controlador, configura tablas y carga productos disponibles
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -97,6 +99,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  AGREGAR / EDITAR CARRITO
     // ==========================
+    /// Agrega el producto seleccionado o modifica la cantidad en el carrito
     @FXML
     private void agregarAlCarrito() {
 
@@ -199,6 +202,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  ELIMINAR / VACIAR
     // ==========================
+    /// Quita el producto seleccionado del carrito
     @FXML
     private void eliminarDelCarrito() {
         ItemCarrito seleccionado = tablaCarrito.getSelectionModel().getSelectedItem();
@@ -208,6 +212,7 @@ public class TablasTienda implements Initializable {
         actualizarTotal();
     }
 
+    /// Elimina todos los items del carrito
     @FXML
     private void vaciarCarrito() {
         listaCarrito.clear();
@@ -217,6 +222,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  TOTAL
     // ==========================
+    /// Recalcula el monto total de la compra segun el contenido del carrito
     private void actualizarTotal() {
         int total = 0;
         for (ItemCarrito item : listaCarrito) {
@@ -228,6 +234,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  COLUMNAS CARRITO
     // ==========================
+    /// Configura las columnas de la tabla del carrito
     private void configurarColumnasCarrito() {
         colCarritoNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCarritoPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
@@ -250,6 +257,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  PRODUCTOS
     // ==========================
+    /// Configura las columnas de la tabla de productos disponibles
     private void configurarColumnasProductos() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -271,6 +279,7 @@ public class TablasTienda implements Initializable {
         });
     }
 
+    /// Obtiene la lista de muebles disponibles desde la base de datos
     private void cargarProductos() {
         listaProductos.clear();
 
@@ -299,6 +308,7 @@ public class TablasTienda implements Initializable {
         }
     }
 
+    /// Configura la visualizacion de la descripcion del producto seleccionado
     private void configurarDescripcion() {
         tablaProductos.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, nuevo) -> {
@@ -312,6 +322,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  FORMATO CLP
     // ==========================
+    /// Formatea un valor entero a moneda chilena
     private String formatearCLP(int valor) {
         NumberFormat nf = NumberFormat.getInstance(new Locale("es", "CL"));
         nf.setMaximumFractionDigits(0);
@@ -322,6 +333,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  METODO ALERTA
     // ==========================
+    /// Muestra una alerta en pantalla
     private void mostrarAlerta(String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setHeaderText(null);
@@ -332,6 +344,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  IR A PAGAR
     // ==========================
+    /// Navega a la ventana de pago llevando los items del carrito
     @FXML
     private void irAPagar() {
         if (listaCarrito.isEmpty()) {
@@ -358,6 +371,7 @@ public class TablasTienda implements Initializable {
         }
     }
 
+    /// Calcula la suma total de los precios en el carrito
     private int calcularTotal() {
         int total = 0;
         for (ItemCarrito item : listaCarrito)
@@ -368,6 +382,7 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  VOLVER
     // ==========================
+    /// Regresa a la ventana del menu principal
     @FXML
     private void volverMenu1() {
         try {

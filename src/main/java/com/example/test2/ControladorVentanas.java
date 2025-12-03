@@ -40,6 +40,7 @@ public class ControladorVentanas {
     @FXML private Hyperlink linkRegistroUsuarios;
     @FXML private Hyperlink linkVerTablasMuebles;
 
+    /// Inicializa la logica de la ventana y validaciones de campos
     @FXML
     private void initialize() {
 
@@ -66,7 +67,7 @@ public class ControladorVentanas {
             }
         }
 
-        // Formato RUT con TextFormatter
+        /// Formato RUT con TextFormatter
         if (txtRut != null) {
             UnaryOperator<TextFormatter.Change> rutFilter = change -> {
                 if (!change.isContentChange()) {
@@ -108,7 +109,7 @@ public class ControladorVentanas {
             txtRut.setTextFormatter(new TextFormatter<>(rutFilter));
         }
 
-        // Teléfono +569 obligatorio
+        /// Teléfono +569 obligatorio
         if (txtTelefono != null) {
 
             if (txtTelefono.getText() == null || txtTelefono.getText().isEmpty()) {
@@ -127,6 +128,7 @@ public class ControladorVentanas {
         }
     }
 
+    /// Formatea el texto del RUT agregando puntos y guion
     private String formatearRut(String rutLimpio) {
         if (rutLimpio == null || rutLimpio.isEmpty()) return "";
         if (rutLimpio.length() == 1) return rutLimpio;
@@ -151,6 +153,7 @@ public class ControladorVentanas {
         return sb.toString();
     }
 
+    /// Maneja el registro de un nuevo usuario en la base de datos
     @FXML
     private void RegistroTablaUsuario() {
 
@@ -231,6 +234,7 @@ public class ControladorVentanas {
         }
     }
 
+    /// Verifica las credenciales e inicia la sesion del usuario
     @FXML
     private void iniciarSesion(ActionEvent event) {
 
@@ -291,6 +295,7 @@ public class ControladorVentanas {
         }
     }
 
+    /// Limpia los campos de texto del formulario
     private void limpiarCampos() {
         if (txtNombre != null) txtNombre.clear();
         if (txtApellido != null) txtApellido.clear();
@@ -301,6 +306,7 @@ public class ControladorVentanas {
         if (txtRepetirPassword != null) txtRepetirPassword.clear();
     }
 
+    /// Valida si el digito verificador del RUT es correcto
     private boolean validarRutChileno(String cuerpo, String dv) {
         try {
             int suma = 0;
@@ -333,6 +339,7 @@ public class ControladorVentanas {
         }
     }
 
+    /// Cambia la escena actual a una nueva ventana especificada
     public void cambiarAVentana(String ventanaFxml, ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(ventanaFxml + ".fxml"));
@@ -346,13 +353,20 @@ public class ControladorVentanas {
         }
     }
 
+    /// Navega a la pantalla de inicio de sesion
     @FXML private void PantallaIniciarsesion(ActionEvent event){ cambiarAVentana("iniciarSesion",event); }
+    /// Navega al menu principal
     @FXML private void regresarmenuprincipal(ActionEvent event){ cambiarAVentana("VentanaLoginV2",event); }
+    /// Navega a la pantalla de registro
     @FXML private void Registrarboton(ActionEvent event){ cambiarAVentana("registrarte",event); }
+    /// Navega al menu de ventas
     @FXML public  void menuventa(ActionEvent event){ cambiarAVentana("MenuiniciadasesionListoV2",event); }
+    /// Navega al menu de seleccion de muebles
     @FXML private void compraaaboton(ActionEvent event){ cambiarAVentana("MenuMuebles",event); }
+    /// Navega a la visualizacion de boletas
     @FXML private void VerBoletas(ActionEvent event){ cambiarAVentana("BoletaTablaV2",event); }
 
+    /// Verifica permisos y navega a la tabla de usuarios
     @FXML
     private void VerRegistrosUsuarios(ActionEvent event){
         if (!UsuarioSesion.isAdmin()) {
@@ -362,6 +376,7 @@ public class ControladorVentanas {
         cambiarAVentana("TablaUsuarios", event);
     }
 
+    /// Verifica permisos y navega al registro de muebles
     @FXML
     private void VentanaRegistroDeMuebles(ActionEvent event){
         if (!UsuarioSesion.isAdmin()) {
@@ -371,6 +386,7 @@ public class ControladorVentanas {
         cambiarAVentana("VentanaGrafico",event);
     }
 
+    /// Verifica permisos y navega a la tabla de muebles
     @FXML
     private void VerTablasMuebles(ActionEvent event){
         if (!UsuarioSesion.isAdmin()) {
@@ -380,6 +396,7 @@ public class ControladorVentanas {
         cambiarAVentana("TablaMueblesVentana", event);
     }
 
+    /// Muestra una alerta si el usuario no tiene permisos de administrador
     private void mostrarAlertaNoAdmin() {
         Alert alerta = new Alert(Alert.AlertType.WARNING);
         alerta.setTitle("Acceso restringido");
