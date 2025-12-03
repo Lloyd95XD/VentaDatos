@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
-//Boleta Controller//
+//Boleta Controller///
 public class BoletaController implements Initializable {
 
     // ===== Ventana "VerBoletas.fxml" =====
