@@ -19,10 +19,6 @@ import java.util.function.UnaryOperator;
 
 public class ControladorVentanas {
 
-    private final String sql = "INSERT INTO Usuario " +
-            "(Id_Usuario, Nombre, Apellido, Email, Telefono, Password, Fecha_creacion_de_cuenta, Admin) " +
-            "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?)";
-
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellido;
     @FXML private TextField txtRut;
@@ -70,7 +66,7 @@ public class ControladorVentanas {
             }
         }
 
-        // Formato RUT con TextFormatter (ahora con caret al final)
+        // Formato RUT con TextFormatter
         if (txtRut != null) {
             UnaryOperator<TextFormatter.Change> rutFilter = change -> {
                 if (!change.isContentChange()) {
@@ -89,7 +85,6 @@ public class ControladorVentanas {
                 }
 
                 if (limpio.isEmpty()) {
-                    // borrar todo
                     change.setText("");
                     change.setRange(0, change.getControlText().length());
                     change.setCaretPosition(0);
@@ -101,11 +96,9 @@ public class ControladorVentanas {
 
                 int oldLength = change.getControlText().length();
 
-                // reemplazamos todo el contenido por el formateado
                 change.setRange(0, oldLength);
                 change.setText(formateado);
 
-                // dejamos el cursor al final para que no "se vaya pa atrás"
                 change.setCaretPosition(formateado.length());
                 change.setAnchor(formateado.length());
 
@@ -211,8 +204,10 @@ public class ControladorVentanas {
 
         String hashedPassword = BCrypt.hashpw(pass1, BCrypt.gensalt());
 
+        String sqlRegistrar = "{ CALL sp_registrar_usuario(?, ?, ?, ?, ?, ?, ?) }";
+
         try (Connection conn = ConexionBD.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sqlRegistrar)) {
 
             stmt.setString(1, idUsuario);
             stmt.setString(2, nombre);
@@ -220,7 +215,7 @@ public class ControladorVentanas {
             stmt.setString(4, correo);
             stmt.setString(5, telefono);
             stmt.setString(6, hashedPassword);
-            stmt.setInt(7, 0);
+            stmt.setInt(7, 0); // Admin = 0 por defecto
 
             stmt.executeUpdate();
 
@@ -249,19 +244,13 @@ public class ControladorVentanas {
             return;
         }
 
-        String sqlLogin = """
-            SELECT Id_Usuario, Nombre, Password, Admin, Suspendido
-            FROM Usuario
-            WHERE Email = ? OR Telefono = ? OR Id_Usuario = ?
-            LIMIT 1
-            """;
+        String sqlLogin = "{ CALL sp_login_usuario(?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sqlLogin)) {
 
             stmt.setString(1, identificador);
-            stmt.setString(2, identificador);
-            stmt.setString(3, identificadorSinFormato);
+            stmt.setString(2, identificadorSinFormato);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -399,3 +388,4 @@ public class ControladorVentanas {
         alerta.showAndWait();
     }
 }
+

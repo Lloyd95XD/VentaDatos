@@ -67,7 +67,7 @@ public class BoletaController implements Initializable {
     private void cargarBoletas() {
         listaBoletas.clear();
 
-        String sql = "SELECT Id_Boleta FROM venta ORDER BY Id_Boleta DESC";
+        final String sql = "{ CALL sp_listar_boletas() }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -85,6 +85,7 @@ public class BoletaController implements Initializable {
         }
     }
 
+
     private void configurarSeleccion() {
         tablaBoletas.getSelectionModel()
                 .selectedItemProperty()
@@ -100,32 +101,9 @@ public class BoletaController implements Initializable {
     private void mostrarBoletaCompleta(int idBoleta) {
         if (txtBoleta == null) return;
 
-        String sqlVenta = """
-                SELECT v.Id_Boleta,
-                       v.Hora_de_venta,
-                       v.Precio_Total,
-                       v.Metodo_de_pago,
-                       v.Direccion,
-                       v.Rut_Cliente,
-                       v.Descuento,
-                       v.Monto_Efectivo,
-                       v.Vuelto,
-                       v.Marca_Tarjeta,
-                       v.Ultimos_4_Tarjeta,
-                       s.localidad
-                FROM venta v
-                LEFT JOIN sucursales s ON v.Id_Sucursales = s.Id_Sucursales
-                WHERE v.Id_Boleta = ?
-                """;
+        String sqlVenta = "{ CALL sp_obtener_boleta_por_id(?) }";
 
-        String sqlDetalles = """
-                SELECT d.Cantidad_de_compras,
-                       p.Nombre,
-                       p.Precio
-                FROM detalles_ventas d
-                JOIN producto p ON p.Id_Producto = d.Id_Producto
-                WHERE d.Id_Boleta = ?
-                """;
+        String sqlDetalles = "{ CALL sp_listar_detalles_boleta(?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmtVenta = conn.prepareStatement(sqlVenta);

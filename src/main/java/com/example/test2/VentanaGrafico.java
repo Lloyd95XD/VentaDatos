@@ -46,31 +46,30 @@ public class VentanaGrafico implements Initializable {
         if (ejeX != null) ejeX.setLabel("Fecha");
         if (ejeY != null) ejeY.setLabel("Monto (CLP)");
 
-        cargarGraficoPorDia();      // SOLO VENTAS
-        cargarResumen();            // Resumen inferior
+        // Cargar gráfico y resumen usando procedimientos almacenados
+        cargarGraficoPorDia();
+        cargarResumen();
     }
 
     // =====================================================
-    //   VENTAS AGRUPADAS POR DÍA (ÚNICA LÍNEA)
+    //   VENTAS AGRUPADAS POR DÍA (ÚNICA LÍNEA) - SP
+    //   Usa: sp_ventas_por_dia()
     // =====================================================
     private void cargarGraficoPorDia() {
         if (lineChartVentas == null) return;
 
-        lineChartVentas.getData().clear(); // limpiamos gráfico
+        lineChartVentas.getData().clear();
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
         serie.setName("Ventas por día");
 
-        String sql =
-                "SELECT DATE(Hora_de_venta) AS dia, " +
-                        "SUM(Precio_Total) AS total_dia " +
-                        "FROM venta " +
-                        "GROUP BY DATE(Hora_de_venta) " +
-                        "ORDER BY dia";
+        String sql = "{ CALL sp_ventas_por_dia() }";
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            TextoERROR.setText("No se pudo conectar para cargar ventas por día.");
+            if (TextoERROR != null) {
+                TextoERROR.setText("No se pudo conectar para cargar ventas por día.");
+            }
             return;
         }
 
@@ -84,66 +83,57 @@ public class VentanaGrafico implements Initializable {
                 serie.getData().add(new XYChart.Data<>(fecha, total));
             }
 
-        } catch (Exception e) {
-            TextoERROR.setText("Error cargando gráfico de ventas: " + e.getMessage());
-        }
+            lineChartVentas.getData().add(serie);
 
-        lineChartVentas.getData().add(serie); // Agregar única línea
+        } catch (Exception e) {
+            if (TextoERROR != null) {
+                TextoERROR.setText("Error cargando gráfico de ventas: " + e.getMessage());
+            }
+            e.printStackTrace();
+        }
     }
-//
+
     // =====================================================
     //   RESUMEN: ventas hoy, ventas mes, total registros
+    //   Usa: sp_resumen_ventas()
     // =====================================================
     private void cargarResumen() {
 
-        String sqlVentasHoy =
-                "SELECT IFNULL(SUM(Precio_Total), 0) AS total " +
-                        "FROM venta " +
-                        "WHERE DATE(Hora_de_venta) = CURDATE()";
-
-        String sqlVentasMes =
-                "SELECT IFNULL(SUM(Precio_Total), 0) AS total " +
-                        "FROM venta " +
-                        "WHERE YEAR(Hora_de_venta) = YEAR(CURDATE()) " +
-                        "  AND MONTH(Hora_de_venta) = MONTH(CURDATE())";
-
-        String sqlTotalRegistros =
-                "SELECT COUNT(*) AS total FROM venta";
+        String sqlResumen = "{ CALL sp_resumen_ventas() }";
 
         Connection cn = ConexionBD.conectar();
         if (cn == null) {
-            TextoERROR.setText("No se pudo conectar para cargar resumen.");
+            if (TextoERROR != null) {
+                TextoERROR.setText("No se pudo conectar para cargar resumen.");
+            }
             return;
         }
 
-        try (cn) {
+        try (cn;
+             PreparedStatement ps = cn.prepareStatement(sqlResumen);
+             ResultSet rs = ps.executeQuery()) {
 
-            //  Ventas HOY
-            try (PreparedStatement ps = cn.prepareStatement(sqlVentasHoy);
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && lblVentasHoy != null) {
-                    lblVentasHoy.setText("CLP: " + formatoCL.format(rs.getInt("total")));
+            if (rs.next()) {
+                int totalHoy        = rs.getInt("total_hoy");
+                int totalMes        = rs.getInt("total_mes");
+                int totalRegistros  = rs.getInt("total_registros");
+
+                if (lblVentasHoy != null) {
+                    lblVentasHoy.setText("CLP: " + formatoCL.format(totalHoy));
                 }
-            }
-
-            // Ventas este mes
-            try (PreparedStatement ps = cn.prepareStatement(sqlVentasMes);
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && lblVentasMes != null) {
-                    lblVentasMes.setText("CLP: " + formatoCL.format(rs.getInt("total")));
+                if (lblVentasMes != null) {
+                    lblVentasMes.setText("CLP: " + formatoCL.format(totalMes));
                 }
-            }
-
-            //  Total registros
-            try (PreparedStatement ps = cn.prepareStatement(sqlTotalRegistros);
-                 ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && lblTotalRegistros != null) {
-                    lblTotalRegistros.setText(String.valueOf(rs.getInt("total")));
+                if (lblTotalRegistros != null) {
+                    lblTotalRegistros.setText(String.valueOf(totalRegistros));
                 }
             }
 
         } catch (Exception e) {
-            TextoERROR.setText("Error cargando resumen: " + e.getMessage());
+            if (TextoERROR != null) {
+                TextoERROR.setText("Error cargando resumen: " + e.getMessage());
+            }
+            e.printStackTrace();
         }
     }
 
@@ -164,7 +154,9 @@ public class VentanaGrafico implements Initializable {
     @FXML
     private void volvermenuprincipal() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MenuIniciadaSesionListoV2.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("MenuiniciadasesionListoV2.fxml")
+            );
             Parent root = loader.load();
 
             Stage stage = (Stage) btnCambiarVentana.getScene().getWindow();

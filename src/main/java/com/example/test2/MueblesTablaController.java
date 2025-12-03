@@ -63,7 +63,9 @@ public class MueblesTablaController implements Initializable {
         // Detectar selección en tabla
         tablaProductos.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             productoSeleccionado = newSel;
-            if (newSel != null) llenarFormularioDesdeProducto(newSel);
+            if (newSel != null) {
+                llenarFormularioDesdeProducto(newSel);
+            }
         });
 
         btnNuevoProducto.setOnAction(e -> limpiarFormulario());
@@ -98,14 +100,17 @@ public class MueblesTablaController implements Initializable {
     // ===================== CONEXIÓN =====================
     private Connection getConnection() throws SQLException {
         Connection cn = ConexionBD.conectar();
-        if (cn == null) throw new SQLException("No se pudo conectar a la BD.");
+        if (cn == null) {
+            throw new SQLException("No se pudo conectar a la BD.");
+        }
         return cn;
     }
 
     // ===================== CARGAR DATOS =====================
     private void cargarProductos() {
         listaProductos.clear();
-        String sql = "SELECT Id_Producto, Categoria, Nombre, Descripcion, Stock, Precio FROM producto";
+
+        final String sql = "{ CALL sp_listar_productos() }";
 
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
@@ -169,7 +174,9 @@ public class MueblesTablaController implements Initializable {
 
     // ===================== GUARDAR =====================
     private void guardarProducto() {
-        if (!validarFormulario()) return;
+        if (!validarFormulario()) {
+            return;
+        }
 
         String categoria = comboCategoria.getValue();
         String nombre = txtNombreProducto.getText().trim();
@@ -188,7 +195,7 @@ public class MueblesTablaController implements Initializable {
     }
 
     private void insertarProducto(String categoria, String nombre, String descripcion, int stock, int precio) {
-        String sql = "INSERT INTO producto (Categoria, Nombre, Descripcion, Stock, Precio) VALUES (?,?,?,?,?)";
+        final String sql = "{ CALL sp_insertar_producto(?, ?, ?, ?, ?) }";
 
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
@@ -206,18 +213,20 @@ public class MueblesTablaController implements Initializable {
         }
     }
 
-    private void actualizarProducto(int id, String categoria, String nombre, String descripcion, int stock, int precio) {
-        String sql = "UPDATE producto SET Categoria=?, Nombre=?, Descripcion=?, Stock=?, Precio=? WHERE Id_Producto=?";
+    private void actualizarProducto(int id, String categoria, String nombre,
+                                    String descripcion, int stock, int precio) {
+
+        final String sql = "{ CALL sp_actualizar_producto(?, ?, ?, ?, ?, ?) }";
 
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
-            ps.setString(1, categoria);
-            ps.setString(2, nombre);
-            ps.setString(3, descripcion);
-            ps.setInt(4, stock);
-            ps.setInt(5, precio);
-            ps.setInt(6, id);
+            ps.setInt(1, id);
+            ps.setString(2, categoria);
+            ps.setString(3, nombre);
+            ps.setString(4, descripcion);
+            ps.setInt(5, stock);
+            ps.setInt(6, precio);
 
             ps.executeUpdate();
 
@@ -239,9 +248,11 @@ public class MueblesTablaController implements Initializable {
         confirm.setHeaderText(null);
         confirm.setContentText("¿Eliminar el producto \"" + seleccionado.getNombre() + "\"?");
 
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
 
-        String sql = "DELETE FROM producto WHERE Id_Producto=?";
+        final String sql = "{ CALL sp_eliminar_producto(?) }";
 
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {

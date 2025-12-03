@@ -53,6 +53,11 @@ public class TablasTienda implements Initializable {
             FXCollections.observableArrayList();
 
     // ==========================
+    //  VOLVER
+    // ==========================
+    @FXML private Button btnVolver;
+
+    // ==========================
     //  INITIALIZE
     // ==========================
     @Override
@@ -111,7 +116,6 @@ public class TablasTienda implements Initializable {
 
         if (cantidadIngresada <= 0) {
             mostrarAlerta("La cantidad debe ser mayor a 0.");
-
             return;
         }
 
@@ -189,10 +193,6 @@ public class TablasTienda implements Initializable {
         }
 
         actualizarTotal();
-
-        //colCantidadAdd.clear();//
-
-
         colCantidadAdd.setText("1");
     }
 
@@ -204,7 +204,6 @@ public class TablasTienda implements Initializable {
         ItemCarrito seleccionado = tablaCarrito.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
 
-        // Ahora elimina el producto completo del carrito
         listaCarrito.remove(seleccionado);
         actualizarTotal();
     }
@@ -275,7 +274,8 @@ public class TablasTienda implements Initializable {
     private void cargarProductos() {
         listaProductos.clear();
 
-        String sql = "SELECT Id_Producto, Categoria, Nombre, Descripcion, Stock, Precio FROM Producto";
+        // Usamos el procedimiento almacenado
+        final String sql = "{ CALL sp_listar_productos() }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -368,8 +368,6 @@ public class TablasTienda implements Initializable {
     // ==========================
     //  VOLVER
     // ==========================
-    @FXML private Button btnVolver;
-
     @FXML
     private void volverMenu1() {
         try {
@@ -382,3 +380,4 @@ public class TablasTienda implements Initializable {
         }
     }
 }
+

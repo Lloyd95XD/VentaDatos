@@ -199,7 +199,6 @@ public class ZonaPagoController implements Initializable {
 
             actualizando[0] = false;
 
-            // Cada vez que cambia el RUT, se resetea el descuento mostrado
             if (lblDescuentoInfo != null) {
                 lblDescuentoInfo.setText("");
             }
@@ -446,7 +445,6 @@ public class ZonaPagoController implements Initializable {
         limpiarEstiloCampo(txtCVV);
         limpiarEstiloCampo(txtRutCliente);
         limpiarEstiloCampo(txtMontoEfectivo);
-        // NO limpio lblDescuentoInfo aquí para no borrar el preview solo por tocar otra cosa
     }
 
     // ==========================
@@ -662,13 +660,11 @@ public class ZonaPagoController implements Initializable {
             return;
         }
 
-        // Variables para guardar en BD y mostrar en boleta
         Integer montoEfectivoDB = null;
         Integer vueltoDB = null;
         String marcaTarjetaDB = null;
         String ultimos4DB = null;
 
-        // Si es tarjeta, validar y preparar datos
         if ("Visa".equals(metodo) || "Mastercard".equals(metodo)) {
             if (!validarDatosTarjeta(metodo)) {
                 return;
@@ -682,7 +678,6 @@ public class ZonaPagoController implements Initializable {
             }
         }
 
-        // Validar RUT cliente opcional con fórmula 11
         Integer rutCliente = null;
         if (!rutF.isEmpty()) {
             String rutLimpio = rutF.replace(".", "").replace("-", "").toUpperCase();
@@ -711,7 +706,6 @@ public class ZonaPagoController implements Initializable {
             rutCliente = Integer.parseInt(cuerpo);
         }
 
-        // Descuento por segunda compra
         int descuento = 0;
         int totalFinal = totalAPagar;
 
@@ -720,7 +714,6 @@ public class ZonaPagoController implements Initializable {
             totalFinal = totalAPagar - descuento;
         }
 
-        // Validar efectivo contra totalFinal
         if ("Efectivo".equals(metodo)) {
             String montoStr = txtMontoEfectivo != null ? txtMontoEfectivo.getText().trim() : "";
             if (montoStr.isEmpty()) {
@@ -752,7 +745,6 @@ public class ZonaPagoController implements Initializable {
             }
         }
 
-        // Insertar venta
         int idBoleta = insertarVenta(
                 totalFinal,
                 metodo,
@@ -816,7 +808,7 @@ public class ZonaPagoController implements Initializable {
             return;
         }
 
-        int totalFinal = totalAPagar; // Aquí podrías replicar lógica de descuento si quieres que considere el RUT también
+        int totalFinal = totalAPagar; // aquí podrías replicar la lógica de descuento si quieres
 
         if (monto < totalFinal) {
             setMensajeError("El monto en efectivo no alcanza para pagar el total.");
@@ -830,6 +822,10 @@ public class ZonaPagoController implements Initializable {
         }
     }
 
+    // ==========================
+    // AHORA VIENEN LAS PARTES QUE CAMBIAN A PROCEDIMIENTOS
+    // ==========================
+
     private int insertarVenta(int totalFinal,
                               String metodo,
                               String direccion,
@@ -840,21 +836,16 @@ public class ZonaPagoController implements Initializable {
                               String marcaTarjeta,
                               String ultimos4Tarjeta) {
 
-        String sql = """
-            INSERT INTO venta
-            (Id_Usuario, Id_Sucursales, Precio_Total, Metodo_de_pago, Direccion,
-             Rut_Cliente, Descuento, Monto_Efectivo, Vuelto, Marca_Tarjeta, Ultimos_4_Tarjeta)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+        String sql = "{ CALL sp_insertar_venta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, idUsuario);
             stmt.setInt(2, idSucursalUsuario);
             stmt.setInt(3, totalFinal);
             stmt.setString(4, metodo);
-            stmt.setString(5, direccion.isEmpty() ? null : direccion);
+            stmt.setString(5, (direccion == null || direccion.isEmpty()) ? null : direccion);
 
             if (rutCliente == null)
                 stmt.setNull(6, Types.INTEGER);
@@ -883,10 +874,14 @@ public class ZonaPagoController implements Initializable {
             else
                 stmt.setString(11, ultimos4Tarjeta);
 
-            stmt.executeUpdate();
+            boolean tieneRS = stmt.execute();
 
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) return keys.getInt(1);
+            if (tieneRS) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    if (rs.next()) {
+                        return rs.getInt("Id_Boleta");
+                    }
+                }
             }
 
         } catch (Exception e) {
@@ -897,10 +892,7 @@ public class ZonaPagoController implements Initializable {
 
     private void insertarDetalles(int idBoleta) {
 
-        String sql = """
-            INSERT INTO detalles_ventas (Id_Boleta, Id_Producto, Cantidad_de_compras)
-            VALUES (?, ?, ?)
-        """;
+        String sql = "{ CALL sp_insertar_detalle_venta(?, ?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -920,16 +912,14 @@ public class ZonaPagoController implements Initializable {
 
     private void actualizarStock() {
 
-        String sql = """
-            UPDATE producto SET Stock = Stock - ? WHERE Id_Producto = ?
-        """;
+        String sql = "{ CALL sp_actualizar_stock_producto(?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             for (ItemCarrito item : carrito) {
-                stmt.setInt(1, item.getCantidad());
-                stmt.setInt(2, item.getIdProducto());
+                stmt.setInt(1, item.getIdProducto());
+                stmt.setInt(2, item.getCantidad());
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -940,13 +930,18 @@ public class ZonaPagoController implements Initializable {
     }
 
     private boolean clienteYaComproAntes(int rutCliente) {
-        String sql = "SELECT COUNT(*) AS total FROM venta WHERE Rut_Cliente = ?";
+
+        String sql = "{ CALL sp_contar_compras_por_rut(?) }";
+
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, rutCliente);
+
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return rs.getInt("total") >= 1;
+                if (rs.next()) {
+                    return rs.getInt("total") >= 1;
+                }
             }
 
         } catch (Exception e) {
@@ -1031,7 +1026,6 @@ public class ZonaPagoController implements Initializable {
         if (rut != null && !rut.isEmpty()) sb.append("Rut cliente: ").append(rut).append("\n");
         if (direccion != null && !direccion.isEmpty()) sb.append("Dirección: ").append(direccion).append("\n");
 
-        // Datos extra según método
         if (metodoPago != null) {
             String lower = metodoPago.toLowerCase();
 

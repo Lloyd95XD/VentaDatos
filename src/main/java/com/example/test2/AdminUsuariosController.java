@@ -83,7 +83,7 @@ public class AdminUsuariosController implements Initializable {
                     setText(null);
                     return;
                 }
-                setText(valor == 1 ? "Si" : "No");
+                setText(valor == 1 ? "Sí" : "No");
                 setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
             }
         });
@@ -114,6 +114,7 @@ public class AdminUsuariosController implements Initializable {
 
         tablaUsuarios.setEditable(true);
 
+        // ⚠️ ADVERTENCIA: Cambiar Id_Usuario puede romper las FK
         colRut.setCellFactory(TextFieldTableCell.forTableColumn());
         colRut.setOnEditCommit(event -> {
             DatosControlador u = event.getRowValue();
@@ -151,14 +152,16 @@ public class AdminUsuariosController implements Initializable {
     }
 
     private boolean actualizarCampoUsuario(String columna, String nuevo, String idActual) {
-        String sql = "UPDATE Usuario SET " + columna + " = ? WHERE Id_Usuario = ?";
+        String sql = "{ CALL sp_actualizar_campo_usuario_perfil(?, ?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, nuevo);
-            stmt.setString(2, idActual);
-            stmt.executeUpdate();
+            stmt.setString(1, columna);
+            stmt.setString(2, nuevo);
+            stmt.setString(3, idActual);
+
+            stmt.execute();
             return true;
 
         } catch (Exception e) {
@@ -168,11 +171,12 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
     private void cargarRoles() {
         cbRol.getItems().clear();
         mapaRoles.clear();
 
-        String sql = "SELECT Id_Rol, Nombre_Rol FROM rol";
+        String sql = "{ CALL sp_listar_roles() }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -188,11 +192,12 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
     private void cargarSucursales() {
         cbSucursal.getItems().clear();
         mapaSucursales.clear();
 
-        String sql = "SELECT Id_Sucursales, localidad FROM sucursales";
+        String sql = "{ CALL sp_listar_sucursales() }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -208,18 +213,12 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
     private void cargarUsuarios() {
 
         listaUsuarios.clear();
 
-        String sql = """
-            SELECT u.Id_Usuario, u.Nombre, u.Apellido, u.Email, u.Telefono,
-                   u.Fecha_creacion_de_cuenta, u.Admin, u.Id_Rol, r.Nombre_Rol,
-                   u.Id_Sucursales, s.localidad, u.Suspendido
-            FROM Usuario u
-            LEFT JOIN rol r ON u.Id_Rol = r.Id_Rol
-            LEFT JOIN sucursales s ON u.Id_Sucursales = s.Id_Sucursales
-        """;
+        String sql = "{ CALL sp_listar_usuarios_completos() }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -253,6 +252,7 @@ public class AdminUsuariosController implements Initializable {
         }
     }
 
+
     private void mostrarUsuarioSeleccionado(DatosControlador u) {
         if (u == null) {
             lblUsuarioSeleccionado.setText("(ninguno)");
@@ -278,14 +278,15 @@ public class AdminUsuariosController implements Initializable {
         Integer idRol = mapaRoles.get(cbRol.getValue());
         Integer idSuc = mapaSucursales.get(cbSucursal.getValue());
 
-        String sql = "UPDATE Usuario SET Id_Rol = ?, Id_Sucursales = ? WHERE Id_Usuario = ?";
+        String sql = "{ CALL sp_actualizar_rol_sucursal_usuario(?, ?, ?) }";
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, idRol);
-            stmt.setInt(2, idSuc);
-            stmt.setString(3, u.getIdUsuario());
+            // ✔ ORDEN CORRECTO
+            stmt.setString(1, u.getIdUsuario());
+            stmt.setInt(2, idRol);
+            stmt.setInt(3, idSuc);
 
             stmt.executeUpdate();
 
@@ -302,6 +303,7 @@ public class AdminUsuariosController implements Initializable {
             lblMensaje.setText("Error guardando cambios");
         }
     }
+
 
     @FXML
     private void SuspenderCuenta() {
@@ -332,13 +334,16 @@ public class AdminUsuariosController implements Initializable {
 
         int nuevoEstado = suspendido ? 0 : 1;
 
-        String sql = "UPDATE Usuario SET Suspendido = ? WHERE Id_Usuario = ?";
+        String sql = "{ CALL sp_actualizar_suspension_usuario(?, ?) }";
+
 
         try (Connection conn = ConexionBD.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, nuevoEstado);
-            stmt.setString(2, u.getIdUsuario());
+            // ✔ ORDEN CORRECTO (ARREGLADO)
+            stmt.setString(1, u.getIdUsuario()); // p_id_usuario
+            stmt.setInt(2, nuevoEstado);         // p_suspendido
+
             stmt.executeUpdate();
 
             u.setSuspendido(nuevoEstado);
