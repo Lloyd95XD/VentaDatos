@@ -5,8 +5,8 @@ import java.sql.DriverManager;
 //
 public class ConexionBD {
     private static final String URL  = "jdbc:mysql://localhost:3306/gestor_de_ventas?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = ""; // sin contraseña (XAMPP por defecto)
+    private static final String USER = "jorge";
+    private static final String PASS = "1234"; // contraseña
 
     public static Connection conectar() {
         try {
